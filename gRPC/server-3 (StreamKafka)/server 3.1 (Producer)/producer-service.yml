@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: producerservicepool
+spec:
+  clusterIP: None
+  selector:
+    app: producerservice
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 50031
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: producervolumeclaim
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+  storageClassName: nfs-client
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producerservicedeployment
+  labels:
+    team: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producerservice
+  template:
+    metadata:
+      labels:
+        app: producerservice
+    spec:
+      containers:
+      - name: producerservice
+        image: 127.0.0.1:10000/producer-service
+        ports:
+          - containerPort: 50031
+        volumeMounts:
+        - name: producerdeploymentdataclaim
+          mountPath: /assets
+          subPath: producerassetslink.data
+
+      volumes:
+        - name: producerdeploymentdataclaim
+          persistentVolumeClaim:
+            claimName: producervolumeclaim

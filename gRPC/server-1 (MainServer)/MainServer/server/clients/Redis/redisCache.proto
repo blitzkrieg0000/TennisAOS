@@ -1,0 +1,36 @@
+syntax = "proto3";
+package producer;
+
+// Service
+service redisCache {
+  rpc writeCache(writeCacheRequest) returns (writeCacheResponse) {}
+  rpc isCached(isCachedDataRequest) returns (isCachedResponse) {}
+  rpc readCache(readCacheDataRequest) returns (readCacheResponse) {}
+}
+
+// Request Name
+message isCachedDataRequest {
+  string query=1;
+}
+
+message writeCacheRequest {
+  bytes query=1;
+}
+
+message readCacheDataRequest {
+  bytes query=1;
+}
+
+
+// Response Array
+message isCachedResponse{
+  bytes data=1;
+}
+
+message writeCacheResponse{
+  string key=1;
+}
+
+message readCacheResponse{
+  bytes data=1;
+}

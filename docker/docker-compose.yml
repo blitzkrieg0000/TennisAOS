@@ -1,0 +1,212 @@
+version: '3'
+services:
+  # SERVERS
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.1.1
+    hostname: zookeeper
+    container_name: zookeeper
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
+  broker:
+    image: confluentinc/cp-kafka:7.1.1
+    hostname: broker
+    container_name: broker
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "9092:9092"
+      - "9101:9101"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TOPIC_CREATION_ENABLE: 1
+      KAFKA_CONFLUENT_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_DELETE_TOPIC_ENABLE: 'true'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+    volumes:
+      - broker0:/var/lib/kafka/data
+  postgres:
+    image: postgres
+    hostname: postgres
+    container_name: postgres
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: tenis
+      POSTGRES_PASSWORD: 2sfcNavA89A294V4
+      POSTGRES_DB: tenis
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+  redis:
+    image: redis
+    hostname: redis
+    container_name: redis
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "6379:6379"
+    environment:
+      POSTGRES_USER: tenis
+      POSTGRES_PASSWORD: 2sfcNavA89A294V4
+      POSTGRES_DB: tenis
+      PGDATA: /var/lib/postgresql/data/pgdata
+      POSTGRES_HOST_AUTH_METHOD: trust
+    volumes:
+      - postgresql:/var/lib/postgresql/data
+  kafdrop:
+    image: obsidiandynamics/kafdrop
+    hostname: kafdrop
+    container_name: kafdrop
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "broker:9092"
+      JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+  
+  # SERVICES
+  mainservice:
+    image: mainservice
+    build: "../gRPC/server-1 (MainServer)/"
+    hostname: mainservice
+    container_name: mainservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50011:50011"
+  detectcourtlinesservice:
+    image: detectcourtlinesservice
+    build: "../gRPC/server-2 (Algorithms)/DCL/"
+    hostname: detectcourtlinesservice
+    container_name: detectcourtlinesservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50021:50021"
+  predictfallpositionservice:
+    image: predictfallpositionservice
+    build: "../gRPC/server-2 (Algorithms)/PFP/"
+    hostname: predictfallpositionservice
+    container_name: predictfallpositionservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50023:50023"
+  trackballservice:
+    image: trackballservice
+    build: "../gRPC/server-2 (Algorithms)/TB/"
+    hostname: trackballservice
+    container_name: trackballservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50022:50022"
+  producerservice:
+    image: producerservice
+    build: "../gRPC/server-3 (StreamKafka)/server 3.1 (Producer)/"
+    hostname: producerservice
+    container_name: producerservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50031:50031"
+  consumerservice:
+    image: consumerservice
+    build: "../gRPC/server-3 (StreamKafka)/server-3.2 (Consumer)/"
+    hostname: consumerservice
+    container_name: consumerservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50032:50032"
+  postgresservice:
+    image: postgresservice
+    build: "../gRPC/server-4 (Postgresql)/"
+    hostname: postgresservice
+    container_name: postgresservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50041:50041"
+  redisservice:
+    image: redisservice
+    build: "../gRPC/server-5 (Redis)/"
+    hostname: redisservice
+    container_name: redisservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50051:50051"
+
+  #TRITON
+  triton:
+    image: nvcr.io/nvidia/tritonserver:22.05-py3
+    entrypoint: /bin/bash
+    command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false"
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - models:/models
+
+volumes:
+  broker0:
+    driver_opts:
+      type: "nfs"
+      o: "addr=192.168.1.100,nolock,soft,rw"
+      device: ":/srv/nfs/mydata/docker-tennis/broker0"
+  zookeeper_data:
+    driver_opts:
+      type: "nfs"
+      o: "addr=192.168.1.100,nolock,soft,rw"
+      device: ":/srv/nfs/mydata/docker-tennis/zookeeper_data"
+  zookeeper_log:
+    driver_opts:
+      type: "nfs"
+      o: "addr=192.168.1.100,nolock,soft,rw"
+      device: ":/srv/nfs/mydata/docker-tennis/zookeeper_log"
+  postgresql:
+    driver_opts:
+      type: "nfs"
+      o: "addr=192.168.1.100,nolock,soft,rw"
+      device: ":/srv/nfs/mydata/docker-tennis/postgresql"
+  models:
+    driver_opts:
+      type: "nfs"
+      o: "addr=192.168.1.100,nolock,soft,rw"
+      device: ":/srv/nfs/mydata/docker-tennis/models"
+
+networks:
+  tennisnet:
+    driver: bridge

@@ -1,0 +1,18 @@
+FROM ubuntu:latest
+
+WORKDIR /usr/src/app
+
+COPY requirements.txt .
+
+RUN export DEBIAN_FRONTEND=noninteractive &&\
+    apt-get update &&\
+    apt-get install apt-utils -y &&\
+    apt-get install python3 -y &&\
+    apt-get install python3-pip -y &&\
+    apt-get install librdkafka-dev -y &&\
+    apt-get install ffmpeg libsm6 libxext6 -y &&\
+    python3 -m pip install --upgrade pip &&\
+    pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+CMD [ "python3", "Producer/server/producer_server.py" ]

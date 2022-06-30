@@ -1,0 +1,52 @@
+import logging
+from concurrent import futures
+import pickle
+import numpy as np
+import cv2
+import grpc
+import trackBall_pb2 as rc
+import trackBall_pb2_grpc as rc_grpc
+from libs.trackNet_onnx import TrackNetObjectDetection
+
+class TBServer(rc_grpc.trackBallServicer):
+
+    def __init__(self):
+        #TODO objenin sıfırlanması gerekiyor: v2
+        self.detectors = {}
+        self.detector = TrackNetObjectDetection()
+    
+    def obj2bytes(self, obj):
+        return pickle.dumps(obj)
+
+    def bytes2obj(self, bytes):
+        return pickle.loads(bytes)
+
+    def findTennisBallPosition(self, request, context):
+        #TODO Birden fazla client için tasarlanacak.
+
+        nparr = np.frombuffer(request.tensor, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        canvas = frame.copy()
+        
+        if not request.name in self.detectors.keys():
+            self.detectors[request.name] = TrackNetObjectDetection()
+        
+        (draw_x, draw_y), canvas = self.detectors[request.name].detect(frame, canvas, draw=True)
+        return rc.trackBallResponse(point=self.obj2bytes([draw_x, draw_y]))
+
+
+    def deleteDetector(self, request, context):
+        if request.data in self.detectors.keys():
+            self.detectors.pop(request.data)
+        return rc.deleteDetectorResponse(data="OK")
+
+
+def serve():
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    rc_grpc.add_trackBallServicer_to_server(TBServer(), server)
+    server.add_insecure_port('[::]:50022')
+    server.start()
+    server.wait_for_termination()
+
+logging.basicConfig()
+serve()

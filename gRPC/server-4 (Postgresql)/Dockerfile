@@ -1,0 +1,12 @@
+FROM python:3.10.5-alpine3.16
+
+WORKDIR /usr/src/app
+
+COPY requirements.txt ./
+
+RUN python -m pip install --upgrade pip &&\
+    pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD [ "python", "Postgres/server/postgres_server.py" ]

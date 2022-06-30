@@ -1,0 +1,27 @@
+syntax = "proto3";
+package cache;
+
+// Service
+service trackBall {
+  rpc findTennisBallPosition(trackBallRequest) returns (trackBallResponse) {}
+  rpc deleteDetector(deleteDetectorRequest) returns (deleteDetectorResponse) {}
+
+}
+
+// Request Name
+// TODO Tensor halinde gönderilecek
+message trackBallRequest {
+  bytes tensor=1;
+  string name=2;
+}
+message deleteDetectorRequest {
+  string data=1;
+}
+
+
+message trackBallResponse{
+  bytes point=1;
+}
+message deleteDetectorResponse {
+  string data=1;
+}

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redisservicepool
+spec:
+  clusterIP: None
+  selector:
+    app: redisservice
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 50051
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redisservicedeployment
+  labels:
+    team: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redisservice
+  template:
+    metadata:
+      labels:
+        app: redisservice
+    spec:
+      containers:
+      - name: redisservice
+        image: 127.0.0.1:10000/redis-service
+        ports:
+          - containerPort: 50051
+        resources:
+          requests:
+            ephemeral-storage: "1Gi"
+          limits:
+            ephemeral-storage: "1Gi"

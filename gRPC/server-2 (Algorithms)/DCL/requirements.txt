@@ -1,0 +1,9 @@
+numpy
+sympy
+protobuf
+grpcio
+requests
+certifi
+opencv-python
+opencv-contrib-python
+confluent-kafka==1.8.2

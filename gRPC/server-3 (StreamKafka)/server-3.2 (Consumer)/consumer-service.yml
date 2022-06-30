@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: consumerservicepool
+spec:
+  clusterIP: None
+  selector:
+    app: consumerservice
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 50032
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumerservicedeployment
+  labels:
+    team: development
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consumerservice
+  template:
+    metadata:
+      labels:
+        app: consumerservice
+    spec:
+      containers:
+      - name: consumerservice
+        image: 127.0.0.1:10000/consumer-service
+        ports:
+          - containerPort: 50032

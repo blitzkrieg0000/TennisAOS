@@ -1,0 +1,22 @@
+syntax = "proto3";
+package stream;
+ 
+// Service
+service mainRouterServer {
+  rpc detectCourtLinesController(requestData) returns (responseData) {}
+  rpc gameObservationController(requestData) returns (responseData) {}
+  rpc getStreamingThreads(requestData) returns (responseData) {}
+  rpc getRunningConsumers(requestData) returns (responseData) {}
+  rpc stopRunningConsumer(requestData) returns (responseData) {}
+  rpc stopAllRunningConsumers(requestData) returns (responseData) {}
+}
+
+// Request Name
+message requestData {
+  bytes data=1;
+}
+
+// Response Array
+message responseData{
+  bytes data=1;
+}

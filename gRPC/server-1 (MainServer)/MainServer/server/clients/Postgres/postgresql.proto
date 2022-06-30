@@ -1,0 +1,44 @@
+syntax = "proto3";
+package producer;
+
+// Service
+service postgresql {
+  rpc executeSelectQuery(executeSelectQueryRequest) returns (executeSelectQueryResponse) {}
+  rpc executeInsertQuery(executeInsertQueryRequest) returns (executeInsertQueryResponse) {}
+  rpc connect2DB(connect2DBRequest) returns (connect2DBResponse) {}
+  rpc disconnectDB(disconnectDBRequest) returns (disconnectDBResponse) {}
+}
+
+// Request Name
+message executeSelectQueryRequest {
+  bytes query=1;
+}
+
+message executeInsertQueryRequest {
+  bytes query=1;
+}
+
+message connect2DBRequest{
+  string host=1;
+  string database=2;
+  string user=3;
+  string password=4;
+}
+
+message disconnectDBRequest{
+  string data=1;
+}
+
+// Response Array
+message executeSelectQueryResponse{
+  bytes result=1;
+}
+message executeInsertQueryResponse{
+  string result=1;
+}
+message connect2DBResponse{
+  string result=1;
+}
+message disconnectDBResponse{
+  string result=1;
+}
