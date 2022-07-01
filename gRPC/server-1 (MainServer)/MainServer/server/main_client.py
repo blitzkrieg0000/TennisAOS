@@ -56,11 +56,12 @@ if __name__ == "__main__":
     import numpy as np
 
     mc = MainClient()
+
+    # DATAS BY SENT CLIENT
     data={}
     data["id"] = 1
     data["force"] = False
     data["limit"] = -1
-
 
     data["player_id"] = 1
     data["court_id"] = 1
@@ -69,45 +70,51 @@ if __name__ == "__main__":
     data["score"] = 4
     data["ball_position_area"] = []
     data["player_position_area"] = []
-
-    #!ADIM 1
-    res = mc.detectCourtLines(data)
-    #logging.info(f"Tennis Court Array:{res}\n")
-
-    logging.info("1", res)
-    points = mc.bytes2obj(res)
-
-    cam = cv2.VideoCapture("gRPC/assets/videos/throw_videos/throw_2.mp4")
-    ret, cimage = cam.read()
-    for i, line in enumerate(points):
-        if len(line)>0:
-            cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
-        if i==10:
-            break
-
-    cv2.imshow("", cimage)
-    cv2.waitKey(0)
-    cam.release()
-
-    #!ADIM 2
-    # res = mc.startGameObservation(data)
-    # cam = cv2.VideoCapture("gRPC/assets/videos/throw_videos/throw_2.mp4")
-    # ret, cimage = cam.read()
-    # for p in res:
-    #     cimage = cv2.circle(cimage, (int(p[0]),int(p[1])), 5, (0,255,0),1)
-
-    # cv2.imshow("", cimage)
-    # cv2.waitKey(0)
+    
 
 
-    #!GET STREAMING THREADS
-    # res = mc.getStreamingThreads()
+    TEST=1
 
-    #!ADIM3
-    # data = mc.getRunningConsumers()
-    # logging.info(data)
+    if TEST==1:
+        #!ADIM 1
+        res = mc.detectCourtLines(data)
 
-    #!ADIM4
-    # data = {}
-    # data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
-    # res = mc.stopRunningConsumer(data)
+        logging.info("1", res)
+        points = mc.bytes2obj(res)
+
+        cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
+        ret, cimage = cam.read()
+        for i, line in enumerate(points):
+            if len(line)>0:
+                cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
+            if i==10:
+                break
+
+        cv2.imshow("", cimage)
+        cv2.waitKey(0)
+        cam.release()
+
+    elif TEST==2:
+        #!ADIM 2
+        res = mc.startGameObservation(data)
+        cam = cv2.VideoCapture("gRPC/assets/videos/throw_videos/throw_2.mp4")
+        ret, cimage = cam.read()
+        for p in res:
+            cimage = cv2.circle(cimage, (int(p[0]),int(p[1])), 5, (0,255,0),1)
+
+        cv2.imshow("", cimage)
+        cv2.waitKey(0)
+
+    elif TEST==4:
+        #!GET STREAMING THREADS
+        res = mc.getStreamingThreads()
+
+        #!ADIM3
+        data = mc.getRunningConsumers()
+        logging.info(data)
+
+    elif TEST==5:
+        #!ADIM4
+        data = {}
+        data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
+        res = mc.stopRunningConsumer(data)

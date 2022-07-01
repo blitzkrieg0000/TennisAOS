@@ -86,10 +86,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             
             # TODO
             #? SADECE TEK BİR FRAME İÇİN PRODUCE VE CONSUME YAPMAK NE KADAR MANTIKLI ?
-
+            
             #? 3-KAFKA_PRODUCER:
             # Streaming başlat
             threadName = self.kpm.startProduce(newCreatedTopicName, streamUrl, limit=1)
+            _ = self.kpm.getProducerThreads()
             
             #? 4-KAFKA_CONSUMER:
             # Streaming oku

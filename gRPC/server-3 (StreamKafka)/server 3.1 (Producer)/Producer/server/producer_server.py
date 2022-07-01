@@ -28,7 +28,7 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
         return responseData
 
     def getProducerThreads(self, request, context):
-        th = self.obj2bytes(self.kafkaManager.producer_thread_statuses)
+        th = self.obj2bytes(self.kafkaManager.getProducerThreads())
         return rc.getProducerThreadsResponse(data=th)
 
     def stopAllProducerThreads(self, request, context):

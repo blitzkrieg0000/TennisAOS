@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 services:
   # SERVERS
   zookeeper:
@@ -65,6 +65,8 @@ services:
       - tennisnet
     ports:
       - "6379:6379"
+    depends_on:
+      - postgres
     environment:
       POSTGRES_USER: tenis
       POSTGRES_PASSWORD: 2sfcNavA89A294V4
@@ -82,6 +84,8 @@ services:
       - tennisnet
     ports:
       - "9000:9000"
+    depends_on:
+      - broker
     environment:
       KAFKA_BROKERCONNECT: "broker:9092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
@@ -135,6 +139,8 @@ services:
       - tennisnet
     ports:
       - "50022:50022"
+    depends_on:
+      - triton
   producerservice:
     image: producerservice
     build: 
@@ -162,6 +168,8 @@ services:
       - tennisnet
     ports:
       - "50032:50032"
+    depends_on:
+      - producerservice
   postgresservice:
     image: postgresservice
     build: 
@@ -186,7 +194,8 @@ services:
       - tennisnet
     ports:
       - "50051:50051"
-
+    depends_on:
+      - postgresservice
   #TRITON
   triton:
     image: nvcr.io/nvidia/tritonserver:22.05-py3
@@ -198,6 +207,13 @@ services:
       - "8002:8002"
     volumes:
       - models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 volumes:
   broker0:

@@ -16,7 +16,7 @@ class PostgresManager(object):
                 logging.info("PostgreSQL Bağlantısı Kuruldu!")
                 return "PostgreSQL Bağlantısı Kuruldu!"
             except Exception as e:
-                logging.info(f"PostgreSQL Bir Sorunla Karşılaşıldı: {e}")
+                logging.warning(f"PostgreSQL Bir Sorunla Karşılaşıldı: {e}")
                 return f"PostgreSQL Bir Sorunla Karşılaşıldı: {e}"
         return "Postgres Zaten Bağlı"
     #end        

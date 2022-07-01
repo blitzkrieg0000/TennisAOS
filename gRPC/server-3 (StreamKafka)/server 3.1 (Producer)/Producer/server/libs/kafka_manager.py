@@ -20,7 +20,7 @@ class KafkaManager():
     def delivery_report(self, err, msg):
         # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
         if err is not None:
-            logging.info(f'Message delivery failed: {err}')
+            logging.warning(f'Message delivery failed: {err}')
         else:
         #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
             pass
@@ -42,7 +42,7 @@ class KafkaManager():
                     f.result()
                     logging.info(f"Topic {topic} created")
                 except Exception as e:
-                    logging.info(f"Failed to create topic {topic}: {e}") 
+                    logging.warning(f"Failed to create topic {topic}: {e}") 
 
     def deleteTopics(self, topic_list):
         delete_topic_recipies = []
@@ -55,7 +55,7 @@ class KafkaManager():
                     f.result()
                     logging.info(f"Topic {topic} deleted")
                 except Exception as e:
-                    logging.info(f"Failed to delete topic {topic}: {e}")
+                    logging.warning(f"Failed to delete topic {topic}: {e}")
 
     def updateTopics(self, topicName):
         topics = set(self.getTopicList().topics.keys())
@@ -63,15 +63,28 @@ class KafkaManager():
         newTopicName = set([topicName])
         self.createTopics((newTopicName - existTopics))
 
+    def updateThreads(self):
+        # Eğer bu thread yoksa temizle
+        running_threads = [thread.name for thread in threading.enumerate()]
+        for item in self.producer_thread_statuses.keys():
+            if not item in running_threads:
+                try:
+                    self.producer_thread_statuses.pop(item)
+                    self.producer_threads.pop(item)
+                except: pass
+
+    def getProducerThreads(self):
+        self.updateThreads()
+        return self.producer_thread_statuses
+
     def stopProducerThread(self, thread_name):
         logging.info(f"THREAD: {thread_name} durdurulmaya çalışılacak.")
-        
         try:
-            if thread_name in self.producer_threads.keys():
+            if thread_name in [thread.name for thread in threading.enumerate()]:
                 if self.producer_threads[thread_name].is_alive():
                     self.producer_thread_statuses[thread_name] = False
         except Exception as e:
-            logging.info(e)
+            logging.warning(e)
 
     def stopAllProducerThreads(self):
         for x in self.producer_thread_statuses.keys():
@@ -79,7 +92,9 @@ class KafkaManager():
 
     def producers(func):
         def wrap(self, *args, **kwargs):
-            thread_name = f"{THREAD_PREFIX}{args[0]}"
+            items = args[0].split("-")
+
+            thread_name = f"{THREAD_PREFIX}{items[0]-items[1]}"
             if not kwargs.get("thName", False):
                 kwargs['thName'] = thread_name
 
@@ -151,6 +166,6 @@ class KafkaManager():
             self.producer_thread_statuses.pop(thName)
             self.limit_count.pop(thName)
         except KeyError as e:
-            logging.info(e)
+            logging.warning(e)
         finally:
             logging.info(f"Finish: {thName} - RET_LIMIT: {ret_limit}/10")

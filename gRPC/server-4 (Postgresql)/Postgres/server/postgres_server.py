@@ -35,7 +35,7 @@ class postgresServer(rc_grpc.postgresqlServicer):
             response = self.postgresManager.executeSelectQuery(query_obj["query"])
             response = self.bytes2obj(response)
         except Exception as e:
-            logging.info("ERROR(executeSelectQuery): ", e)
+            logging.warning("ERROR(executeSelectQuery): ", e)
 
         #TODO Dinamik olarak memoryviewler düzenlenecek: 2
         if response is not None:

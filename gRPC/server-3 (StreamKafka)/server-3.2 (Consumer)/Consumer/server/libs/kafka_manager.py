@@ -27,7 +27,7 @@ class ConsumerGen():
         try:
             self.consumer.close()
         except Exception as e:
-            logging.info(f"ConsumerGen: {e}")
+            logging.warning(f"ConsumerGen: {e}")
 
     def stopGen(self):
         self.stopFlag = True
