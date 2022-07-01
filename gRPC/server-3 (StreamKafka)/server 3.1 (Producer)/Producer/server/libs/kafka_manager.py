@@ -78,7 +78,7 @@ class KafkaManager():
         return self.producer_thread_statuses
 
     def stopProducerThread(self, thread_name):
-        logging.info(f"THREAD: {thread_name} durdurulmaya çalışılacak.")
+        logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
         try:
             if thread_name in [thread.name for thread in threading.enumerate()]:
                 if self.producer_threads[thread_name].is_alive():
@@ -94,12 +94,14 @@ class KafkaManager():
         def wrap(self, *args, **kwargs):
             items = args[0].split("-")
 
-            thread_name = f"{THREAD_PREFIX}{items[0]-items[1]}"
+            thread_name = f"{THREAD_PREFIX}{items[0]}-{items[1]}"
             if not kwargs.get("thName", False):
                 kwargs['thName'] = thread_name
 
             if not kwargs.get("limit", False):
                 kwargs['limit'] = -1
+
+            self.stopProducerThread(kwargs['thName'])
 
             t = threading.Thread(name=kwargs['thName'], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
