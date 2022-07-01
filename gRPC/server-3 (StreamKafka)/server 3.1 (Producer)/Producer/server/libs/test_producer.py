@@ -1,3 +1,4 @@
+import logging
 import cv2
 from confluent_kafka import Producer
 import consts

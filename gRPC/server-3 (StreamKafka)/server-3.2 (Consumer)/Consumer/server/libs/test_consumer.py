@@ -1,3 +1,4 @@
+import logging
 import cv2
 import numpy as np
 from confluent_kafka import Consumer

@@ -1,3 +1,4 @@
+import logging
 import queue
 import time
 import cv2

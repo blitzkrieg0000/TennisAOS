@@ -72,8 +72,8 @@ if __name__ == "__main__":
     data["player_position_area"] = []
     
 
+    TEST=2
 
-    TEST=1
 
     if TEST==1:
         #!ADIM 1
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     elif TEST==2:
         #!ADIM 2
         res = mc.startGameObservation(data)
-        cam = cv2.VideoCapture("gRPC/assets/videos/throw_videos/throw_2.mp4")
+        cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
         ret, cimage = cam.read()
         for p in res:
             cimage = cv2.circle(cimage, (int(p[0]),int(p[1])), 5, (0,255,0),1)

@@ -3,7 +3,7 @@ import tritonclient.grpc as grpcclient
 import logging
 class InferenceManager():
     def __init__(self):
-        self.url = "docker_triton_1:8001"
+        self.url = "docker-triton-1:8001" # docker-triton-1
         self.client_timeout = None
         self.grpc_compression_algorithm = None
         self.verbose = False
