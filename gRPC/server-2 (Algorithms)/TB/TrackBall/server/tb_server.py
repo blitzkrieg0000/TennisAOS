@@ -13,7 +13,6 @@ class TBServer(rc_grpc.trackBallServicer):
     def __init__(self):
         #TODO objenin sıfırlanması gerekiyor: v2
         self.detectors = {}
-        self.detector = TrackNetObjectDetection()
     
     def obj2bytes(self, obj):
         return pickle.dumps(obj)

@@ -79,12 +79,9 @@ class KafkaManager():
 
     def stopProducerThread(self, thread_name):
         logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
-        try:
-            if thread_name in [thread.name for thread in threading.enumerate()]:
-                if self.producer_threads[thread_name].is_alive():
+        if thread_name in [thread.name for thread in threading.enumerate()] and thread_name in self.producer_threads:
+            if self.producer_threads[thread_name].is_alive():
                     self.producer_thread_statuses[thread_name] = False
-        except Exception as e:
-            logging.warning(e)
 
     def stopAllProducerThreads(self):
         for x in self.producer_thread_statuses.keys():
@@ -92,7 +89,7 @@ class KafkaManager():
 
     def producers(func):
         def wrap(self, *args, **kwargs):
-            items = args[0].split("-")
+            items = args[0].split("-")   #{prefix}-{id}-{random_id} ->  streaming_thread_tenis_saha_1-0
 
             thread_name = f"{THREAD_PREFIX}{items[0]}-{items[1]}"
             if not kwargs.get("thName", False):
@@ -101,6 +98,7 @@ class KafkaManager():
             if not kwargs.get("limit", False):
                 kwargs['limit'] = -1
 
+            _ = self.getProducerThreads() # Updata
             self.stopProducerThread(kwargs['thName'])
 
             t = threading.Thread(name=kwargs['thName'], target=func, args=(self, *args), kwargs=kwargs)

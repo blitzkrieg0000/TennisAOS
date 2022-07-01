@@ -40,6 +40,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         return int.from_bytes(hl.md5(str(time.time()).encode("utf-8")).digest(), "big")
 
     def getTopicName(self, prefix, id):
+        prefix = prefix.replace("-","_")
         if prefix in self.EXCEPT_PREFIX:
             return prefix
         return f"{prefix}-{id}-{self.getUID()}"
@@ -83,14 +84,13 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
             
             
-            
+        
             # TODO
             #? SADECE TEK BİR FRAME İÇİN PRODUCE VE CONSUME YAPMAK NE KADAR MANTIKLI ?
             
             #? 3-KAFKA_PRODUCER:
             # Streaming başlat
             threadName = self.kpm.startProduce(newCreatedTopicName, streamUrl, limit=1)
-            _ = self.kpm.getProducerThreads()
             
             #? 4-KAFKA_CONSUMER:
             # Streaming oku
@@ -106,7 +106,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             #! 6-REDIS:
             # Tenis çizgilerini postgresqle kaydet
             self.saveCourtLinePoints(receivedData["id"], courtPoints)
-
             
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
@@ -147,7 +146,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
                 #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
                 #! 4-TRACKBALL (DETECTION)
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newCreatedTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
-                
+
                 points = self.bytes2obj(balldata)
                 all_points.append(points)
 
@@ -159,13 +158,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             fall_points = self.pfpc.predictFallPosition(all_points)
 
             # TODO 1-Database e noktaları kaydet.
+            # TODO 2-Puanlama yap
             receivedData["ball_position_area"] = self.obj2bytes(all_points)
             receivedData["player_position_area"] = self.obj2bytes([])
-
             self.savePlayingData(receivedData["id"], receivedData)
 
-
-            # TODO 2-Puanlama yap
             return rc.responseData(data=fall_points)
 
     def getStreamingThreads(self, request, context):
