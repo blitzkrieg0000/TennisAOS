@@ -1,10 +1,11 @@
+from http.client import ImproperConnectionState
 from itertools import combinations
 
 import cv2
 import numpy as np
 from sympy import Line
 from libs.court_reference import CourtReference
-
+import logging
 class CourtDetector():
     def __init__(self):
         self.court_reference = CourtReference()
