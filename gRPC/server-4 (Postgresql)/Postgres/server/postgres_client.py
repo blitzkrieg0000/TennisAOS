@@ -7,10 +7,10 @@ import pickle
 
 class PostgresDatabaseClient():
     def __init__(self) -> None:
-        self.channel = grpc.insecure_channel('postgresservicepool.default.svc.cluster.local:50041')
+        self.channel = grpc.insecure_channel('postgresservice:50041')
         self.stub = rc_grpc.postgresqlStub(self.channel)
 
-    def connect2DB(self, host="postgresqlpool.default.svc.cluster.local", database="tenis", user="tenis", password="2sfcNavA89A294V4"):
+    def connect2DB(self, host="postgres", database="tenis", user="tenis", password="2sfcNavA89A294V4"):
         requestData = rc.connect2DBRequest(host=host, database=database, user=user, password=password)
         response = self.stub.connect2DB(requestData)
         return response.result

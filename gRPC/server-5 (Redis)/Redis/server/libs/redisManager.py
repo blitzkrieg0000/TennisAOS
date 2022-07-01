@@ -1,10 +1,10 @@
 import json
 import pickle
 import redis
-
+import logging
 class RedisManager(object):
     def __init__(self):
-        self.r = redis.StrictRedis(host='redispool.default.svc.cluster.local', port=6379, db=0)
+        self.r = redis.StrictRedis(host='redis', port=6379, db=0)
         self.keyTypes = {"list":"L", "hash": "D", "string": "J"}
 
     def write(self, key, value, val_type=None):

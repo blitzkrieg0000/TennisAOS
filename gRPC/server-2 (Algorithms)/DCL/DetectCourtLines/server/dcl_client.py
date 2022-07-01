@@ -11,7 +11,7 @@ import cv2
 
 class DCLClient():
     def __init__(self):
-        self.channel = grpc.insecure_channel('detectcourtlineservicepool.default.svc.cluster.local:50021')
+        self.channel = grpc.insecure_channel('detectcourtlineservice:50021')
         self.stub = rc_grpc.detectCourtLineStub(self.channel)
     
     def img2bytes(self, image):

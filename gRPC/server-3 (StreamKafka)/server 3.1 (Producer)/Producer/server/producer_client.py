@@ -9,7 +9,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:
 class KafkaProducerManager():
 
     def __init__(self):
-        self.channel = grpc.insecure_channel('producerservicepool.default.svc.cluster.local:50031')
+        self.channel = grpc.insecure_channel('producerservice:50031')
         self.stub = rc_grpc.kafkaProducerStub(self.channel)
 
     def obj2bytes(self, obj):

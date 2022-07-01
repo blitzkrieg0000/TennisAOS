@@ -8,7 +8,7 @@ import redisCache_pb2_grpc as rc_grpc
 class RedisCacheManager():
 
     def __init__(self):
-        self.channel = grpc.insecure_channel('redisservicepool.default.svc.cluster.local:50051')
+        self.channel = grpc.insecure_channel('redisservice:50051')
         self.stub = rc_grpc.redisCacheStub(self.channel)
 
     def bytes2obj(self, bytes):

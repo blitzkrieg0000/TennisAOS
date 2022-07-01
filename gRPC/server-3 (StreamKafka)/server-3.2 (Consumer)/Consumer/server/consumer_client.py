@@ -7,7 +7,7 @@ import numpy as np
 import cv2
 class KafkaConsumerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('consumerservicepool.default.svc.cluster.local:50032')
+        self.channel = grpc.insecure_channel('consumerservice:50032')
         self.stub = rc_grpc.kafkaConsumerStub(self.channel)
 
     def bytes2frame(self, byte_img ):

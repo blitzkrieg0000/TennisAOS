@@ -7,7 +7,7 @@ import predictFallPosition_pb2_grpc as rc_grpc
 
 class PFPClient():
     def __init__(self):
-        self.channel = grpc.insecure_channel('predictfallpositionservicepool.default.svc.cluster.local:50023')
+        self.channel = grpc.insecure_channel('predictfallpositionservice:50023')
         self.stub = rc_grpc.predictFallPositionStub(self.channel)
     
     def obj2bytes(self, obj):
