@@ -15,7 +15,7 @@ from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 class MainServer(rc_grpc.mainRouterServerServicer):
     EXCEPT_PREFIX = ['']

@@ -5,7 +5,7 @@ import grpc
 import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 class KafkaProducerManager():
 
     def __init__(self):

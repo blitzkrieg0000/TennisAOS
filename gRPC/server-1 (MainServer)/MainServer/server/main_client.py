@@ -4,7 +4,7 @@ import pickle
 import grpc
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 class MainClient():
     def __init__(self):
         self.channel = grpc.insecure_channel("localhost:50011") #MAIN-SERVICE-DEPLOYMENT-IP TODO: NODEPORT İLE DIŞARI AÇILACAK TEK BİR DEPLOYMENTA BU ŞEKİLDE BAĞLANILMAYACAK
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     # DATAS BY SENT CLIENT
     data={}
     data["id"] = 1
-    data["force"] = False
+    data["force"] = True
     data["limit"] = -1
 
     data["player_id"] = 1
@@ -72,11 +72,10 @@ if __name__ == "__main__":
     data["player_position_area"] = []
     
 
-    TEST=2
+    TEST=3
 
 
     if TEST==1:
-        #!ADIM 1
         res = mc.detectCourtLines(data)
 
         logging.info("1", res)
@@ -95,7 +94,6 @@ if __name__ == "__main__":
         cam.release()
 
     elif TEST==2:
-        #!ADIM 2
         res = mc.startGameObservation(data)
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
         ret, cimage = cam.read()
@@ -105,16 +103,14 @@ if __name__ == "__main__":
         cv2.imshow("", cimage)
         cv2.waitKey(0)
 
-    elif TEST==4:
+    elif TEST==3:
         #!GET STREAMING THREADS
         res = mc.getStreamingThreads()
 
-        #!ADIM3
         data = mc.getRunningConsumers()
         logging.info(data)
 
-    elif TEST==5:
-        #!ADIM4
+    elif TEST==4:
         data = {}
         data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
         res = mc.stopRunningConsumer(data)

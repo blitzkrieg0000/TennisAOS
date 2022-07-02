@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 
 import logging
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 class KafkaConsumerManager():
     def __init__(self):
         self.channel = grpc.insecure_channel('consumerservice:50032')

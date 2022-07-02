@@ -43,5 +43,5 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+    logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
     serve()

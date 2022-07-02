@@ -1,5 +1,5 @@
 import logging
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 from libs import consts
 from confluent_kafka import Consumer
 import numpy as np
@@ -78,7 +78,7 @@ class KafkaManager():
             except: pass
             
     def getRunningConsumers(self):
-        return self.consumerGenerators.keys()
+        return list(self.consumerGenerators.keys())
     
     def consumer(self, topics=[], consumerGroup="consumergroup-1", offsetMethod="earliest", limit=-1):
         if not topics:

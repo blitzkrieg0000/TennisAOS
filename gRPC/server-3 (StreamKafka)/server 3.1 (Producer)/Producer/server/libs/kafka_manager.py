@@ -7,7 +7,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 import cv2
 
 import logging
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 class KafkaManager():
 
