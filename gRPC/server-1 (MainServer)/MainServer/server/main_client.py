@@ -57,10 +57,12 @@ if __name__ == "__main__":
 
     mc = MainClient()
 
+    ayarlar={"id":1, "force": False}
+
     # DATAS BY SENT CLIENT
     data={}
-    data["id"] = 1
-    data["force"] = True
+    data["id"] = 1               
+    data["force"] = False
     data["limit"] = -1
 
     data["player_id"] = 1
@@ -72,13 +74,13 @@ if __name__ == "__main__":
     data["player_position_area"] = []
     
 
-    TEST=3
+    TEST=1
 
 
     if TEST==1:
         res = mc.detectCourtLines(data)
 
-        logging.info("1", res)
+        logging.info(res)
         points = mc.bytes2obj(res)
 
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
