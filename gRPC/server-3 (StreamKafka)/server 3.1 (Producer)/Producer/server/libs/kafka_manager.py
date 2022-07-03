@@ -82,11 +82,13 @@ class KafkaManager():
         if thread_name in [thread.name for thread in threading.enumerate()] and thread_name in self.producer_threads:
             if self.producer_threads[thread_name].is_alive():
                     self.producer_thread_statuses[thread_name] = False
+        self.updateThreads()
 
     def stopAllProducerThreads(self):
         for x in self.producer_thread_statuses.keys():
             self.producer_thread_statuses[x] = False
-
+        self.updateThreads()
+        
     def producers(func):
         def wrap(self, *args, **kwargs):
             items = args[0].split("-")   #{prefix}-{id}-{random_id} ->  streaming_thread_tenis_saha_1-0

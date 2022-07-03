@@ -129,8 +129,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             newCreatedTopicName = self.getTopicName(topicName, 0)
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
 
-            #Bu topic producer çalışıyorsa durdur.
-            #self.kpm.stopProduce(f"streaming_thread_{newCreatedTopicName}")
+
 
             #! 2-KAFKA_PRODUCER:
             # Streaming başlat
@@ -165,8 +164,18 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             return rc.responseData(data=fall_points)
 
-    def getStreamingThreads(self, request, context):
+    def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())
+
+    def stopProduce(self, request, context):
+        #Bu topic producer çalışıyorsa durdur.
+        data = self.bytes2obj(request.data)
+        self.kpm.stopProduce(f'streaming_thread_{data["producer_thread_name"]}')
+        return rc.responseData(data=b"TRYING STOP PRODUCER...")
+
+    def stopAllProducerThreads(self, request, context):
+        msg = self.kpm.stopAllProducerThreads()
+        return rc.responseData(data=b"TRYING STOP PRODUCERS...")
 
     def getRunningConsumers(self, request, context):
         return rc.responseData(data=self.kcm.getRunningConsumers()) 
@@ -174,11 +183,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
     def stopRunningConsumer(self, request, context):
         data = self.bytes2obj(request.data)
         msg = self.kcm.stopRunningCosumer(data["consumer_thread_name"])
-        return rc.responseData(data=b"TRYING...")
+        return rc.responseData(data=b"TRYING STOP CONSUMER...")
 
     def stopAllRunningConsumers(self, request, context):
         msg = self.kcm.stopAllRunningConsumers()
-        return rc.responseData(data=b"TRYING...")
+        return rc.responseData(data=b"TRYING STOP CONSUMERS...")
 
 
 def serve():

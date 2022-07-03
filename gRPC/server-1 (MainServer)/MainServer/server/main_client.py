@@ -26,12 +26,17 @@ class MainClient():
         response = self.stub.gameObservationController(requestData)
         return self.bytes2obj(response.data)
 
-    def getStreamingThreads(self):
+    def getProducerThreads(self):
         requestData = rc.requestData(data=self.obj2bytes(b""))
-        response = self.stub.getStreamingThreads(requestData)
+        response = self.stub.getProducerThreads(requestData)
         th=self.bytes2obj(response.data)
         logging.info(f"PRODUCER THREADS: {th}")
         return th
+
+    def stopProduce(self, data):
+        requestData = rc.requestData(data=self.obj2bytes(data))
+        responseData = self.stub.stopProduce(requestData)
+        return responseData.data
 
     def getRunningConsumers(self):
         requestData = rc.requestData(data=b"")
@@ -107,7 +112,7 @@ if __name__ == "__main__":
 
     elif TEST==3:
         #!GET STREAMING THREADS
-        res = mc.getStreamingThreads()
+        res = mc.getProducerThreads()
 
         data = mc.getRunningConsumers()
         logging.info(data)
@@ -116,3 +121,8 @@ if __name__ == "__main__":
         data = {}
         data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
         res = mc.stopRunningConsumer(data)
+
+    elif TEST==5:
+        data= {}
+        data["producer_thread_name"] = ""
+        res = mc.stopProduce(data)

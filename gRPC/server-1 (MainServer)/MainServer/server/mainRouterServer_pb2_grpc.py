@@ -25,8 +25,18 @@ class mainRouterServerStub(object):
                 request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
                 response_deserializer=mainRouterServer__pb2.responseData.FromString,
                 )
-        self.getStreamingThreads = channel.unary_unary(
-                '/stream.mainRouterServer/getStreamingThreads',
+        self.getProducerThreads = channel.unary_unary(
+                '/stream.mainRouterServer/getProducerThreads',
+                request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
+                response_deserializer=mainRouterServer__pb2.responseData.FromString,
+                )
+        self.stopProduce = channel.unary_unary(
+                '/stream.mainRouterServer/stopProduce',
+                request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
+                response_deserializer=mainRouterServer__pb2.responseData.FromString,
+                )
+        self.stopAllProducerThreads = channel.unary_unary(
+                '/stream.mainRouterServer/stopAllProducerThreads',
                 request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
                 response_deserializer=mainRouterServer__pb2.responseData.FromString,
                 )
@@ -63,7 +73,19 @@ class mainRouterServerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def getStreamingThreads(self, request, context):
+    def getProducerThreads(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def stopProduce(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def stopAllProducerThreads(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -100,8 +122,18 @@ def add_mainRouterServerServicer_to_server(servicer, server):
                     request_deserializer=mainRouterServer__pb2.requestData.FromString,
                     response_serializer=mainRouterServer__pb2.responseData.SerializeToString,
             ),
-            'getStreamingThreads': grpc.unary_unary_rpc_method_handler(
-                    servicer.getStreamingThreads,
+            'getProducerThreads': grpc.unary_unary_rpc_method_handler(
+                    servicer.getProducerThreads,
+                    request_deserializer=mainRouterServer__pb2.requestData.FromString,
+                    response_serializer=mainRouterServer__pb2.responseData.SerializeToString,
+            ),
+            'stopProduce': grpc.unary_unary_rpc_method_handler(
+                    servicer.stopProduce,
+                    request_deserializer=mainRouterServer__pb2.requestData.FromString,
+                    response_serializer=mainRouterServer__pb2.responseData.SerializeToString,
+            ),
+            'stopAllProducerThreads': grpc.unary_unary_rpc_method_handler(
+                    servicer.stopAllProducerThreads,
                     request_deserializer=mainRouterServer__pb2.requestData.FromString,
                     response_serializer=mainRouterServer__pb2.responseData.SerializeToString,
             ),
@@ -166,7 +198,7 @@ class mainRouterServer(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def getStreamingThreads(request,
+    def getProducerThreads(request,
             target,
             options=(),
             channel_credentials=None,
@@ -176,7 +208,41 @@ class mainRouterServer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/getStreamingThreads',
+        return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/getProducerThreads',
+            mainRouterServer__pb2.requestData.SerializeToString,
+            mainRouterServer__pb2.responseData.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def stopProduce(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/stopProduce',
+            mainRouterServer__pb2.requestData.SerializeToString,
+            mainRouterServer__pb2.responseData.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def stopAllProducerThreads(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/stopAllProducerThreads',
             mainRouterServer__pb2.requestData.SerializeToString,
             mainRouterServer__pb2.responseData.FromString,
             options, channel_credentials,

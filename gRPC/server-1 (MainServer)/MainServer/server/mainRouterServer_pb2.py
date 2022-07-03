@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16mainRouterServer.proto\x12\x06stream\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xbb\x03\n\x10mainRouterServer\x12I\n\x1a\x64\x65tectCourtLinesController\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12H\n\x19gameObservationController\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getStreamingThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13stopRunningConsumer\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x46\n\x17stopAllRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16mainRouterServer.proto\x12\x06stream\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xbd\x04\n\x10mainRouterServer\x12I\n\x1a\x64\x65tectCourtLinesController\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12H\n\x19gameObservationController\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x41\n\x12getProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12:\n\x0bstopProduce\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x45\n\x16stopAllProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13stopRunningConsumer\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x46\n\x17stopAllRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x62\x06proto3')
 
 
 
@@ -43,5 +43,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RESPONSEDATA._serialized_start=63
   _RESPONSEDATA._serialized_end=91
   _MAINROUTERSERVER._serialized_start=94
-  _MAINROUTERSERVER._serialized_end=537
+  _MAINROUTERSERVER._serialized_end=667
 # @@protoc_insertion_point(module_scope)

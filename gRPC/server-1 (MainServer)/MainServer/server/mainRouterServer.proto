@@ -5,7 +5,9 @@ package stream;
 service mainRouterServer {
   rpc detectCourtLinesController(requestData) returns (responseData) {}
   rpc gameObservationController(requestData) returns (responseData) {}
-  rpc getStreamingThreads(requestData) returns (responseData) {}
+  rpc getProducerThreads(requestData) returns (responseData) {}
+  rpc stopProduce(requestData) returns (responseData) {}
+  rpc stopAllProducerThreads(requestData) returns (responseData) {}
   rpc getRunningConsumers(requestData) returns (responseData) {}
   rpc stopRunningConsumer(requestData) returns (responseData) {}
   rpc stopAllRunningConsumers(requestData) returns (responseData) {}
