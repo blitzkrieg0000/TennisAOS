@@ -74,7 +74,7 @@ if __name__ == "__main__":
     data["player_position_area"] = []
     
 
-    TEST=1
+    TEST=2
 
 
     if TEST==1:

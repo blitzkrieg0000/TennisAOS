@@ -127,7 +127,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             # CLEAN TOPIC AND LOAD NEW DATA...
             newCreatedTopicName = self.getTopicName(topicName, 0)
-            res = self.saveTopicName(receivedData["id"], newCreatedTopicName)   
+            res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
 
             #Bu topic producer çalışıyorsa durdur.
             #self.kpm.stopProduce(f"streaming_thread_{newCreatedTopicName}")
