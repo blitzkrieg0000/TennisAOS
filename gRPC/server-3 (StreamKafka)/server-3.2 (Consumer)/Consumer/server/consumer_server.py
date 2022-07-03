@@ -23,6 +23,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
         CONSUMER_GENERATOR = self.kafkaManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod="earliest", limit=limit)
         for data in CONSUMER_GENERATOR:
             yield rc.ConsumerResponse(data=data)
+        
 
     def getRunningConsumers(self, request, context):
         return rc.getRunningConsumersResponse(data=self.obj2bytes(self.kafkaManager.getRunningConsumers()))

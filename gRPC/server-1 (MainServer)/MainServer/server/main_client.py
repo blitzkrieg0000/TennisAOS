@@ -1,6 +1,7 @@
 from __future__ import print_function
 import logging
 import pickle
+from tkinter import image_names
 import grpc
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
@@ -9,7 +10,7 @@ class MainClient():
     def __init__(self):
         self.channel = grpc.insecure_channel("localhost:50011") #MAIN-SERVICE-DEPLOYMENT-IP TODO: NODEPORT İLE DIŞARI AÇILACAK TEK BİR DEPLOYMENTA BU ŞEKİLDE BAĞLANILMAYACAK
         self.stub = rc_grpc.mainRouterServerStub(self.channel)
-    
+
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
 
@@ -30,7 +31,6 @@ class MainClient():
         requestData = rc.requestData(data=self.obj2bytes(b""))
         response = self.stub.getProducerThreads(requestData)
         th=self.bytes2obj(response.data)
-        logging.info(f"PRODUCER THREADS: {th}")
         return th
 
     def stopProduce(self, data):
@@ -58,12 +58,14 @@ class MainClient():
 
 if __name__ == "__main__":
     import cv2
-    import numpy as np
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test', type=int, required=True)
+    args = parser.parse_args()
 
     mc = MainClient()
-
-    ayarlar={"id":1, "force": False}
-
+    
     # DATAS BY SENT CLIENT
     data={}
     data["id"] = 1               
@@ -77,9 +79,12 @@ if __name__ == "__main__":
     data["score"] = 4
     data["ball_position_area"] = []
     data["player_position_area"] = []
-    
+    data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
+    data["producer_thread_name"] = ""
 
-    TEST=2
+
+
+    TEST=args.test
 
 
     if TEST==1:
@@ -88,6 +93,8 @@ if __name__ == "__main__":
         logging.info(res)
         points = mc.bytes2obj(res)
 
+
+        # PRINT
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
         ret, cimage = cam.read()
         for i, line in enumerate(points):
@@ -100,8 +107,14 @@ if __name__ == "__main__":
         cv2.waitKey(0)
         cam.release()
 
+
+
+
+
     elif TEST==2:
         res = mc.startGameObservation(data)
+
+        # PRINT
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
         ret, cimage = cam.read()
         for p in res:
@@ -110,19 +123,25 @@ if __name__ == "__main__":
         cv2.imshow("", cimage)
         cv2.waitKey(0)
 
-    elif TEST==3:
-        #!GET STREAMING THREADS
-        res = mc.getProducerThreads()
 
-        data = mc.getRunningConsumers()
-        logging.info(data)
+
+    elif TEST==3:
+        producers = mc.getProducerThreads()
+        consumers = mc.getRunningConsumers()
+        logging.info(producers)
+        logging.info(consumers)
+
+
 
     elif TEST==4:
-        data = {}
-        data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
+
+
+        consumers = mc.getRunningConsumers()
         res = mc.stopRunningConsumer(data)
+        consumers = mc.getRunningConsumers()
+
+
+
 
     elif TEST==5:
-        data= {}
-        data["producer_thread_name"] = ""
         res = mc.stopProduce(data)

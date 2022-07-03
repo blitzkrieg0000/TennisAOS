@@ -87,6 +87,7 @@ class KafkaManager():
         self.consumerGenerators[topics[0]] = ConsumerGen(consumerGroup, offsetMethod, topics, limit)
 
         for msg in self.consumerGenerators[topics[0]]:
+            logging.info(topics[0])
             yield msg.value()
 
         try: self.consumerGenerators.pop(topics[0])

@@ -114,6 +114,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         else:
             assert "Stream Data (ID={}) Not Found".format(receivedData["id"])
 
+
+
     def gameObservationController(self, request, context):
         receivedData = self.bytes2obj(request.data)
 
@@ -127,9 +129,16 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             # CLEAN TOPIC AND LOAD NEW DATA...
             newCreatedTopicName = self.getTopicName(topicName, 0)
+
+            def cb():
+                logging.warning(f"Sonlanan işlem: {newCreatedTopicName}")
+                self.kcm.stopRunningCosumer(newCreatedTopicName)
+                self.kpm.deleteTopics([newCreatedTopicName])
+                self.tbc.deleteDetector(newCreatedTopicName)
+
+            context.add_callback(cb)
+
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
-
-
 
             #! 2-KAFKA_PRODUCER:
             # Streaming başlat
@@ -140,6 +149,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
+
+
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 
                 #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
@@ -149,9 +160,9 @@ class MainServer(rc_grpc.mainRouterServerServicer):
                 points = self.bytes2obj(balldata)
                 all_points.append(points)
 
-            # DELETE TOPIC
-            self.tbc.deleteDetector(newCreatedTopicName)
-            self.kpm.deleteTopics([newCreatedTopicName])
+            # # DELETE TOPIC
+            # self.tbc.deleteDetector(newCreatedTopicName)
+            # self.kpm.deleteTopics([newCreatedTopicName])
 
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)

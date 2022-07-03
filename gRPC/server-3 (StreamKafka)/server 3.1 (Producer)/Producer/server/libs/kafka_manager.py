@@ -66,7 +66,8 @@ class KafkaManager():
     def updateThreads(self):
         # Eğer bu thread yoksa temizle
         running_threads = [thread.name for thread in threading.enumerate()]
-        for item in self.producer_thread_statuses.keys():
+        items = list(self.producer_thread_statuses.keys())
+        for item in items:
             if not item in running_threads:
                 try:
                     self.producer_thread_statuses.pop(item)
@@ -81,11 +82,12 @@ class KafkaManager():
         logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
         if thread_name in [thread.name for thread in threading.enumerate()] and thread_name in self.producer_threads:
             if self.producer_threads[thread_name].is_alive():
-                    self.producer_thread_statuses[thread_name] = False
+                self.producer_thread_statuses[thread_name] = False
         self.updateThreads()
 
     def stopAllProducerThreads(self):
-        for x in self.producer_thread_statuses.keys():
+        items = list(self.producer_thread_statuses.keys())
+        for x in items:
             self.producer_thread_statuses[x] = False
         self.updateThreads()
         
@@ -162,12 +164,11 @@ class KafkaManager():
         producer.flush()
 
         # Produce işlemi sonlanacak olsa da garantilemek için
-        self.producer_thread_statuses[thName] = False
         self.limit_count[thName]=0
         try:
-            self.producer_thread_statuses.pop(thName)
             self.limit_count.pop(thName)
         except KeyError as e:
             logging.warning(e)
         finally:
             logging.info(f"Finish: {thName} - RET_LIMIT: {ret_limit}/10")
+        self.updateThreads()
