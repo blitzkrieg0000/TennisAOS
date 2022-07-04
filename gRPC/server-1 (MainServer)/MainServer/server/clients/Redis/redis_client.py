@@ -1,5 +1,4 @@
 from __future__ import print_function
-import logging
 import pickle
 import grpc
 import clients.Redis.redisCache_pb2 as rc

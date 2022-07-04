@@ -1,4 +1,3 @@
-import logging
 from concurrent import futures
 import pickle
 import numpy as np
@@ -47,5 +46,5 @@ def serve():
     server.start()
     server.wait_for_termination()
 
-logging.basicConfig()
-serve()
+if __name__ == "__main__":
+    serve()

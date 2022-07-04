@@ -12,6 +12,10 @@ class StatusPredicter():
 
         #!TOPUN KONUMLARI INTERPOLASYONU
         #//########################################################################################
+        
+        if len(ball_positions)<1:
+            return []
+        
         ball_positions = np.array(ball_positions)
         ball_x, ball_y = ball_positions[:, 0], ball_positions[:, 1]
 

@@ -1,4 +1,4 @@
-import logging
+from libs.logger import logger
 from concurrent import futures
 import pickle
 
@@ -24,14 +24,14 @@ class DCLServer(rc_grpc.detectCourtLineServicer):
         nparr = np.frombuffer(request.frame, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-        logging.info("Saha tespit ediliyor...\n")
+        logger.info("Saha tespit ediliyor...\n")
         canvas_image = court_detector.detect(frame.copy())
         court_points = []
         if court_detector.success_flag:
-            logging.info("Saha Tespiti Başarılı !")
+            logger.info("Saha Tespiti Başarılı !")
             court_points = court_detector.saved_lines
         else:
-            logging.info("Saha Tespiti Başarısız !")
+            logger.info("Saha Tespiti Başarısız !")
 
         court_points = list(court_points)
 
@@ -44,5 +44,5 @@ def serve():
     server.start()
     server.wait_for_termination()
 
-logging.basicConfig()
-serve()
+if __name__ == "__main__":
+    serve()

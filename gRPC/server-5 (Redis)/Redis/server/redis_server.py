@@ -1,8 +1,7 @@
 import hashlib
-import logging
 from concurrent import futures
 import pickle
-import time
+
 
 import grpc
 import redisCache_pb2 as rc
@@ -71,5 +70,4 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    logging.basicConfig()
     serve()

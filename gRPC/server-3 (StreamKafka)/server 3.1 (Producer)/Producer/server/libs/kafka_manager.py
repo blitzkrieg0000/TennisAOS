@@ -88,7 +88,7 @@ class KafkaManager():
         def wrap(self, *args, **kwargs):
             items = args[0].split("-")   #{prefix}-{id}-{random_id} ->  streaming_thread_tenis_saha_1-0
 
-            thread_name = f"{THREAD_PREFIX}{items[0]}-{items[1]}"
+            thread_name = f"{THREAD_PREFIX}{args[0]}" #f"{THREAD_PREFIX}{items[0]}-{items[1]}"
             if not kwargs.get("thName", False):
                 kwargs['thName'] = thread_name
 

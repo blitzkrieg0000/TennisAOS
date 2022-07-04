@@ -1,6 +1,5 @@
-import logging
+from libs.logger import logger
 from concurrent import futures
-import json
 import pickle
 import grpc
 import postgresql_pb2 as rc
@@ -35,7 +34,7 @@ class postgresServer(rc_grpc.postgresqlServicer):
             response = self.postgresManager.executeSelectQuery(query_obj["query"])
             response = self.bytes2obj(response)
         except Exception as e:
-            logging.warning("ERROR(executeSelectQuery): ", e)
+            logger.warning("ERROR(executeSelectQuery): ", e)
 
         #TODO Dinamik olarak memoryviewler düzenlenecek: 2
         if response is not None:
@@ -63,5 +62,4 @@ def serve():
     server.wait_for_termination()
 
 if __name__ == '__main__':
-    logging.basicConfig()
     serve()

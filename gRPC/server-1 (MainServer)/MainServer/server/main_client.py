@@ -1,10 +1,12 @@
 from __future__ import print_function
-import logging
+
 import pickle
 import grpc
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+from libs.logger import logger
+
+
 class MainClient():
     def __init__(self):
         self.channel = grpc.insecure_channel("localhost:50011") #MAIN-SERVICE-DEPLOYMENT-IP TODO: NODEPORT İLE DIŞARI AÇILACAK TEK BİR DEPLOYMENTA BU ŞEKİLDE BAĞLANILMAYACAK
@@ -88,7 +90,7 @@ if __name__ == "__main__":
     if TEST==1:
         res = mc.detectCourtLines(data)
 
-        logging.info(res)
+        logger.info(res)
         points = mc.bytes2obj(res)
 
 
@@ -122,8 +124,8 @@ if __name__ == "__main__":
     elif TEST==3:
         producers = mc.getProducerThreads()
         consumers = mc.getRunningConsumers()
-        logging.info(producers)
-        logging.info(consumers)
+        logger.info(producers)
+        logger.info(consumers)
 
 
 

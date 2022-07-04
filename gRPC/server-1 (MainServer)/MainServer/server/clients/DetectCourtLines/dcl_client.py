@@ -1,6 +1,5 @@
 from __future__ import print_function
 
-import logging
 import grpc
 
 import clients.DetectCourtLines.detectCourtLines_pb2 as rc

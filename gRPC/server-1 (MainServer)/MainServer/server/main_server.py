@@ -1,5 +1,5 @@
 import hashlib as hl
-import logging
+from libs.logger import logger
 import pickle
 import time
 from concurrent import futures
@@ -15,7 +15,7 @@ from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+
 
 class MainServer(rc_grpc.mainRouterServerServicer):
     EXCEPT_PREFIX = ['']
@@ -66,12 +66,13 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
     def topicGarbageCollector(self, context, newCreatedTopicName):
         def cb():
-            logging.warning(f"Sonlanan işlem: {newCreatedTopicName}")
+            logger.warning(f"Sonlanan işlem: {newCreatedTopicName}")
+            self.kpm.stopProduce(f"streaming_thread_{newCreatedTopicName}")
             self.kcm.stopRunningCosumer(newCreatedTopicName)
-            self.kpm.deleteTopics([newCreatedTopicName])
             self.tbc.deleteDetector(newCreatedTopicName)
+            self.kpm.deleteTopics([newCreatedTopicName])
         context.add_callback(cb)
-
+    
     # ALGORITHMS---------------------------------------------------------------
     def detectCourtLinesController(self, request, context):
         receivedData = self.bytes2obj(request.data)
@@ -94,6 +95,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
             
 
+
             # TODO
             #? SADECE TEK BİR FRAME İÇİN PRODUCE VE CONSUME YAPMAK NE KADAR MANTIKLI ?
             
@@ -104,6 +106,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             #? 4-KAFKA_CONSUMER:
             # Streaming oku
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-courtlinedetector-0", 1, False)
+
 
 
             #! 5-COURT_LINE_DETECTOR:

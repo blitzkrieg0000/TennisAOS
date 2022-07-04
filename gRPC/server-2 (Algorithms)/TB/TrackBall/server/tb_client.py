@@ -1,5 +1,4 @@
 from __future__ import print_function
-from unicodedata import name
 import grpc
 import trackBall_pb2 as rc
 import trackBall_pb2_grpc as rc_grpc

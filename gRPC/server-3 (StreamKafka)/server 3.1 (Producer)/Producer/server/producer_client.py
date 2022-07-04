@@ -1,11 +1,10 @@
 from __future__ import print_function
-import logging
+from libs.logger import logger
 import pickle
 import grpc
 import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 class KafkaProducerManager():
 
     def __init__(self):
@@ -21,7 +20,7 @@ class KafkaProducerManager():
     def startProduce(self, topicName, streamUrl, limit=-1):
         requestData = rc.producerRequest(topicName=topicName, streamName=streamUrl, limit=limit)
         response = self.stub.producer(requestData)
-        logging.info(f"RESULTS: {response.result} \n THREAD_NAME: {response.thread_name}")
+        logger.info(f"RESULTS: {response.result} \n THREAD_NAME: {response.thread_name}")
         return response.thread_name
 
     def getProducerThreads(self):
@@ -37,7 +36,7 @@ class KafkaProducerManager():
     def stopProduce(self, thread_name):        
         requestData = rc.stopProduceRequest(thread_name=thread_name)
         response = self.stub.stopProduce(requestData)
-        logging.info(f"RESULTS: {response.result}")
+        logger.info(f"RESULTS: {response.result}")
     
     def deleteTopics(self, topicNames):
         requestData = rc.deleteTopicsRequest(data=self.obj2bytes(topicNames))

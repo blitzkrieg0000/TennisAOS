@@ -1,5 +1,4 @@
 from __future__ import print_function
-import logging
 import grpc
 import postgresql_pb2 as rc
 import postgresql_pb2_grpc as rc_grpc

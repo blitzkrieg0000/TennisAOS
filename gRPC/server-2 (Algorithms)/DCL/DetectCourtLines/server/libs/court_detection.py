@@ -499,8 +499,3 @@ def display_lines_and_points_on_frame(frame, lines=(), points=(), line_color=(0,
     if cv2.waitKey(0) & 0xff == 27:
         cv2.destroyAllWindows()
     return frame
-
-#%%
-for x in range(4,41,4):
-    logging.info(f"{x-4}:{x}")
-# %%
