@@ -44,17 +44,13 @@ class KafkaManager():
                     logging.warning(f"Failed to create topic {topic}: {e}") 
 
     def deleteTopics(self, topic_list):
-        delete_topic_recipies = []
-        for delete_topic in topic_list:
-            delete_topic_recipies.append(delete_topic)
-        if delete_topic_recipies:
-            fs = self.adminC.delete_topics(delete_topic_recipies)
-            for topic, f in fs.items():
-                try:
-                    f.result()
-                    logging.info(f"Topic {topic} deleted")
-                except Exception as e:
-                    logging.warning(f"Failed to delete topic {topic}: {e}")
+        fs = self.adminC.delete_topics(topic_list)
+        for topic, f in fs.items():
+            try:
+                f.result()
+                logging.info(f"Topic {topic} deleted")
+            except Exception as e:
+                logging.warning(f"Failed to delete topic {topic}: {e}")
 
     def updateTopics(self, topicName):
         topics = set(self.getTopicList().topics.keys())
@@ -165,6 +161,6 @@ class KafkaManager():
             self.limit_count.pop(thName)
         except KeyError as e:
             logging.warning(e)
-        finally:
-            logging.info(f"Finish: {thName} - RET_LIMIT: {ret_limit}/10")
-            self.updateThreads()
+        
+        logging.info(f"Finish: {thName} - RET_LIMIT: {ret_limit}/10")
+        self.updateThreads()

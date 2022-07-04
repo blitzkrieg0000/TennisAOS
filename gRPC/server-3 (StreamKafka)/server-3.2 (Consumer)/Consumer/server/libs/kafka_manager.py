@@ -61,7 +61,6 @@ class ConsumerGen():
 class KafkaManager():
     
     def __init__(self):
-        self.producer_thread_statuses = {}
         self.consumerGenerators = {}
 
     def bytes2Frame(self, img):
@@ -70,7 +69,9 @@ class KafkaManager():
         return frame
 
     def stopRunningCosumer(self, topicName):
-        self.consumerGenerators[topicName].stopGen()
+        try:
+            self.consumerGenerators[topicName].stopGen()
+        except KeyError as e: print(e)
 
     def stopAllRunningConsumers(self):
         for gen in self.consumerGenerators.keys():
@@ -90,6 +91,7 @@ class KafkaManager():
             logging.info(topics[0])
             yield msg.value()
 
+        logging.info(f"Consumer Durduruldu: {topics[0]}")
         try: self.consumerGenerators.pop(topics[0])
         except: pass
         
