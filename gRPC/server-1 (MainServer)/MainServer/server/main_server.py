@@ -146,7 +146,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             #! 2-KAFKA_PRODUCER:
             # Streaming başlat
             threadName = self.kpm.startProduce(newCreatedTopicName, streamName, limit=receivedData["limit"])
-
+            
             #! 3-KAFKA_CONSUMER:
             # Streaming oku
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)

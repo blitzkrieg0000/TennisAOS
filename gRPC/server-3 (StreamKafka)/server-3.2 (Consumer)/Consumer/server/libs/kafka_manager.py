@@ -1,6 +1,5 @@
-import logging
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
-from libs import consts
+from libs.logger import logger
+from libs.consts import *
 from confluent_kafka import Consumer
 import numpy as np
 import cv2
@@ -18,7 +17,7 @@ class ConsumerGen():
 
     def connectKafkaConsumer(self, consumerGroup, offsetMethod, topics):
         return Consumer({
-                'bootstrap.servers': ",".join(consts.KAFKA_BOOTSTRAP_SERVERS),
+                'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS),
                 'group.id': f"{consumerGroup}-{topics}",
                 'auto.offset.reset': offsetMethod
             })
@@ -27,7 +26,7 @@ class ConsumerGen():
         try:
             self.consumer.close()
         except Exception as e:
-            logging.warning(f"ConsumerGen: {e}")
+            logger.warning(f"ConsumerGen: {e}")
 
     def stopGen(self):
         self.stopFlag = True
@@ -48,7 +47,7 @@ class ConsumerGen():
                 continue
 
             if msg.error():
-                logging.info(f"Consumer-error: {msg.error()}")
+                logger.info(f"Consumer-error: {msg.error()}")
                 self.ret_limit +=1
                 continue
             
@@ -88,10 +87,10 @@ class KafkaManager():
         self.consumerGenerators[topics[0]] = ConsumerGen(consumerGroup, offsetMethod, topics, limit)
 
         for msg in self.consumerGenerators[topics[0]]:
-            logging.info(topics[0])
+            logger.info(topics[0])
             yield msg.value()
 
-        logging.info(f"Consumer Durduruldu: {topics[0]}")
+        logger.info(f"Consumer Durduruldu: {topics[0]}")
         try: self.consumerGenerators.pop(topics[0])
         except: pass
         

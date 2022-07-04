@@ -6,22 +6,19 @@ from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 import cv2
 
-import logging
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
-
+from libs.logger import logger
 class KafkaManager():
 
     def __init__(self):
         self.adminC = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         self.producer_thread_statuses = {}
-        self.limit_count = {}
 
     def delivery_report(self, err, msg):
         # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
         if err is not None:
-            logging.warning(f'Message delivery failed: {err}')
+            logger.warning(f'Message delivery failed: {err}')
         else:
-        #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+        #   logger.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
             pass
 
     def getTopicList(self):
@@ -39,18 +36,18 @@ class KafkaManager():
             for topic, f in fs.items():
                 try:
                     f.result()
-                    logging.info(f"Topic {topic} created")
+                    logger.info(f"Topic {topic} created")
                 except Exception as e:
-                    logging.warning(f"Failed to create topic {topic}: {e}") 
+                    logger.warning(f"Failed to create topic {topic}: {e}") 
 
     def deleteTopics(self, topic_list):
         fs = self.adminC.delete_topics(topic_list)
         for topic, f in fs.items():
             try:
                 f.result()
-                logging.info(f"Topic {topic} deleted")
+                logger.info(f"Topic {topic} deleted")
             except Exception as e:
-                logging.warning(f"Failed to delete topic {topic}: {e}")
+                logger.warning(f"Failed to delete topic {topic}: {e}")
 
     def updateTopics(self, topicName):
         topics = set(self.getTopicList().topics.keys())
@@ -73,7 +70,7 @@ class KafkaManager():
         return self.producer_thread_statuses
 
     def stopProducerThread(self, thread_name):
-        logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
+        logger.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
         if thread_name in [thread.name for thread in threading.enumerate()]:
             self.producer_thread_statuses[thread_name] = False
         self.updateThreads()
@@ -95,14 +92,12 @@ class KafkaManager():
             if not kwargs.get("limit", False):
                 kwargs['limit'] = -1
 
-            _ = self.getProducerThreads() # Updata
-            self.stopProducerThread(kwargs['thName'])
-
+            self.updateThreads()
+            self.producer_thread_statuses[kwargs['thName']] = True 
             t = threading.Thread(name=kwargs['thName'], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
-            
-            logging.info(f"Starting: {kwargs['thName']}, Alive-Status: {t.is_alive()}")
-            self.producer_thread_statuses[kwargs['thName']] = True  
+            logger.info(f"Starting: {kwargs['thName']}")
+        
             return kwargs['thName']
         return wrap
 
@@ -112,7 +107,7 @@ class KafkaManager():
             raise ValueError("Topic adı boş bırakılamaz!")
 
         producer = Producer({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
-        logging.info(f"Stream-Producer şu kaynak için {topicName}'e {limit if limit!=-1 else 'stream sonuna'} kadar veri yüklüyor: {streamUrl}")
+        logger.info(f"Stream-Producer şu kaynak için {topicName}'e {limit if limit!=-1 else 'stream sonuna'} kadar veri yüklüyor: {streamUrl}")
 
         # Stream ayarları
         cam = cv2.VideoCapture(f"/assets/{streamUrl}" if os.access(f"/assets/{streamUrl}", mode=0) else streamUrl)
@@ -127,10 +122,10 @@ class KafkaManager():
         # Topic yoksa oluştur
         self.updateTopics(topicName)
 
-        ret_limit=0
-        self.limit_count[thName]=0
+        ret_limit_count=0
+        limit_count=0
         while self.producer_thread_statuses[thName]:
-            if (self.limit_count[thName]>=limit and limit != -1) or ret_limit>10:
+            if (limit_count>=limit and limit != -1) or ret_limit_count>RET_COUNT-1:
                 break
 
             ret_val, img = cam.read()
@@ -141,26 +136,20 @@ class KafkaManager():
                 if res:
                     producer.produce(topicName, encodedImg.tobytes(), callback=self.delivery_report)
                     producer.poll(0)
-                    ret_limit=0
+                    ret_limit_count=0
                     if limit != -1:
-                        self.limit_count[thName]+=1
+                        limit_count+=1
                 else:
-                    logging.info(f"Streamdeki resim karesi jpg formatına dönüştürülemedi:{streamUrl}")
-                    ret_limit+=1
+                    logger.info(f"Streamdeki resim karesi jpg formatına dönüştürülemedi:{streamUrl}")
+                    ret_limit_count+=1
             else:
-                logging.info(f"WARNING {thName}: Streamden okunamıyor... val:{ret_val}, url:{streamUrl}")
-                ret_limit+=1
+                logger.info(f"WARNING {thName}: Streamden okunamıyor... val:{ret_val}, url:{streamUrl}")
+                ret_limit_count+=1
         
-        #RELEASE SOURCES
+        # Release Sources
         cam.release()
         producer.flush()
-
-        # Produce işlemi sonlanacak olsa da garantilemek için
-        self.limit_count[thName]=0
-        try:
-            self.limit_count.pop(thName)
-        except KeyError as e:
-            logging.warning(e)
         
-        logging.info(f"Finish: {thName} - RET_LIMIT: {ret_limit}/10")
         self.updateThreads()
+        logger.info(f"Finish: {thName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
+        

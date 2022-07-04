@@ -57,6 +57,7 @@ class MainClient():
     def disconnect(self):
         self.channel.close()
 
+
 if __name__ == "__main__":
     import cv2
     import argparse

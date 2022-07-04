@@ -10,9 +10,8 @@ class Formatter(logging.Formatter):
         
     def formatTime(self, record, datefmt=None):
         dt = self.converter(record.created)
-        if datefmt:
-            s = dt.strftime(datefmt)
-            #s = dt.isoformat(timespec='milliseconds')
+        s = dt.strftime(datefmt)
+        #s = dt.isoformat(timespec='milliseconds')
         return s
 
 logger = logging.root
