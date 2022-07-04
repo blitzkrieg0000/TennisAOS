@@ -1,7 +1,6 @@
 from __future__ import print_function
 import logging
 import pickle
-from tkinter import image_names
 import grpc
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
@@ -83,7 +82,6 @@ if __name__ == "__main__":
     data["producer_thread_name"] = ""
 
 
-
     TEST=args.test
 
 
@@ -108,9 +106,6 @@ if __name__ == "__main__":
         cam.release()
 
 
-
-
-
     elif TEST==2:
         res = mc.startGameObservation(data)
 
@@ -124,7 +119,6 @@ if __name__ == "__main__":
         cv2.waitKey(0)
 
 
-
     elif TEST==3:
         producers = mc.getProducerThreads()
         consumers = mc.getRunningConsumers()
@@ -134,8 +128,6 @@ if __name__ == "__main__":
 
 
     elif TEST==4:
-
-
         consumers = mc.getRunningConsumers()
         res = mc.stopRunningConsumer(data)
         consumers = mc.getRunningConsumers()

@@ -64,6 +64,14 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         VALUES(%s,%s,%s,%s,%s,%s,%s)''',
         [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"] ,data["ball_position_area"],data["player_position_area"]]) 
 
+    def topicGarbageCollector(self, context, newCreatedTopicName):
+        def cb():
+            logging.warning(f"Sonlanan işlem: {newCreatedTopicName}")
+            self.kcm.stopRunningCosumer(newCreatedTopicName)
+            self.kpm.deleteTopics([newCreatedTopicName])
+            self.tbc.deleteDetector(newCreatedTopicName)
+        context.add_callback(cb)
+
     # ALGORITHMS---------------------------------------------------------------
     def detectCourtLinesController(self, request, context):
         receivedData = self.bytes2obj(request.data)
@@ -79,12 +87,13 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             streamUrl = streamData[1]
             newCreatedTopicName = self.getTopicName(streamName, 0) # İşlenecek Görüntüler için Unique bir isim
 
+            self.topicGarbageCollector(context, newCreatedTopicName)
+
             #! 2-REDIS:
             # TOPIC ismini kaydet
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
             
-            
-        
+
             # TODO
             #? SADECE TEK BİR FRAME İÇİN PRODUCE VE CONSUME YAPMAK NE KADAR MANTIKLI ?
             
@@ -95,7 +104,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             #? 4-KAFKA_CONSUMER:
             # Streaming oku
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-courtlinedetector-0", 1, False)
-
 
 
             #! 5-COURT_LINE_DETECTOR:
@@ -114,8 +122,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         else:
             assert "Stream Data (ID={}) Not Found".format(receivedData["id"])
 
-
-
     def gameObservationController(self, request, context):
         receivedData = self.bytes2obj(request.data)
 
@@ -129,14 +135,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             # CLEAN TOPIC AND LOAD NEW DATA...
             newCreatedTopicName = self.getTopicName(topicName, 0)
-
-            def cb():
-                logging.warning(f"Sonlanan işlem: {newCreatedTopicName}")
-                self.kcm.stopRunningCosumer(newCreatedTopicName)
-                self.kpm.deleteTopics([newCreatedTopicName])
-                self.tbc.deleteDetector(newCreatedTopicName)
-
-            context.add_callback(cb)
+            
+            self.topicGarbageCollector(context, newCreatedTopicName)
 
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
 
@@ -149,7 +149,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
-
 
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 

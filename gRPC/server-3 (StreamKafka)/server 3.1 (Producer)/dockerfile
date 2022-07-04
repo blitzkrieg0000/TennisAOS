@@ -15,4 +15,5 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     pip install --no-cache-dir -r requirements.txt
 
 COPY . .
+
 CMD [ "python3", "Producer/server/producer_server.py" ]

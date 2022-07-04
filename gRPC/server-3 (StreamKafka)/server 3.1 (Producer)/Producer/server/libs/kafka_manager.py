@@ -14,7 +14,6 @@ class KafkaManager():
     def __init__(self):
         self.adminC = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         self.producer_thread_statuses = {}
-        self.producer_threads = {}
         self.limit_count = {}
 
     def delivery_report(self, err, msg):
@@ -71,7 +70,6 @@ class KafkaManager():
             if not item in running_threads:
                 try:
                     self.producer_thread_statuses.pop(item)
-                    self.producer_threads.pop(item)
                 except: pass
 
     def getProducerThreads(self):
@@ -80,9 +78,8 @@ class KafkaManager():
 
     def stopProducerThread(self, thread_name):
         logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
-        if thread_name in [thread.name for thread in threading.enumerate()] and thread_name in self.producer_threads:
-            if self.producer_threads[thread_name].is_alive():
-                self.producer_thread_statuses[thread_name] = False
+        if thread_name in [thread.name for thread in threading.enumerate()]:
+            self.producer_thread_statuses[thread_name] = False
         self.updateThreads()
 
     def stopAllProducerThreads(self):
@@ -110,7 +107,6 @@ class KafkaManager():
             
             logging.info(f"Starting: {kwargs['thName']}, Alive-Status: {t.is_alive()}")
             self.producer_thread_statuses[kwargs['thName']] = True  
-            self.producer_threads[kwargs['thName']] = t
             return kwargs['thName']
         return wrap
 
@@ -171,4 +167,4 @@ class KafkaManager():
             logging.warning(e)
         finally:
             logging.info(f"Finish: {thName} - RET_LIMIT: {ret_limit}/10")
-        self.updateThreads()
+            self.updateThreads()
