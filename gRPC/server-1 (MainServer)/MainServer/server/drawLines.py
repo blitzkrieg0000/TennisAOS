@@ -83,8 +83,8 @@ def line_intersection(line1, line2):
     return intersection[0].coordinates
 
 def extractSpecialLines(courtLines, canvas_image_skt):
-
-
+    
+    # YER VURUŞU DERİNLİĞİ
     baseline_top = courtLines[0]
     baseline_bottom = courtLines[1]
     net = courtLines[2]
@@ -100,29 +100,52 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     til = reorderLines(top_inner_line)    # Üst iç çizgi
     lil = reorderLines(left_inner_line)   # Sol iç çizgi
     ril = reorderLines(right_inner_line)  # Sağ iç çizgi
-    lcl = reorderLines(left_court_line)   
-    rcl = reorderLines(right_court_line)
-
+    lcl = reorderLines(left_court_line)   # Sol çizgi
+    rcl = reorderLines(right_court_line)  # Sağ çizgi
+    tbl = reorderLines(baseline_top)      # Üst servis çizgisi
+    bbl = reorderLines(baseline_bottom)   # Alt servis çizgisi
+    nl = reorderLines(net)                # File Çizgisi
+    ml = reorderLines(middle_line)        # Orta Çizgisi
+    
     right_inner_net_x, right_inner_net_y = line_intersection(net, ril)
     left_inner_net_x, left_inner_net_y = line_intersection(net, lil)
-    
+
+    inl = [ left_inner_net_x, left_inner_net_y, right_inner_net_x, right_inner_net_y ] # İç file çizgisi
+    tisl = [ lil[0], lil[1], ril[0], ril[1] ]   # Üst iç servis çizgisi
+    bisl = [ lil[2], lil[3], ril[2], ril[3] ]   # Alt iç servis çizgisi
+    til_mid = getLineMidPoint(til)
+    inl_mid = getLineMidPoint(inl)
+
+
+
+    #! 1-) YER VURUŞU DERİNLİĞİ
+
     line_data = {}
     line_data['net_line'] = net
     line_data["top_inner_line"] = til
-    line_data["left_inner_near_net_line"] = [left_inner_net_x, left_inner_net_y, til[0], til[1]]
-    line_data["right_inner_near_net_line"] = [right_inner_net_x, right_inner_net_y, til[2], til[3]]
+    line_data["top_inner_service_line"] = tisl
+    line_data["left_inner_near_net_line"] = [ left_inner_net_x, left_inner_net_y, til[0], til[1] ]
+    line_data["right_inner_near_net_line"] = [ right_inner_net_x, right_inner_net_y, til[2], til[3] ]
     line_data["left_top_short_line"] = [ lil[0], lil[1], til[0], til[1] ]
     line_data["right_top_short_line"] = [ ril[0], ril[1], til[2], til[3] ]
-    line_data["point_line_1"] = (*getLinePointWithRatio(line_data["left_top_short_line"], 0.33), *getLinePointWithRatio(line_data["right_top_short_line"], 0.33) ) #4p - 3p
-    line_data["point_line_2"] = (*getLinePointWithRatio(line_data["left_top_short_line"], (2/3)), *getLinePointWithRatio(line_data["right_top_short_line"], (2/3)) ) #3p-2p
+    line_data["middle_top_line"] = [ til_mid[0], til_mid[1], inl_mid[0], inl_mid[1] ]
+    line_data["point_line_1"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], 0.33), *getLinePointWithRatio(line_data["right_top_short_line"], 0.33) ] #4p - 3p
+    line_data["point_line_2"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], (2/3)), *getLinePointWithRatio(line_data["right_top_short_line"], (2/3)) ] #3p-2p
 
     point_area_data = {}
-    point_area_data['area_4'] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2]]
-    point_area_data['area_3'] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2]]
+    point_area_data['area_4'] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2] ]
+    point_area_data['area_3'] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2] ]
     point_area_data['area_2'] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
     point_area_data['area_1'] = [ til[:2], til[2:], (int(right_inner_net_x), int(right_inner_net_y)), (int(left_inner_net_x), int(left_inner_net_y)) ]
 
+
+
+
+
+
     canvas_image_skt = drawExtraPolly(point_area_data, canvas_image_skt)
     canvas_image_skt = drawExtraLine(line_data, canvas_image_skt)
-    #canvas_image_skt = cv2.circle(canvas_image_skt, (int(lil[0]), int(lil[1])),5, (255,255,255), -1)
+
+    # Test: İşaretlemek için
+    # canvas_image_skt = cv2.circle(canvas_image_skt, (int(lil[0]), int(lil[1])),5, (255,255,255), -1)
     return line_data, point_area_data, canvas_image_skt
