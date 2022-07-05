@@ -33,7 +33,7 @@ def reorderLines(line):
 def drawExtraLine(data:dict, canvas_image_skt):
     for key in data.keys():
         line = data[key] 
-        canvas_image_skt = cv2.line(canvas_image_skt, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), (255, 255, 255), 2, cv2.LINE_AA) 
+        canvas_image_skt = cv2.line(canvas_image_skt, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), (100, 100, 100), 2, cv2.LINE_AA) 
     return canvas_image_skt
 
 def drawExtraPolly(points_dict:dict, canvas_image_skt):
@@ -41,12 +41,11 @@ def drawExtraPolly(points_dict:dict, canvas_image_skt):
 
     for i,key in enumerate(points_dict.keys()):
         points = np.array(points_dict[key], np.int32)
-        
-        canvas_image_skt = cv2.fillPoly(canvas_image_skt, [points], colors[i], 1)
-
-        alpha = 0.8
-        mask = shapes.astype(bool)
-        canvas_image_skt[mask] = cv2.addWeighted(canvas_image_skt, alpha, shapes, 1 - alpha, 0)[mask]
+        shapes = cv2.fillPoly(shapes, [points], colors[i], 1)
+    
+    alpha = 0.5
+    mask = shapes.astype(bool)
+    canvas_image_skt[mask] = cv2.addWeighted(canvas_image_skt, alpha, shapes, 1 - alpha, 0)[mask]
      
     return canvas_image_skt
 

@@ -82,7 +82,9 @@ if __name__ == "__main__":
     data["ball_position_area"] = []
     data["ball_fall_array"] = []
     data["player_position_area"] = []
-    data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
+
+    # INNER
+    data["consumer_thread_name"] = ""
     data["producer_thread_name"] = ""
 
 
@@ -94,7 +96,6 @@ if __name__ == "__main__":
 
         points = mc.bytes2obj(res)
         logger.info(points)
-
 
         # PRINT
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
