@@ -118,7 +118,7 @@ def extractSpecialLines(courtLines, canvas_image_skt):
 
 
 
-    #! 1-) YER VURUŞU DERİNLİĞİ
+    #! 1-) YER-VOLE VURUŞU DERİNLİĞİ
 
     line_data = {}
     line_data['net_line'] = net
@@ -133,11 +133,13 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     line_data["point_line_2"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], (2/3)), *getLinePointWithRatio(line_data["right_top_short_line"], (2/3)) ] #3p-2p
 
     point_area_data = {}
-    point_area_data['area_4'] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2] ]
-    point_area_data['area_3'] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2] ]
-    point_area_data['area_2'] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
-    point_area_data['area_1'] = [ til[:2], til[2:], (int(right_inner_net_x), int(right_inner_net_y)), (int(left_inner_net_x), int(left_inner_net_y)) ]
+    point_area_data["area_4"] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2] ]
+    point_area_data["area_3"] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2] ]
+    point_area_data["area_2"] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
+    point_area_data["area_1"] = [ til[:2], til[2:], (int(right_inner_net_x), int(right_inner_net_y)), (int(left_inner_net_x), int(left_inner_net_y)) ]
 
+
+    #! 2-) YER VURUŞU HASSASİYETİ
 
 
 
