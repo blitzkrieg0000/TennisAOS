@@ -59,6 +59,6 @@ class StatusPredicter():
 
         x = intp1d_ball_coordinates_x[peaks]
         y = intp1d_ball_coordinates_y[peaks]
-        arr = zip(x, y)
+        arr = list(zip(x, y))
 
         return arr

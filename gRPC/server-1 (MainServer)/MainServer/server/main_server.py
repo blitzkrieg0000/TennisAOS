@@ -165,6 +165,9 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)
 
+    
+
+
 
             # TODO 2-Puanlama yap
             receivedData["ball_position_area"] = self.obj2bytes(all_points)

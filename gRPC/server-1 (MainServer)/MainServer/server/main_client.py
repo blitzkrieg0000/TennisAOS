@@ -89,19 +89,24 @@ if __name__ == "__main__":
     TEST=args.test
 
     if TEST==1:
+        from drawLines import *
         res = mc.detectCourtLines(data)
 
-        logger.info(res)
         points = mc.bytes2obj(res)
+        logger.info(points)
+
 
         # PRINT
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
         ret, cimage = cam.read()
-        for i, line in enumerate(points):
-            if len(line)>0:
-                cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
-            if i==10:
-                break
+
+        line_data, point_area_data, cimage = extractSpecialLines(points, cimage)
+
+        # for i, line in enumerate(points):
+        #     if len(line)>0:
+        #         cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
+        #     if i==10:
+        #         break
 
         cv2.imshow("", cimage)
         cv2.waitKey(0)
