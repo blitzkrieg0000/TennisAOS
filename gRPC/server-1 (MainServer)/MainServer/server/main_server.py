@@ -136,11 +136,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             topicName = streamData[0]
             streamName = streamData[1]
 
-            # CLEAN TOPIC AND LOAD NEW DATA...
             newCreatedTopicName = self.getTopicName(topicName, 0)
-            
             self.topicGarbageCollector(context, newCreatedTopicName)
-
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
 
             #! 2-KAFKA_PRODUCER:
@@ -152,7 +149,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
-
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 
                 #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )

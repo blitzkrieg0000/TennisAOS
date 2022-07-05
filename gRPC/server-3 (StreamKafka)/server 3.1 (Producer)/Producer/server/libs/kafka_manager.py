@@ -72,18 +72,23 @@ class KafkaManager():
     def stopProducerThread(self, thread_name):
         logger.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
         if thread_name in [thread.name for thread in threading.enumerate()]:
-            self.producer_thread_statuses[thread_name] = False
+            try:
+                self.producer_thread_statuses[thread_name] = False
+            except: pass
+
         self.updateThreads()
 
     def stopAllProducerThreads(self):
         items = list(self.producer_thread_statuses.keys())
         for x in items:
-            self.producer_thread_statuses[x] = False
+            try:
+                self.producer_thread_statuses[x] = False
+            except: pass
         self.updateThreads()
-        
+
     def producers(func):
         def wrap(self, *args, **kwargs):
-            items = args[0].split("-")   #{prefix}-{id}-{random_id} ->  streaming_thread_tenis_saha_1-0
+            #items = args[0].split("-")   #{prefix}-{id}-{random_id} ->  streaming_thread_tenis_saha_1-0
 
             thread_name = f"{THREAD_PREFIX}{args[0]}" #f"{THREAD_PREFIX}{items[0]}-{items[1]}"
             if not kwargs.get("thName", False):
@@ -143,7 +148,7 @@ class KafkaManager():
                     logger.info(f"Streamdeki resim karesi jpg formatına dönüştürülemedi:{streamUrl}")
                     ret_limit_count+=1
             else:
-                logger.info(f"WARNING {thName}: Streamden okunamıyor... val:{ret_val}, url:{streamUrl}")
+                logger.info(f"WARNING {thName}: Streamden okunamıyor... Bu kaynak başka bir yerden kullanımda olabilir: {streamUrl}")
                 ret_limit_count+=1
         
         # Release Sources
@@ -151,5 +156,5 @@ class KafkaManager():
         producer.flush()
         
         self.updateThreads()
-        logger.info(f"Finish: {thName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
+        logger.info(f"Producer Sonlandı: {thName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
         

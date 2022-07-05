@@ -87,13 +87,11 @@ if __name__ == "__main__":
 
     TEST=args.test
 
-
     if TEST==1:
         res = mc.detectCourtLines(data)
 
         logger.info(res)
         points = mc.bytes2obj(res)
-
 
         # PRINT
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
@@ -125,17 +123,14 @@ if __name__ == "__main__":
     elif TEST==3:
         producers = mc.getProducerThreads()
         consumers = mc.getRunningConsumers()
-        logger.info(producers)
-        logger.info(consumers)
-
+        logger.info(f"PRODUCERS: {producers}")
+        logger.info(F"CONSUMERS: {consumers}")
 
 
     elif TEST==4:
         consumers = mc.getRunningConsumers()
         res = mc.stopRunningConsumer(data)
         consumers = mc.getRunningConsumers()
-
-
 
 
     elif TEST==5:
