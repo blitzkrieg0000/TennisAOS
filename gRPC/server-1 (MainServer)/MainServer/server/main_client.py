@@ -80,6 +80,7 @@ if __name__ == "__main__":
     data["stream_id"] = 1
     data["score"] = 4
     data["ball_position_area"] = []
+    data["ball_fall_array"] = []
     data["player_position_area"] = []
     data["consumer_thread_name"] = "tenis_saha_1-0-55826760874526647746697030151880964752"
     data["producer_thread_name"] = ""

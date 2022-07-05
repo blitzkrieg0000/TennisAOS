@@ -1,17 +1,23 @@
+from http import client
 import os
+import pickle
 import threading
 from libs.consts import *
 
 from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 import cv2
-
+from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.logger import logger
 class KafkaManager():
 
     def __init__(self):
         self.adminC = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         self.producer_thread_statuses = {}
+        self.kcm = KafkaConsumerManager()
+
+    def bytes2obj(self, bytes):
+        return pickle.loads(bytes)
 
     def delivery_report(self, err, msg):
         # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
@@ -59,8 +65,14 @@ class KafkaManager():
     def deleteNotUsingTopic(self):
         topics = set(self.getTopicList().topics.keys())
         existTopics = topics - TOPICS_IGNORE_SET
-        items = set(self.producer_thread_statuses.keys())
-        dellTopics = existTopics - items
+
+        producer_items = set(self.producer_thread_statuses.keys())
+        producerDellTopics = existTopics - producer_items
+
+        consumer_items = set(self.bytes2obj(self.kcm.getRunningConsumers()))
+        dellTopics = producerDellTopics - consumer_items
+
+        # TODO: Farkını bul
         self.deleteTopics([*dellTopics])
 
     def updateThreads(self): 
@@ -72,6 +84,7 @@ class KafkaManager():
                 try:
                     self.producer_thread_statuses.pop(item)
                 except: pass
+
         self.deleteNotUsingTopic()
 
 
