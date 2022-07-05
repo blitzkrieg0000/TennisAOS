@@ -83,48 +83,39 @@ def line_intersection(line1, line2):
 
 def extractSpecialLines(courtLines, canvas_image_skt):
     
+    # Çizgilerin başlangıç noktası sol-üste yakın olan olacak şekilde ayarla
+    for i, item in enumerate(courtLines):
+        courtLines[i] = reorderLines(item)
+
     # YER VURUŞU DERİNLİĞİ
-    baseline_top = courtLines[0]
-    baseline_bottom = courtLines[1]
-    net = courtLines[2]
-    left_court_line = courtLines[3]
-    right_court_line = courtLines[4]
-    left_inner_line = courtLines[5]
-    right_inner_line = courtLines[6]
-    middle_line = courtLines[7]
-    top_inner_line = courtLines[8]
-    bottom_inner_line = courtLines[9]
-
-    bil = reorderLines(bottom_inner_line) # Alt iç çizgi
-    til = reorderLines(top_inner_line)    # Üst iç çizgi
-    lil = reorderLines(left_inner_line)   # Sol iç çizgi
-    ril = reorderLines(right_inner_line)  # Sağ iç çizgi
-    lcl = reorderLines(left_court_line)   # Sol çizgi
-    rcl = reorderLines(right_court_line)  # Sağ çizgi
-    tbl = reorderLines(baseline_top)      # Üst servis çizgisi
-    bbl = reorderLines(baseline_bottom)   # Alt servis çizgisi
-    nl = reorderLines(net)                # File Çizgisi
-    ml = reorderLines(middle_line)        # Orta Çizgisi
-    
-    right_inner_net_x, right_inner_net_y = line_intersection(net, ril)
-    left_inner_net_x, left_inner_net_y = line_intersection(net, lil)
-
-    inl = [ left_inner_net_x, left_inner_net_y, right_inner_net_x, right_inner_net_y ] # İç file çizgisi
+    tbl = courtLines[0]                         # Üst servis çizgisi
+    bbl = courtLines[1]                         # Alt servis çizgisi
+    nt = courtLines[2]                          # File Çizgisi
+    lcl = courtLines[3]                         # Sol çizgi
+    rcl = courtLines[4]                         # Sağ çizgi
+    lil = courtLines[5]                         # Sol iç çizgi
+    ril = courtLines[6]                         # Sağ iç çizgi
+    ml = courtLines[7]                          # Orta Çizgisi
+    til = courtLines[8]                         # Üst iç çizgi
+    bil = courtLines[9]                         # Alt iç çizgi
     tisl = [ lil[0], lil[1], ril[0], ril[1] ]   # Üst iç servis çizgisi
     bisl = [ lil[2], lil[3], ril[2], ril[3] ]   # Alt iç servis çizgisi
+    right_inner_net = line_intersection(nt, ril)
+    left_inner_net = line_intersection(nt, lil)
+
+    inl = [ left_inner_net[0], left_inner_net[1], right_inner_net[0], right_inner_net[1] ] # İç file çizgisi
+
     til_mid = getLineMidPoint(til)
     inl_mid = getLineMidPoint(inl)
 
 
-
-    #! 1-) YER-VOLE VURUŞU DERİNLİĞİ
-
+    #! 1-) YER-VOLE VURUŞU DERİNLİĞİ ALANLARI
     line_data = {}
-    line_data['net_line'] = net
+    line_data['net_line'] = nt
     line_data["top_inner_line"] = til
     line_data["top_inner_service_line"] = tisl
-    line_data["left_inner_near_net_line"] = [ left_inner_net_x, left_inner_net_y, til[0], til[1] ]
-    line_data["right_inner_near_net_line"] = [ right_inner_net_x, right_inner_net_y, til[2], til[3] ]
+    line_data["left_inner_near_net_line"] = [ left_inner_net[0], left_inner_net[1], til[0], til[1] ]
+    line_data["right_inner_near_net_line"] = [ right_inner_net[0], right_inner_net[1], til[2], til[3] ]
     line_data["left_top_short_line"] = [ lil[0], lil[1], til[0], til[1] ]
     line_data["right_top_short_line"] = [ ril[0], ril[1], til[2], til[3] ]
     line_data["middle_top_line"] = [ til_mid[0], til_mid[1], inl_mid[0], inl_mid[1] ]
@@ -135,11 +126,15 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     point_area_data["area_4"] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2] ]
     point_area_data["area_3"] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2] ]
     point_area_data["area_2"] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
-    point_area_data["area_1"] = [ til[:2], til[2:], (int(right_inner_net_x), int(right_inner_net_y)), (int(left_inner_net_x), int(left_inner_net_y)) ]
+    point_area_data["area_1"] = [ til[:2], til[2:], (right_inner_net[0], right_inner_net[1]), (left_inner_net[0], left_inner_net[1]) ]
 
 
     #! 2-) YER VURUŞU HASSASİYETİ
+    
 
+
+
+    
 
 
 
