@@ -41,13 +41,14 @@ class KafkaManager():
                     logger.warning(f"Failed to create topic {topic}: {e}") 
 
     def deleteTopics(self, topic_list):
-        fs = self.adminC.delete_topics(topic_list)
-        for topic, f in fs.items():
-            try:
-                f.result()
-                logger.info(f"Topic {topic} deleted")
-            except Exception as e:
-                logger.warning(f"Failed to delete topic {topic}: {e}")
+        if len(topic_list) > 0:
+            fs = self.adminC.delete_topics(topic_list)
+            for topic, f in fs.items():
+                try:
+                    f.result()
+                    logger.info(f"Topic {topic} deleted")
+                except Exception as e:
+                    logger.warning(f"Failed to delete topic {topic}: {e}")
 
     def updateTopics(self, topicName):
         topics = set(self.getTopicList().topics.keys())
@@ -55,7 +56,14 @@ class KafkaManager():
         newTopicName = set([topicName])
         self.createTopics((newTopicName - existTopics))
 
-    def updateThreads(self):
+    def deleteNotUsingTopic(self):
+        topics = set(self.getTopicList().topics.keys())
+        existTopics = topics - TOPICS_IGNORE_SET
+        items = set(self.producer_thread_statuses.keys())
+        dellTopics = existTopics - items
+        self.deleteTopics([*dellTopics])
+
+    def updateThreads(self): 
         # Eğer bu thread yoksa temizle
         running_threads = [thread.name for thread in threading.enumerate()]
         items = list(self.producer_thread_statuses.keys())
@@ -64,6 +72,8 @@ class KafkaManager():
                 try:
                     self.producer_thread_statuses.pop(item)
                 except: pass
+        self.deleteNotUsingTopic()
+
 
     def getProducerThreads(self):
         self.updateThreads()

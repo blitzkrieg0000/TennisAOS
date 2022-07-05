@@ -60,9 +60,9 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
     def savePlayingData(self, stream_id, data):
         return self.rcm.writeCache(
-        f'''INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area) \
+        f'''INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
         VALUES(%s,%s,%s,%s,%s,%s,%s)''',
-        [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"] ,data["ball_position_area"],data["player_position_area"]]) 
+        [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"] ,data["ball_position_area"],data["player_position_area"], data["ball_fall_array"] ]) 
 
     def topicGarbageCollector(self, context, newCreatedTopicName):
         def cb():
@@ -167,8 +167,10 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             # TODO 1-Database e noktaları kaydet.
             # TODO 2-Puanlama yap
+
             receivedData["ball_position_area"] = self.obj2bytes(all_points)
             receivedData["player_position_area"] = self.obj2bytes([])
+
             self.savePlayingData(receivedData["id"], receivedData)
 
             return rc.responseData(data=fall_points)
