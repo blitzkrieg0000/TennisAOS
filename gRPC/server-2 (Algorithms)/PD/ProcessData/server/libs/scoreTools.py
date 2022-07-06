@@ -24,7 +24,7 @@ def scoreTypes(key):
 def get_score(polygons:dict, point):
     for i, key in enumerate(polygons.keys()):
         points = polygons[key]
-        if polygon_tool.is_inside_polygon(points=points, p=point):
+        if polygon_tool.is_inside_polygon(points=points, p=point[0]):
             score = scoreTypes(key)
             return score 
     return None
