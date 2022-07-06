@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11processData.proto\x12\x05\x63\x61\x63he\"!\n\x11processAOSRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\"\n\x12processAOSResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32R\n\x0bProcessData\x12\x43\n\nprocessAOS\x12\x18.cache.processAOSRequest\x1a\x19.cache.processAOSResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x11processData.proto\x12\x05\x63\x61\x63he\"0\n\x11processAOSRequest\x12\r\n\x05\x66rame\x18\x01 \x01(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\"1\n\x12processAOSResponse\x12\r\n\x05\x66rame\x18\x01 \x01(\x0c\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\x0c\x32R\n\x0bProcessData\x12\x43\n\nprocessAOS\x12\x18.cache.processAOSRequest\x1a\x19.cache.processAOSResponse\"\x00\x62\x06proto3')
 
 
 
@@ -39,9 +39,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _PROCESSAOSREQUEST._serialized_start=28
-  _PROCESSAOSREQUEST._serialized_end=61
-  _PROCESSAOSRESPONSE._serialized_start=63
-  _PROCESSAOSRESPONSE._serialized_end=97
-  _PROCESSDATA._serialized_start=99
-  _PROCESSDATA._serialized_end=181
+  _PROCESSAOSREQUEST._serialized_end=76
+  _PROCESSAOSRESPONSE._serialized_start=78
+  _PROCESSAOSRESPONSE._serialized_end=127
+  _PROCESSDATA._serialized_start=129
+  _PROCESSDATA._serialized_end=211
 # @@protoc_insertion_point(module_scope)
