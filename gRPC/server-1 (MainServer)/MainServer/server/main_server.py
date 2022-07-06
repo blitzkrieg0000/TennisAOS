@@ -168,11 +168,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
 
             # TODO 2-Puanlama yap - CLIENTTEN GÖNDER
-            processData = []
+            processData = {}
             processData["aos_type"] = 1
             processData["fall_point"] = self.bytes2obj(fall_points)
             processData["court_lines"] = streamData[2]
-            canvas, processedData = self.processDataClient.processAOS(image = last_frame , data=processData)
+            canvas, processedData = self.processDataClient.processAOS(image = last_frame, data=processData)
 
             receivedData["score"] = processedData["score"]
             receivedData["ball_position_area"] = self.obj2bytes(all_points)
@@ -181,7 +181,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             self.savePlayingData(receivedData["id"], receivedData)
             
-            responseClientData = []
+            responseClientData = {}
             responseClientData["frame"] = canvas
             responseClientData["fall_point"] = processData["fall_point"]
             responseClientData["score"] = processedData["score"]
