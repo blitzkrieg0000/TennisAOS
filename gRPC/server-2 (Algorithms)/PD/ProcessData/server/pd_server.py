@@ -39,12 +39,12 @@ class PDServer(rc_grpc.ProcessDataServicer):
         line_data, point_area_data, canvas = extractSpecialLocations(courtLines=data["court_lines"], canvas=canvas, AOS_TYPE=data["aos_type"])
         score = get_score(point_area_data, data["fall_point"])
         
-        responseData = []
+        responseData = {}
         responseData["score"] = score
         responseData["line_data"] = line_data
         responseData["point_area_data"] = point_area_data
 
-        return rc.processAOSResponse(data=self.obj2bytes(responseData), frame=self.bytes2img(canvas))
+        return rc.processAOSResponse(data=self.obj2bytes(responseData), frame=self.img2bytes(canvas))
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

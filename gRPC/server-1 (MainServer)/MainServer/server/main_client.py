@@ -74,11 +74,11 @@ if __name__ == "__main__":
     data["force"] = False
     data["limit"] = -1
 
+    data["aos_type"] = 1
     data["player_id"] = 1
     data["court_id"] = 1
     data["aos_type_id"] = 3
     data["stream_id"] = 1
-    
     data["ball_position_area"] = []
     data["ball_fall_array"] = []
     data["player_position_area"] = []

@@ -166,18 +166,21 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)
 
+            #PROCESS DATA
             processData = {}
-            processData["aos_type"] = 1 # TODO 2-Puanlama yap - CLIENTTEN GÖNDER
             processData["fall_point"] = self.bytes2obj(fall_points)
-
             processData["court_lines"] = self.bytes2obj(streamData[2])
-            canvas, processedData = self.processDataClient.processAOS(image = last_frame, data=processData)
-
+            processData["aos_type"] = receivedData["aos_type"]
+            canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)
+            
+            
+            processedData = self.bytes2obj(processedData)
             receivedData["score"] = processedData["score"]
             receivedData["ball_position_area"] = self.obj2bytes(all_points)
             receivedData["player_position_area"] = self.obj2bytes([])
             receivedData["ball_fall_array"] = fall_points
-
+            
+            # SAVE DATA
             self.savePlayingData(receivedData["id"], receivedData)
             
             responseClientData = {}
