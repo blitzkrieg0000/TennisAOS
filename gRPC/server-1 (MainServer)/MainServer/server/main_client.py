@@ -125,15 +125,14 @@ if __name__ == "__main__":
         canvas = bytes2img(canvas)
 
         score = resdata["score"]
+        points = resdata["fall_point"]
         logger.info(f"PUAN: {score} ")
 
-
-
         # PRINT
-        for p in res:
+        for p in points:
             cimage = cv2.circle(canvas, (int(p[0]),int(p[1])), 5, (0,255,0),1)
-
-        cv2.imshow("", canvas)
+            cimage = cv2.putText(cimage, f"Score: {score}",(960, 720), cv2.FONT_HERSHEY_TRIPLEX, 1, (255,255,255))
+        cv2.imshow("", cimage)
         cv2.waitKey(0)
 
 
