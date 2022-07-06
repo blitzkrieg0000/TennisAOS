@@ -78,7 +78,7 @@ if __name__ == "__main__":
     data["court_id"] = 1
     data["aos_type_id"] = 3
     data["stream_id"] = 1
-    data["score"] = 4
+    
     data["ball_position_area"] = []
     data["ball_fall_array"] = []
     data["player_position_area"] = []
@@ -87,11 +87,9 @@ if __name__ == "__main__":
     data["consumer_thread_name"] = ""
     data["producer_thread_name"] = ""
 
-
     TEST=args.test
 
     if TEST==1:
-        from drawLines import *
         res = mc.detectCourtLines(data)
 
         points = mc.bytes2obj(res)
@@ -101,7 +99,7 @@ if __name__ == "__main__":
         cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
         ret, cimage = cam.read()
 
-        line_data, point_area_data, cimage = extractSpecialLines(points, cimage)
+        #line_data, point_area_data, cimage = extractSpecialLocations(points, cimage, AOS_TYPE=3)
 
         # for i, line in enumerate(points):
         #     if len(line)>0:
@@ -116,14 +114,18 @@ if __name__ == "__main__":
 
     elif TEST==2:
         res = mc.startGameObservation(data)
+        resdata = mc.bytes2obj(res) # "score", "fall_point"
+
+        canvas = resdata["frame"]
+
+        score = resdata["score"]
+        logger.info(f"PUAN: {score} ")
 
         # PRINT
-        cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
-        ret, cimage = cam.read()
         for p in res:
-            cimage = cv2.circle(cimage, (int(p[0]),int(p[1])), 5, (0,255,0),1)
+            cimage = cv2.circle(canvas, (int(p[0]),int(p[1])), 5, (0,255,0),1)
 
-        cv2.imshow("", cimage)
+        cv2.imshow("", canvas)
         cv2.waitKey(0)
 
 

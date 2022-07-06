@@ -127,6 +127,18 @@ services:
       - tennisnet
     ports:
       - "50023:50023"
+  processdataservice:
+    image: processdataservice
+    build: 
+      context: "../gRPC/server-2 (Algorithms)/PD/"
+      dockerfile: dockerfile
+    hostname: processdataservice
+    container_name: processdataservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50024:50024"
   trackballservice:
     image: trackballservice
     build: 

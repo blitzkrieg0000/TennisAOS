@@ -53,15 +53,15 @@ def reorderLines(line):
     x2, y2 = max(line, key=lambda item:item[axis])
     return [x1, y1, x2, y2]
 
-def drawExtraLine(data:dict, canvas_image_skt, lineColor=(145, 35, 128)):
+def drawExtraLine(data:dict, canvas, lineColor=(145, 35, 128)):
 
     for key in data.keys():
         line = data[key] 
-        canvas_image_skt = cv2.line(canvas_image_skt, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), lineColor, 2, cv2.LINE_AA) 
-    return canvas_image_skt
+        canvas = cv2.line(canvas, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), lineColor, 2, cv2.LINE_AA) 
+    return canvas
 
-def drawExtraPolly(points_dict:dict, canvas_image_skt):
-    shapes = np.zeros_like(canvas_image_skt, np.uint8)
+def drawExtraPolly(points_dict:dict, canvas):
+    shapes = np.zeros_like(canvas, np.uint8)
     colors = colorManager.getColorSet("AOS_2")
     
     for i, key in enumerate(points_dict.keys()):
@@ -70,9 +70,9 @@ def drawExtraPolly(points_dict:dict, canvas_image_skt):
     
     alpha = 0.5
     mask = shapes.astype(bool)
-    canvas_image_skt[mask] = cv2.addWeighted(canvas_image_skt, alpha, shapes, 1 - alpha, 0)[mask]
+    canvas[mask] = cv2.addWeighted(canvas, alpha, shapes, 1 - alpha, 0)[mask]
      
-    return canvas_image_skt
+    return canvas
 
 def getLinePointWithRatio(line, ratio=0.5):
     x1, y1, x2, y2 = line
@@ -105,8 +105,7 @@ def line_intersection(line1, line2):
     intersection = l1.intersection(l2)
     return intersection[0].coordinates
 
-def extractSpecialLines(courtLines, canvas_image_skt):
-    
+def extractSpecialLocations(courtLines, canvas, AOS_TYPE:int=1):
     # Çizgilerin başlangıç noktası sol-üste yakın olan olacak şekilde ayarla
     for i, item in enumerate(courtLines):
         courtLines[i] = reorderLines(item)
@@ -127,11 +126,8 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     rin = line_intersection(nl, ril)            #* Sağ iç file çizgisi noktası
     lin = line_intersection(nl, lil)            #* Sol iç file çizgisi noktası
     inl = [ lin[0], lin[1], rin[0], rin[1] ]    # İç file çizgisi
-
     til_mid = getLineMidPoint(til)
     inl_mid = getLineMidPoint(inl)
-
-    AOS_TYPE=3
 
     if AOS_TYPE==1:
     #! 1-) YER-VOLE VURUŞU DERİNLİĞİ ALANLARI
@@ -153,7 +149,6 @@ def extractSpecialLines(courtLines, canvas_image_skt):
         point_area_data["aos_1_area_3"] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
         point_area_data["aos_1_area_2"] = [ line_data["middle_top_line"][:2], til[2:], line_data["right_inner_near_net_line"][2:], line_data["middle_top_line"][2:] ]        
         point_area_data["aos_1_area_1"] = [ til[:2], line_data["middle_top_line"][:2], line_data["middle_top_line"][2:], inl[:2] ]
-
 
     elif AOS_TYPE==2: 
         #! 2-) YER VURUŞU HASSASİYETİ
@@ -195,12 +190,13 @@ def extractSpecialLines(courtLines, canvas_image_skt):
         point_area_data["aos_3_area_2"] = [ line_data["middle_top_short_near_net_line"][:2], line_data["point_line_2"][:2], line_data["point_line_2"][2:], line_data["middle_top_short_near_net_line"][2:] ]
         point_area_data["aos_3_area_1"] = [ til[:2], lcross, line_data["point_line_1"][2:], inl[:2] ]
 
-    canvas_image_skt = drawExtraPolly(point_area_data, canvas_image_skt)
-    canvas_image_skt = drawExtraLine(line_data, canvas_image_skt)
+
+    canvas = drawExtraPolly(point_area_data, canvas)
+    canvas = drawExtraLine(line_data, canvas)
 
     # Test: İşaretlemek için
-    # canvas_image_skt = cv2.circle(canvas_image_skt, (int(lil[0]), int(lil[1])),5, (255,255,255), -1)
-    return line_data, point_area_data, canvas_image_skt
+    # canvas = cv2.circle(canvas, (int(lil[0]), int(lil[1])),5, (255,255,255), -1)
+    return line_data, point_area_data, canvas
 
 
 """

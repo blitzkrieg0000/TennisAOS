@@ -15,7 +15,7 @@ from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
-
+from clients.ProcessData.pd_client import PDClient
 
 class MainServer(rc_grpc.mainRouterServerServicer):
     EXCEPT_PREFIX = ['']
@@ -28,6 +28,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         self.kcm = KafkaConsumerManager()
         self.tbc = TBClient()
         self.pfpc = PFPClient()
+        self.processDataClient = PDClient()
 
     # HELPERS------------------------------------------------------------------
     def bytes2obj(self, bytes):
@@ -149,6 +150,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
+            last_frame = []
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 
                 #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
@@ -158,24 +160,32 @@ class MainServer(rc_grpc.mainRouterServerServicer):
                 points = self.bytes2obj(balldata)
                 all_points.append(points)
 
-            # # DELETE TOPIC
-            # self.tbc.deleteDetector(newCreatedTopicName)
-            # self.kpm.deleteTopics([newCreatedTopicName])
+                last_frame = bytes_frame.data
+
 
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)
 
-    
 
+            # TODO 2-Puanlama yap - CLIENTTEN GÖNDER
+            processData = []
+            processData["aos_type"] = 1
+            processData["fall_point"] = self.bytes2obj(fall_points)
+            processData["court_lines"] = streamData[2]
+            canvas, processedData = self.processDataClient.processAOS(image = last_frame , data=processData)
 
-
-            # TODO 2-Puanlama yap
+            receivedData["score"] = processedData["score"]
             receivedData["ball_position_area"] = self.obj2bytes(all_points)
             receivedData["player_position_area"] = self.obj2bytes([])
             receivedData["ball_fall_array"] = fall_points
-            self.savePlayingData(receivedData["id"], receivedData)
 
-            return rc.responseData(data=fall_points)
+            self.savePlayingData(receivedData["id"], receivedData)
+            
+            responseClientData = []
+            responseClientData["frame"] = canvas
+            responseClientData["fall_point"] = processData["fall_point"]
+            responseClientData["score"] = processedData["score"]
+            return rc.responseData(data=responseClientData)
 
     def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())
