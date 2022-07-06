@@ -166,10 +166,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)
 
-
-            # TODO 2-Puanlama yap - CLIENTTEN GÖNDER
             processData = {}
-            processData["aos_type"] = 1
+            processData["aos_type"] = 1 # TODO 2-Puanlama yap - CLIENTTEN GÖNDER
             processData["fall_point"] = self.bytes2obj(fall_points)
             processData["court_lines"] = streamData[2]
             canvas, processedData = self.processDataClient.processAOS(image = last_frame, data=processData)

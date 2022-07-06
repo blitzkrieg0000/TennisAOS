@@ -10,7 +10,7 @@ import processData_pb2_grpc as rc_grpc
 import cv2
 import numpy as np
 
-class PDServer(rc_grpc.detectCourtLineServicer):
+class PDServer(rc_grpc.ProcessDataServicer):
 
     def __init__(self):
         pass

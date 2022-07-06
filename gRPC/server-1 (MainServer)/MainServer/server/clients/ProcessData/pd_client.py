@@ -29,7 +29,6 @@ class PDClient():
         return pickle.dumps(obj)
 
     def processAOS(self, image, data):
-
         requestData = rc.processAOSRequest(frame=image, data=self.obj2bytes(data))
         responseData = self.stub.processAOS(requestData)
         frame = responseData.frame
