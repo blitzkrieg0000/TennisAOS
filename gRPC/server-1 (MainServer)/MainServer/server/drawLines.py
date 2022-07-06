@@ -114,7 +114,7 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     # YER VURUŞU DERİNLİĞİ
     tbl = courtLines[0]                         # Üst base çizgisi
     bbl = courtLines[1]                         # Alt base çizgisi
-    nt = courtLines[2]                          # File Çizgisi
+    nl = courtLines[2]                          # File Çizgisi
     lcl = courtLines[3]                         # Sol çizgi
     rcl = courtLines[4]                         # Sağ çizgi
     lil = courtLines[5]                         # Sol iç çizgi
@@ -124,54 +124,76 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     bil = courtLines[9]                         # Alt iç çizgi
     tibl = [ lil[0], lil[1], ril[0], ril[1] ]   # Üst iç base çizgisi
     bibl = [ lil[2], lil[3], ril[2], ril[3] ]   # Alt iç base çizgisi
-    rin = line_intersection(nt, ril)            #* Sağ iç file çizgisi noktası
-    lin = line_intersection(nt, lil)            #* Sol iç file çizgisi noktası
-    inl = [ lin[0], lin[1], rin[0], rin[1] ] # İç file çizgisi
+    rin = line_intersection(nl, ril)            #* Sağ iç file çizgisi noktası
+    lin = line_intersection(nl, lil)            #* Sol iç file çizgisi noktası
+    inl = [ lin[0], lin[1], rin[0], rin[1] ]    # İç file çizgisi
 
     til_mid = getLineMidPoint(til)
     inl_mid = getLineMidPoint(inl)
 
+    AOS_TYPE=1
 
+    if AOS_TYPE==1:
     #! 1-) YER-VOLE VURUŞU DERİNLİĞİ ALANLARI
-    # line_data = {}
-    # line_data['net_line'] = nt
-    # line_data["top_inner_line"] = til
-    # line_data["top_inner_base_line"] = tibl
-    # line_data["left_inner_near_net_line"] = [ lin[0], lin[1], til[0], til[1] ]
-    # line_data["right_inner_near_net_line"] = [ rin[0], rin[1], til[2], til[3] ]
-    # line_data["left_top_short_line"] = [ lil[0], lil[1], til[0], til[1] ]
-    # line_data["right_top_short_line"] = [ ril[0], ril[1], til[2], til[3] ]
-    # line_data["middle_top_line"] = [ til_mid[0], til_mid[1], inl_mid[0], inl_mid[1] ]
-    # line_data["point_line_1"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], 0.33), *getLinePointWithRatio(line_data["right_top_short_line"], 0.33) ] #4p - 3p
-    # line_data["point_line_2"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], (2/3)), *getLinePointWithRatio(line_data["right_top_short_line"], (2/3)) ] #3p-2p
+        line_data = {}
+        line_data['net_line'] = inl
+        line_data["top_inner_line"] = til
+        line_data["top_inner_base_line"] = tibl
+        line_data["left_inner_near_net_line"] = [ til[0], til[1], lin[0], lin[1]]
+        line_data["right_inner_near_net_line"] = [ til[2], til[3], rin[0], rin[1]]
+        line_data["left_top_short_line"] = [ lil[0], lil[1], til[0], til[1] ]
+        line_data["right_top_short_line"] = [ ril[0], ril[1], til[2], til[3] ]
+        line_data["middle_top_line"] = [ til_mid[0], til_mid[1], inl_mid[0], inl_mid[1] ]
+        line_data["point_line_1"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], 0.33), *getLinePointWithRatio(line_data["right_top_short_line"], 0.33) ] #4p - 3p
+        line_data["point_line_2"] = [ *getLinePointWithRatio(line_data["left_top_short_line"], (2/3)), *getLinePointWithRatio(line_data["right_top_short_line"], (2/3)) ] #3p-2p
 
-    # point_area_data = {}
-    # point_area_data["aos_1_area_4"] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2] ]
-    # point_area_data["aos_1_area_3"] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2] ]
-    # point_area_data["aos_1_area_2"] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
-    # point_area_data["aos_1_area_1"] = [ til[:2], til[2:], (rin[0], rin[1]), (lin[0], lin[1]) ]
+        point_area_data = {}
+        point_area_data["aos_1_area_5"] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2] ]
+        point_area_data["aos_1_area_4"] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2] ]
+        point_area_data["aos_1_area_3"] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
+        point_area_data["aos_1_area_2"] = [ line_data["middle_top_line"][:2], til[2:], line_data["right_inner_near_net_line"][2:], line_data["middle_top_line"][2:] ]        
+        point_area_data["aos_1_area_1"] = [ til[:2], line_data["middle_top_line"][:2], line_data["middle_top_line"][2:], inl[:2] ]
 
 
-    #! 2-) YER VURUŞU HASSASİYETİ
-    line_data = {}
-    line_data["point_line_1"] = [  *getLinePointWithRatio(tibl, 0.25), *getLinePointWithRatio(inl, 0.25) ] #4p - 3p
-    line_data["point_line_2"] = [  *getLinePointWithRatio(tibl, 0.75), *getLinePointWithRatio(inl, 0.75) ] #3p-2p
-    line_data["right_inner_near_net_line"] = [ tibl[2], tibl[3], rin[0], rin[1] ]
-    line_data["left_inner_near_net_line"] = [ tibl[0], tibl[1], lin[0], lin[1] ]
-    line_data["top_inner_base_line"] = tibl
-    line_data["inner_net"] = inl
-    line_data["top_inner_line"] = til
+    elif AOS_TYPE==2: 
+        #! 2-) YER VURUŞU HASSASİYETİ
+        line_data = {}
+        line_data["point_line_1"] = [  *getLinePointWithRatio(tibl, 0.25), *getLinePointWithRatio(inl, 0.25) ] #4p - 3p
+        line_data["point_line_2"] = [  *getLinePointWithRatio(tibl, 0.75), *getLinePointWithRatio(inl, 0.75) ] #3p-2p
+        line_data["right_inner_near_net_line"] = [ tibl[2], tibl[3], rin[0], rin[1] ]
+        line_data["left_inner_near_net_line"] = [ tibl[0], tibl[1], lin[0], lin[1] ]
+        line_data["top_inner_base_line"] = tibl
+        line_data["inner_net"] = inl
+        line_data["top_inner_line"] = til
 
-    point_area_data = {}
-    lcross = line_intersection(line_data["point_line_1"], til)
-    rcross = line_intersection(line_data["point_line_2"], til)
-    point_area_data["aos_2_area_6"] = [ tibl[:2], line_data["point_line_1"][:2], lcross, til[:2] ]
-    point_area_data["aos_2_area_5"] = [ line_data["point_line_1"][:2], line_data["point_line_2"][:2], rcross, lcross ]
-    point_area_data["aos_2_area_4"] = [ line_data["point_line_2"][:2], tibl[2:], til[2:], rcross ]
-    point_area_data["aos_2_area_3"] = [ rcross, til[2:], inl[2:], line_data["point_line_2"][2:] ]
-    point_area_data["aos_2_area_2"] = [ lcross, rcross, line_data["point_line_2"][2:], line_data["point_line_1"][2:] ]
-    point_area_data["aos_2_area_1"] = [ til[:2], lcross, line_data["point_line_1"][2:], inl[:2] ]
+        point_area_data = {}
+        lcross = line_intersection(line_data["point_line_1"], til)
+        rcross = line_intersection(line_data["point_line_2"], til)
+        point_area_data["aos_2_area_6"] = [ tibl[:2], line_data["point_line_1"][:2], lcross, til[:2] ]
+        point_area_data["aos_2_area_5"] = [ line_data["point_line_1"][:2], line_data["point_line_2"][:2], rcross, lcross ]
+        point_area_data["aos_2_area_4"] = [ line_data["point_line_2"][:2], tibl[2:], til[2:], rcross ]
+        point_area_data["aos_2_area_3"] = [ rcross, til[2:], inl[2:], line_data["point_line_2"][2:] ]
+        point_area_data["aos_2_area_2"] = [ lcross, rcross, line_data["point_line_2"][2:], line_data["point_line_1"][2:] ]
+        point_area_data["aos_2_area_1"] = [ til[:2], lcross, line_data["point_line_1"][2:], inl[:2] ]
     
+    elif AOS_TYPE==3:
+    #! 3-) SERVİS VURUŞU HASSASİYETİ
+        line_data = {}
+        line_data["point_line_1"] = [  *getLinePointWithRatio(til, 0.25), *getLinePointWithRatio(inl, 0.25) ] #4p - 3p
+        line_data["point_line_2"] = [  *getLinePointWithRatio(til, 0.75), *getLinePointWithRatio(inl, 0.75) ] #3p-2p
+        line_data["right_inner_short_near_net_line"] = [ til[2], til[3], rin[0], rin[1] ]
+        line_data["left_inner_short_near_net_line"] = [ til[0], til[1], lin[0], lin[1] ]
+        line_data["middle_top_short_near_net_line"] = [ ml[0], ml[1], *line_intersection(inl, ml)  ]
+        line_data["inner_net"] = inl
+        line_data["top_inner_line"] = til
+        
+        point_area_data = {}
+        lcross = line_intersection(line_data["point_line_1"], til)
+        rcross = line_intersection(line_data["point_line_2"], til)
+        point_area_data["aos_3_area_4"] = [ rcross, til[2:], inl[2:], line_data["point_line_2"][2:] ]
+        point_area_data["aos_3_area_3"] = [ line_data["point_line_1"][:2], line_data["middle_top_short_near_net_line"][:2], line_data["middle_top_short_near_net_line"][2:], line_data["point_line_1"][2:] ]
+        point_area_data["aos_3_area_2"] = [ line_data["middle_top_short_near_net_line"][:2], line_data["point_line_2"][:2], line_data["point_line_2"][2:], line_data["middle_top_short_near_net_line"][2:] ]
+        point_area_data["aos_3_area_1"] = [ til[:2], lcross, line_data["point_line_1"][2:], inl[:2] ]
 
     canvas_image_skt = drawExtraPolly(point_area_data, canvas_image_skt)
     canvas_image_skt = drawExtraLine(line_data, canvas_image_skt)
@@ -179,10 +201,6 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     # Test: İşaretlemek için
     # canvas_image_skt = cv2.circle(canvas_image_skt, (int(lil[0]), int(lil[1])),5, (255,255,255), -1)
     return line_data, point_area_data, canvas_image_skt
-
-
-
-
 
 
 """
