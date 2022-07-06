@@ -131,7 +131,7 @@ def extractSpecialLines(courtLines, canvas_image_skt):
     til_mid = getLineMidPoint(til)
     inl_mid = getLineMidPoint(inl)
 
-    AOS_TYPE=1
+    AOS_TYPE=3
 
     if AOS_TYPE==1:
     #! 1-) YER-VOLE VURUŞU DERİNLİĞİ ALANLARI
