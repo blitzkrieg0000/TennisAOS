@@ -169,7 +169,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             processData = {}
             processData["aos_type"] = 1 # TODO 2-Puanlama yap - CLIENTTEN GÖNDER
             processData["fall_point"] = self.bytes2obj(fall_points)
-            processData["court_lines"] = streamData[2]
+            processData["court_lines"] = self.bytes2obj(streamData[2])
             canvas, processedData = self.processDataClient.processAOS(image = last_frame, data=processData)
 
             receivedData["score"] = processedData["score"]
