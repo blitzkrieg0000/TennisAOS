@@ -4,7 +4,7 @@ package stream;
 // Service
 service mainRouterServer {
   rpc detectCourtLinesController(requestData) returns (responseData) {}
-  rpc gameObservationController(requestData) returns (responseData) {}
+  rpc gameObservationController(requestData) returns (gameObservationControllerResponse) {}
   rpc getProducerThreads(requestData) returns (responseData) {}
   rpc stopProduce(requestData) returns (responseData) {}
   rpc stopAllProducerThreads(requestData) returns (responseData) {}
@@ -21,4 +21,9 @@ message requestData {
 // Response Array
 message responseData{
   bytes data=1;
+}
+
+message gameObservationControllerResponse{
+  bytes data=1;
+  bytes frame=2;
 }

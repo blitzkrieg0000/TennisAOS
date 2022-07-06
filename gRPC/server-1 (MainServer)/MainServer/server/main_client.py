@@ -26,7 +26,7 @@ class MainClient():
     def startGameObservation(self, data):
         requestData = rc.requestData(data=self.obj2bytes(data))
         response = self.stub.gameObservationController(requestData)
-        return self.bytes2obj(response.data)
+        return response.data, response.frame
 
     def getProducerThreads(self):
         requestData = rc.requestData(data=self.obj2bytes(b""))
@@ -61,6 +61,13 @@ class MainClient():
 if __name__ == "__main__":
     import cv2
     import argparse
+    import numpy as np
+
+    def bytes2img(image):
+        nparr = np.frombuffer(image, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        return frame
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--test', type=int, required=True)
@@ -113,13 +120,14 @@ if __name__ == "__main__":
 
 
     elif TEST==2:
-        res = mc.startGameObservation(data)
+        res, canvas = mc.startGameObservation(data)
         resdata = mc.bytes2obj(res) # "score", "fall_point"
-
-        canvas = resdata["frame"]
+        canvas = bytes2img(canvas)
 
         score = resdata["score"]
         logger.info(f"PUAN: {score} ")
+
+
 
         # PRINT
         for p in res:

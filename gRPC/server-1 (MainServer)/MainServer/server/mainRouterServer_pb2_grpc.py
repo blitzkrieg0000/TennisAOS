@@ -23,7 +23,7 @@ class mainRouterServerStub(object):
         self.gameObservationController = channel.unary_unary(
                 '/stream.mainRouterServer/gameObservationController',
                 request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
-                response_deserializer=mainRouterServer__pb2.responseData.FromString,
+                response_deserializer=mainRouterServer__pb2.gameObservationControllerResponse.FromString,
                 )
         self.getProducerThreads = channel.unary_unary(
                 '/stream.mainRouterServer/getProducerThreads',
@@ -120,7 +120,7 @@ def add_mainRouterServerServicer_to_server(servicer, server):
             'gameObservationController': grpc.unary_unary_rpc_method_handler(
                     servicer.gameObservationController,
                     request_deserializer=mainRouterServer__pb2.requestData.FromString,
-                    response_serializer=mainRouterServer__pb2.responseData.SerializeToString,
+                    response_serializer=mainRouterServer__pb2.gameObservationControllerResponse.SerializeToString,
             ),
             'getProducerThreads': grpc.unary_unary_rpc_method_handler(
                     servicer.getProducerThreads,
@@ -193,7 +193,7 @@ class mainRouterServer(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/gameObservationController',
             mainRouterServer__pb2.requestData.SerializeToString,
-            mainRouterServer__pb2.responseData.FromString,
+            mainRouterServer__pb2.gameObservationControllerResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

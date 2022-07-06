@@ -184,10 +184,10 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             self.savePlayingData(receivedData["id"], receivedData)
             
             responseClientData = {}
-            responseClientData["frame"] = canvas
             responseClientData["fall_point"] = processData["fall_point"]
             responseClientData["score"] = processedData["score"]
-            return rc.responseData(data=responseClientData)
+
+            return rc.gameObservationControllerResponse(data=self.obj2bytes(responseClientData), frame=canvas)
 
     def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())

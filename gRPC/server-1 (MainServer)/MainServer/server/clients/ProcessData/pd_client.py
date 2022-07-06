@@ -33,7 +33,7 @@ class PDClient():
         responseData = self.stub.processAOS(requestData)
         frame = responseData.frame
         resData = responseData.data
-        return self.bytes2img(frame), resData
+        return frame, resData
 
     def disconnect(self):
         self.channel.close()
