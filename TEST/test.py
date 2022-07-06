@@ -1,114 +1,30 @@
 import random
-import numpy as np
-import cv2
+import collections
 
-EPS = np.finfo(float).eps
-RANDOM_COLOR = lambda : (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+class ColorManager():
+    def __init__(self):
+        self._colorSets = collections.defaultdict()
+        self.RANDOM_COLOR = lambda : (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
 
-colors = []
-for x in range(4):
-    colors.append(RANDOM_COLOR()) 
+    def listColorSets(self):
+        return list(self._colorSets.keys())
 
-def isVertical(line) -> bool:
-    """
-    else horizontal or diagonal 
-    Params:
-        line -> [P1x, P1y, P2x, P2y]
-    """
-    return (abs(line[3]-line[1]) > abs(line[2]-line[0]))
+    def getColorSet(self, name):
+        try : return self._colorSets[str(name)]
+        except: return [self.RANDOM_COLOR()]
 
-def reorderLines(line):
-    """
-    İlk nokta, sol ve üstte kalacak şekilde yeniden noktayı düzenle
-    Params:
-        line -> [P1x, P1y, P2x, P2y]
-    """
-    axis = 1 if isVertical(line) else 0
-    line = [line[:2], line[2:]]
-    x1, y1 = min(line, key=lambda item:item[axis])
-    x2, y2 = max(line, key=lambda item:item[axis])
-    return [x1, y1, x2, y2]
+    def setRandomColorSet(self, name, q):
+        if q>0: self._colorSets[str(name)] = [self.RANDOM_COLOR() for _ in range(q)]
 
-def drawExtraLine(data:dict, canvas_image_skt):
-    for key in data.keys():
-        line = data[key] 
-        canvas_image_skt = cv2.line(canvas_image_skt, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), (255, 255, 255), 2, cv2.LINE_AA) 
-    return canvas_image_skt
+    def setColorSet(self, name, arr: list):
+        """ Color array must like that: [(255, 255, 255), (0, 0, 0), (120, 150, 180)...]"""
+        self._colorSets[str(name)] = arr
 
-def drawExtraPolly(points_dict:dict, canvas_image_skt):
-    shapes = np.zeros_like(canvas_image_skt, np.uint8)
+    def deleteColorSet(self, name):
+        try: self._colorSets.pop(name)
+        except: pass
 
-    for i,key in enumerate(points_dict.keys()):
-        points = np.array(points_dict[key], np.int32)
-        
-        canvas_image_skt = cv2.fillPoly(canvas_image_skt, [points], colors[i], 1)
 
-        alpha = 0.8
-        mask = shapes.astype(bool)
-        canvas_image_skt[mask] = cv2.addWeighted(canvas_image_skt, alpha, shapes, 1 - alpha, 0)[mask]
-     
-    return canvas_image_skt
-
-def getLinePointWithRatio(line, ratio=0.5):
-    x1, y1, x2, y2 = line
-    m = (y2-y1)/((x2-x1)+EPS)
-    len_y = (y2-y1)
-    point_y = y1+len_y*ratio
-    point_x = ((point_y-y1)/(m+EPS)) + x1
-    return (point_x, point_y)
-
-def getPointOnLine(line, xx=None, yy=None):
-    m = (line[3]-line[1]) / ((line[2]-line[0])+EPS)
-    if yy is None:
-        f = lambda x: ((x-line[0])*m + line[1])
-        return f(xx)
-    elif xx is None:
-        f = lambda y: ((y-line[1]) / (m+EPS))+line[0]
-        return f(yy)
-    else:
-        raise "İki değer birden sağlanamaz!"
-
-def getLineMidPoint(line):
-    point = ( int((line[0] + line[2])/2), int((line[1] + line[3])/2) )
-    return point
-
-def extractSpecialLines(courtLines, canvas_image_skt):
-    line_data = {}
-
-    baseline_top = courtLines[:4]
-    baseline_bottom = courtLines[4:8]
-    net = courtLines[8:12]
-    left_court_line = courtLines[12:16]
-    right_court_line = courtLines[16:20]
-    left_inner_line = courtLines[20:24]
-    right_inner_line = courtLines[24:28]
-    middle_line = courtLines[28:32]
-    top_inner_line = courtLines[32:36]
-    bottom_inner_line = courtLines[36:40]
-
-    bil = reorderLines(bottom_inner_line) # Alt iç çizgi
-    til = reorderLines(top_inner_line)    # Üst iç çizgi
-    lil = reorderLines(left_inner_line)   # Sol iç çizgi
-    ril = reorderLines(right_inner_line)  # Sağ iç çizgi
-    lcl = reorderLines(left_court_line)   
-    rcl = reorderLines(right_court_line)
-
-    left_net_inner = getLineMidPoint([ til[0], til[1], bil[0], bil[1] ])
-    right_net_inner = getLineMidPoint([ til[2], til[3], bil[2], bil[3] ])
-
-    line_data['net'] = (getPointOnLine(lcl, yy=left_net_inner[1]), left_net_inner[1], getPointOnLine(rcl, yy=right_net_inner[1]), right_net_inner[1]) # Net(Tenis Filesi) çizgisinin en dış çizgiden başlaması için
-    line_data["left_top_short_line"] = [ lil[0], lil[1], til[0], til[1] ]
-    line_data["right_top_short_line"] = [ ril[0], ril[1], til[2], til[3] ]
-    line_data["point_line_1"] = (*getLinePointWithRatio(line_data["left_top_short_line"], 0.33), *getLinePointWithRatio(line_data["right_top_short_line"], 0.33) ) #4p - 3p
-    line_data["point_line_2"] = (*getLinePointWithRatio(line_data["left_top_short_line"], (2/3)), *getLinePointWithRatio(line_data["right_top_short_line"], (2/3)) ) #3p-2p
-
-    point_area_data = {}
-    point_area_data['area_4'] = [ lil[:2], ril[:2], line_data["point_line_1"][2:], line_data["point_line_1"][:2]]
-    point_area_data['area_3'] = [ line_data["point_line_1"][:2], line_data["point_line_1"][2:], line_data["point_line_2"][2:],  line_data["point_line_2"][:2]]
-    point_area_data['area_2'] = [ line_data["point_line_2"][:2], line_data["point_line_2"][2:], til[2:], til[:2] ]
-    point_area_data['area_1'] = [ til[:2], til[2:], right_net_inner, left_net_inner]
-
-    canvas_image_skt = drawExtraPolly(point_area_data, canvas_image_skt)
-    canvas_image_skt = drawExtraLine(line_data, canvas_image_skt)
-    #canvas_image_skt = cv2.circle(canvas_image_skt, (int(lil[0]), int(lil[1])),5, (255,255,255), -1)
-    return line_data, point_area_data, canvas_image_skt
+cm = ColorManager()
+cm.setRandomColorSet("AOS_1", 10)
+print(cm.getColorSet("AOS_1"))
