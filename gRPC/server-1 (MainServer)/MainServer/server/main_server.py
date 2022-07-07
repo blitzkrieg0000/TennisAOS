@@ -102,8 +102,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             #! 2-REDIS:
             # TOPIC ismini kaydet
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
-            
 
+            
 
             # TODO
             #? SADECE TEK BİR FRAME İÇİN PRODUCE VE CONSUME YAPMAK NE KADAR MANTIKLI ?
