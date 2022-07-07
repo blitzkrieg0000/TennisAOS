@@ -68,7 +68,6 @@ if __name__ == "__main__":
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         return frame
 
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--test', type=int, required=True)
     args = parser.parse_args()
@@ -77,7 +76,7 @@ if __name__ == "__main__":
     
     # DATAS BY SENT CLIENT
     data={}
-    data["id"] = 1               
+    data["id"] = 2        
     data["force"] = False
     data["limit"] = -1
 
@@ -103,16 +102,16 @@ if __name__ == "__main__":
         logger.info(points)
 
         # PRINT
-        cam = cv2.VideoCapture("/home/blitzkrieg/source/repos/TennisAOS/gRPC/assets/videos/throw_videos/throw_2.mp4")
+        cam = cv2.VideoCapture("/srv/nfs/mydata/docker-tennis/assets/video_0.mp4")
         ret, cimage = cam.read()
 
         #line_data, point_area_data, cimage = extractSpecialLocations(points, cimage, AOS_TYPE=3)
 
-        # for i, line in enumerate(points):
-        #     if len(line)>0:
-        #         cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
-        #     if i==10:
-        #         break
+        for i, line in enumerate(points):
+            if len(line)>0:
+                cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
+            if i==10:
+                break
 
         cv2.imshow("", cimage)
         cv2.waitKey(0)
