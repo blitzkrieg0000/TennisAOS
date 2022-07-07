@@ -53,6 +53,14 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         streamData = self.bytes2obj(streamData)
         return streamData
 
+    # TODO court point, d çekilecek
+    def getCourtPointAreaId(self, AOS_TYPE_ID):
+        QUERY = f'''SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'''
+        streamData = self.rcm.isCached(query=QUERY)
+        streamData = self.bytes2obj(streamData)
+        return streamData
+
+
     def saveTopicName(self, stream_id, newCreatedTopicName):
         return self.rcm.writeCache(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
 
@@ -167,12 +175,12 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             fall_points = self.pfpc.predictFallPosition(all_points)
 
             #PROCESS DATA
+            court_point_area_data = self.getCourtPointAreaId(receivedData["aos_type_id"])
             processData = {}
             processData["fall_point"] = self.bytes2obj(fall_points)
             processData["court_lines"] = self.bytes2obj(streamData[2])
-            processData["aos_type"] = receivedData["aos_type"]
+            processData["aos_type_id"] = court_point_area_data[1]
             canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)
-            
             
             processedData = self.bytes2obj(processedData)
             receivedData["score"] = processedData["score"]

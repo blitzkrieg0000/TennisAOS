@@ -21,7 +21,16 @@ class PFPServer(rc_grpc.predictFallPositionServicer):
     def predictFallPositionController(self, request, context):
         points = self.bytes2obj(request.points)
         sp = StatusPredicter()
-        predicted_points = sp.predictFallBallPositon(points)
+        window_length = 5
+        for i in range(15):
+            sp = StatusPredicter()
+            predicted_points = sp.predictFallBallPositon(points, window=window_length)
+            if predicted_points is not None and len(predicted_points) == 1:
+                break
+            window_length+=3
+            if window_length%2 == 0:
+                window_length = window_length + 1
+
         return rc.predictFallPositionControllerResponse(points=self.obj2bytes(predicted_points))
 
 def serve():

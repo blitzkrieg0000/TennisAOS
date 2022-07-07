@@ -7,7 +7,7 @@ from scipy.signal import find_peaks
 
 class StatusPredicter():
 
-    def predictFallBallPositon(self, ball_positions, verbose=False):
+    def predictFallBallPositon(self, ball_positions, window = 5, verbose=False):
         """Topun ve oyuncuların konumunu kullanarak önemli bilgileri çıkart"""
 
         #!TOPUN KONUMLARI INTERPOLASYONU
@@ -24,8 +24,13 @@ class StatusPredicter():
         ball_x = ball_x[ball_x != None]
 
         # Savitzky-Golay Filter
-        smooth_y = signal.savgol_filter(ball_y, 41, 2)  # 41-3, 41,2, 5-3
-        smooth_x = signal.savgol_filter(ball_x, 41, 2)
+        window = len(ball_y) if len(ball_y) < window else window
+        
+        if window%2==0:
+            window = window -1
+
+        smooth_y = signal.savgol_filter(ball_y, window, 3)  # 31-3, 41-3, 5-3
+        smooth_x = signal.savgol_filter(ball_x, window, 3)
 
         array_length = len(smooth_y)
 

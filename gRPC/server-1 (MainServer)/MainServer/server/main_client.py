@@ -76,14 +76,14 @@ if __name__ == "__main__":
     
     # DATAS BY SENT CLIENT
     data={}
-    data["id"] = 2        
+    data["id"] = 2
     data["force"] = False
     data["limit"] = -1
 
-    data["aos_type"] = 1
+    data["aos_type_id"] = 3
     data["player_id"] = 1
     data["court_id"] = 1
-    data["aos_type_id"] = 3
+    
     data["stream_id"] = 1
     data["ball_position_area"] = []
     data["ball_fall_array"] = []
@@ -97,12 +97,11 @@ if __name__ == "__main__":
 
     if TEST==1:
         res = mc.detectCourtLines(data)
-
         points = mc.bytes2obj(res)
         logger.info(points)
 
         # PRINT
-        cam = cv2.VideoCapture("/srv/nfs/mydata/docker-tennis/assets/video_0.mp4")
+        cam = cv2.VideoCapture(f"/srv/nfs/mydata/docker-tennis/assets/video_{data['id']}.mp4")
         ret, cimage = cam.read()
 
         #line_data, point_area_data, cimage = extractSpecialLocations(points, cimage, AOS_TYPE=3)
@@ -128,12 +127,14 @@ if __name__ == "__main__":
         logger.info(f"PUAN: {score} ")
 
         # PRINT
-        for p in points:
-            cimage = cv2.circle(canvas, (int(p[0]),int(p[1])), 5, (0,255,0),1)
-            cimage = cv2.putText(cimage, f"Score: {score}",(960, 720), cv2.FONT_HERSHEY_TRIPLEX, 1, (255,255,255))
-        cv2.imshow("", cimage)
-        cv2.waitKey(0)
-
+        if points is not None:
+            for p in points:
+                cimage = cv2.circle(canvas, (int(p[0]),int(p[1])), 5, (0,255,0),1)
+                cimage = cv2.putText(cimage, f"Score: {score}",(960, 720), cv2.FONT_HERSHEY_TRIPLEX, 1, (255,255,255))
+            cv2.imshow("", cimage)
+            cv2.waitKey(0)
+        else:
+            print("Düşme Noktası Bulunamadı.!")
 
     elif TEST==3:
         producers = mc.getProducerThreads()
