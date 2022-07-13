@@ -103,20 +103,13 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             # TOPIC ismini kaydet
             res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
 
-            
-
-            # TODO
-            #? SADECE TEK BİR FRAME İÇİN PRODUCE VE CONSUME YAPMAK NE KADAR MANTIKLI ?
-            
-            #? 3-KAFKA_PRODUCER:
+            #! 3-KAFKA_PRODUCER:
             # Streaming başlat
             threadName = self.kpm.startProduce(newCreatedTopicName, streamUrl, limit=1)
             
-            #? 4-KAFKA_CONSUMER:
+            #! 4-KAFKA_CONSUMER:
             # Streaming oku
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-courtlinedetector-0", 1, False)
-
-
 
             #! 5-COURT_LINE_DETECTOR:
             # Tenis sahasının çizgilerini bul

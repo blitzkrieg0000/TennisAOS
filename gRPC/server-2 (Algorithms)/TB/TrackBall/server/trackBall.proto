@@ -1,5 +1,5 @@
 syntax = "proto3";
-package cache;
+package tennis;
 
 // Service
 service trackBall {

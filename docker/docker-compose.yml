@@ -210,7 +210,7 @@ services:
       - postgresservice
   #TRITON
   triton:
-    image: nvcr.io/nvidia/tritonserver:22.05-py3
+    image: tritonserver:latest #nvcr.io/nvidia/tritonserver:22.05-py3
     entrypoint: /bin/bash
     command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false"
     restart: always
