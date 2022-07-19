@@ -1,3 +1,4 @@
+from asyncio.log import logger
 import random
 import numpy as np
 import collections
@@ -77,10 +78,16 @@ def drawExtraPolly(points_dict:dict, canvas):
 def getLinePointWithRatio(line, ratio=0.5):
     x1, y1, x2, y2 = line
     m = (y2-y1)/((x2-x1)+EPS)
-    len_y = (y2-y1)
-    point_y = y1+len_y*ratio
-    point_x = ((point_y-y1)/(m+EPS)) + x1
+    if not (m==0):
+        len_y = (y2-y1)
+        point_y = y1+len_y*ratio
+        point_x = getPointOnLine(line, yy=point_y)
+    else:
+        len_x = (x2-x1)
+        point_x = x1+len_x*ratio
+        point_y = getPointOnLine(line, xx=point_x)
     return (point_x, point_y)
+    
 
 def getPointOnLine(line, xx=None, yy=None):
     m = (line[3]-line[1]) / ((line[2]-line[0])+EPS)

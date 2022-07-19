@@ -1,4 +1,3 @@
-from http.client import ImproperConnectionState
 from itertools import combinations
 
 import cv2
