@@ -3,7 +3,8 @@ import queue
 import time
 import cv2
 import numpy as np
-from libs.inference import InferenceManager
+# from libs.inference import InferenceManager
+from libs.inference_local import InferenceManager
 
 class KalmanFilter:
 	kf = cv2.KalmanFilter(4, 2)
@@ -202,7 +203,6 @@ class TrackNetObjectDetection(object):
 
 			#TODO INFERENCE
 			# Inference
-			#pr = self.session.run(None, {self.input_name : [X]})[0]
 			tic = time.time()
 			pr = self.inferenceManager.inference(X)
 			toc = time.time()

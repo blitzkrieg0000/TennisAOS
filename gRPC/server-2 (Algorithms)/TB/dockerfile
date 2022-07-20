@@ -1,9 +1,8 @@
-FROM ubuntu:latest
+FROM nvidia/cuda:11.6.2-cudnn8-runtime-ubuntu20.04
 
 WORKDIR /usr/src/app
 
 COPY requirements.txt .
-
 RUN export DEBIAN_FRONTEND=noninteractive &&\
     apt-get update &&\
     apt-get install apt-utils -y &&\
@@ -13,5 +12,11 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     apt-get install ffmpeg libsm6 libxext6 -y &&\
     python3 -m pip install --upgrade pip &&\
     pip install --no-cache-dir -r requirements.txt
+
+COPY ./onnxruntime-1.11.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl .
+RUN pip install onnx
+RUN pip install onnxruntime
+RUN pip install onnxruntime-gpu
+
 COPY . .
 CMD [ "python3", "TrackBall/server/tb_server.py" ]
