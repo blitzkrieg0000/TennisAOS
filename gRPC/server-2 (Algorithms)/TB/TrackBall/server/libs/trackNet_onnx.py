@@ -4,7 +4,7 @@ import time
 import cv2
 import numpy as np
 # from libs.inference import InferenceManager
-from libs.inference_local import InferenceManager
+from libs.inference import InferenceManager
 
 class KalmanFilter:
 	kf = cv2.KalmanFilter(4, 2)

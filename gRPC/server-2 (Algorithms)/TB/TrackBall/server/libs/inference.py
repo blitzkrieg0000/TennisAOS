@@ -34,27 +34,11 @@ class InferenceManager():
 
         # Infer
         inputs = []
-        outputs = []
-
         inputs.append(grpcclient.InferInput('input_1', [ 9, 360, 640 ], "FP32"))
-
-        # Create the data for the two input tensors. Initialize the first
-        # to unique integers and the second to all ones.
-        #input0_data = np.expand_dims(input0_data, axis=0)
-
-        # Initialize the data
         inputs[0].set_data_from_numpy(input0_data)
-        outputs.append(grpcclient.InferRequestedOutput('activation_18'))
 
-        # # Test with outputs
-        # results = self.triton_client.infer(model_name=model_name, inputs=inputs, outputs=outputs,
-        #     client_timeout=self.client_timeout,
-        #     headers={'test': '1'},
-        #     compression_algorithm=self.grpc_compression_algorithm)
-
-        # Test with no outputs
-        results = self.triton_client.infer(model_name=model_name, inputs=inputs, outputs=None,
-            compression_algorithm=self.grpc_compression_algorithm)
+        results = self.triton_client.infer(model_name=model_name, inputs=inputs, outputs=None, 
+        compression_algorithm=self.grpc_compression_algorithm, priority=0)
 
         if self.verbose:
             statistics = self.triton_client.get_inference_statistics(model_name=model_name)

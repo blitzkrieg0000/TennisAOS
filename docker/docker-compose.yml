@@ -217,26 +217,26 @@ services:
       - postgresservice
   
   #TRITON
-  # triton:
-  #   image: tritonserver:latest #nvcr.io/nvidia/tritonserver:22.05-py3
-  #   entrypoint: /bin/bash
-  #   command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false"
-  #   restart: always
-  #   ports:
-  #     - "8000:8000"
-  #     - "8001:8001"
-  #     - "8002:8002"
-  #   volumes:
-  #     - models:/models
-  #   networks:
-  #     - tennisnet
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [gpu]
+  triton:
+    image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
+    entrypoint: /bin/bash
+    command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false"
+    restart: always
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - models:/models
+    networks:
+      - tennisnet
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
 volumes:
   broker0:
