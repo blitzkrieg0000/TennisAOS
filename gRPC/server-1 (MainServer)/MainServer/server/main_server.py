@@ -172,7 +172,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             processData = {}
             processData["fall_point"] = self.bytes2obj(fall_points)
             processData["court_lines"] = self.bytes2obj(streamData[2])
-            processData["aos_type_id"] = court_point_area_data[1]
+            processData["court_point_area_id"] = court_point_area_data[1]
             canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)
             
             processedData = self.bytes2obj(processedData)
@@ -195,8 +195,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
     def stopProduce(self, request, context):
         #Bu topic producer çalışıyorsa durdur.
-        data = self.bytes2obj(request.data)
-        self.kpm.stopProduce(f'streaming_thread_{data["producer_thread_name"]}')
+        self.kpm.stopProduce(f'streaming_thread_{request.data}')
         return rc.responseData(data=b"TRYING STOP PRODUCER...")
 
     def stopAllProducerThreads(self, request, context):
@@ -207,8 +206,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         return rc.responseData(data=self.kcm.getRunningConsumers()) 
 
     def stopRunningConsumer(self, request, context):
-        data = self.bytes2obj(request.data)
-        msg = self.kcm.stopRunningCosumer(data["consumer_thread_name"])
+        msg = self.kcm.stopRunningCosumer(request.data)
         return rc.responseData(data=b"TRYING STOP CONSUMER...")
 
     def stopAllRunningConsumers(self, request, context):

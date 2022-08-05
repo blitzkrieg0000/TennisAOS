@@ -36,7 +36,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
         data = self.bytes2obj(request.data)
 
         canvas = frame.copy()
-        line_data, point_area_data, canvas = extractSpecialLocations(courtLines=data["court_lines"], canvas=canvas, AOS_TYPE=data["aos_type_id"])
+        line_data, point_area_data, canvas = extractSpecialLocations(courtLines=data["court_lines"], canvas=canvas, AOS_TYPE=data["court_point_area_id"])
         score = get_score(point_area_data, data["fall_point"])
         
         responseData = {}
