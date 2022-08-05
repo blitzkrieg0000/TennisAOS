@@ -17,12 +17,12 @@ class mainRouterServerStub(object):
         """
         self.detectCourtLinesController = channel.unary_unary(
                 '/stream.mainRouterServer/detectCourtLinesController',
-                request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
+                request_serializer=mainRouterServer__pb2.detectCourtLinesRequestData.SerializeToString,
                 response_deserializer=mainRouterServer__pb2.responseData.FromString,
                 )
         self.gameObservationController = channel.unary_unary(
                 '/stream.mainRouterServer/gameObservationController',
-                request_serializer=mainRouterServer__pb2.requestData.SerializeToString,
+                request_serializer=mainRouterServer__pb2.gameObservationRequestData.SerializeToString,
                 response_deserializer=mainRouterServer__pb2.gameObservationControllerResponse.FromString,
                 )
         self.getProducerThreads = channel.unary_unary(
@@ -114,12 +114,12 @@ def add_mainRouterServerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'detectCourtLinesController': grpc.unary_unary_rpc_method_handler(
                     servicer.detectCourtLinesController,
-                    request_deserializer=mainRouterServer__pb2.requestData.FromString,
+                    request_deserializer=mainRouterServer__pb2.detectCourtLinesRequestData.FromString,
                     response_serializer=mainRouterServer__pb2.responseData.SerializeToString,
             ),
             'gameObservationController': grpc.unary_unary_rpc_method_handler(
                     servicer.gameObservationController,
-                    request_deserializer=mainRouterServer__pb2.requestData.FromString,
+                    request_deserializer=mainRouterServer__pb2.gameObservationRequestData.FromString,
                     response_serializer=mainRouterServer__pb2.gameObservationControllerResponse.SerializeToString,
             ),
             'getProducerThreads': grpc.unary_unary_rpc_method_handler(
@@ -175,7 +175,7 @@ class mainRouterServer(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/detectCourtLinesController',
-            mainRouterServer__pb2.requestData.SerializeToString,
+            mainRouterServer__pb2.detectCourtLinesRequestData.SerializeToString,
             mainRouterServer__pb2.responseData.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -192,7 +192,7 @@ class mainRouterServer(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/stream.mainRouterServer/gameObservationController',
-            mainRouterServer__pb2.requestData.SerializeToString,
+            mainRouterServer__pb2.gameObservationRequestData.SerializeToString,
             mainRouterServer__pb2.gameObservationControllerResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

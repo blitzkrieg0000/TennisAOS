@@ -46,9 +46,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             return prefix
         return f"{prefix}-{id}-{self.getUID()}"
 
-    def getStreamData(self, receivedData):
-        stream_id = receivedData["id"]
-        QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={stream_id} AND is_activated=true'''
+    def getStreamData(self, id):
+        QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'''
         streamData = self.rcm.isCached(query=QUERY)
         streamData = self.bytes2obj(streamData)
         return streamData
@@ -84,12 +83,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
     
     # ALGORITHMS---------------------------------------------------------------
     def detectCourtLinesController(self, request, context):
-        receivedData = self.bytes2obj(request.data)
-
+        
         #! 1-REDIS: 
         # Stream bilgilerini al
-        streamData = self.getStreamData(receivedData)
-        if streamData[2] is not None and not receivedData["force"]:
+        streamData = self.getStreamData(request.id)
+        if streamData[2] is not None and not request.force:
             return rc.responseData(data=streamData[2])
 
         if len(streamData)>0:
@@ -101,7 +99,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             #! 2-REDIS:
             # TOPIC ismini kaydet
-            res = self.saveTopicName(receivedData["id"], newCreatedTopicName)
+            res = self.saveTopicName(request.id, newCreatedTopicName)
 
             #! 3-KAFKA_PRODUCER:
             # Streaming başlat
@@ -118,14 +116,14 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             #! 6-REDIS:
             # Tenis çizgilerini postgresqle kaydet
-            self.saveCourtLinePoints(receivedData["id"], courtPoints)
+            self.saveCourtLinePoints(request.id, courtPoints)
             
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
 
             return rc.responseData(data=courtPoints)
         else:
-            assert "Stream Data (ID={}) Not Found".format(receivedData["id"])
+            assert "Stream Data (ID={}) Not Found".format(request.id)
 
     def gameObservationController(self, request, context):
         receivedData = self.bytes2obj(request.data)

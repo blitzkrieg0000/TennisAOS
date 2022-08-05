@@ -14,11 +14,13 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16mainRouterServer.proto\x12\x06stream\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"@\n!gameObservationControllerResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\r\n\x05\x66rame\x18\x02 \x01(\x0c\x32\xd2\x04\n\x10mainRouterServer\x12I\n\x1a\x64\x65tectCourtLinesController\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12]\n\x19gameObservationController\x12\x13.stream.requestData\x1a).stream.gameObservationControllerResponse\"\x00\x12\x41\n\x12getProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12:\n\x0bstopProduce\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x45\n\x16stopAllProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13stopRunningConsumer\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x46\n\x17stopAllRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16mainRouterServer.proto\x12\x06stream\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"8\n\x1b\x64\x65tectCourtLinesRequestData\x12\n\n\x02id\x18\x01 \x01(\x03\x12\r\n\x05\x66orce\x18\x02 \x01(\x08\"m\n\x1agameObservationRequestData\x12\n\n\x02id\x18\x01 \x01(\x03\x12\r\n\x05limit\x18\x02 \x01(\x03\x12\x11\n\taosTypeId\x18\x03 \x01(\x03\x12\x10\n\x08playerId\x18\x04 \x01(\x03\x12\x0f\n\x07\x63ourtId\x18\x05 \x01(\x03\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"@\n!gameObservationControllerResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x12\r\n\x05\x66rame\x18\x02 \x01(\x0c\x32\xf1\x04\n\x10mainRouterServer\x12Y\n\x1a\x64\x65tectCourtLinesController\x12#.stream.detectCourtLinesRequestData\x1a\x14.stream.responseData\"\x00\x12l\n\x19gameObservationController\x12\".stream.gameObservationRequestData\x1a).stream.gameObservationControllerResponse\"\x00\x12\x41\n\x12getProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12:\n\x0bstopProduce\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x45\n\x16stopAllProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13stopRunningConsumer\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x46\n\x17stopAllRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x62\x06proto3')
 
 
 
 _REQUESTDATA = DESCRIPTOR.message_types_by_name['requestData']
+_DETECTCOURTLINESREQUESTDATA = DESCRIPTOR.message_types_by_name['detectCourtLinesRequestData']
+_GAMEOBSERVATIONREQUESTDATA = DESCRIPTOR.message_types_by_name['gameObservationRequestData']
 _RESPONSEDATA = DESCRIPTOR.message_types_by_name['responseData']
 _GAMEOBSERVATIONCONTROLLERRESPONSE = DESCRIPTOR.message_types_by_name['gameObservationControllerResponse']
 requestData = _reflection.GeneratedProtocolMessageType('requestData', (_message.Message,), {
@@ -27,6 +29,20 @@ requestData = _reflection.GeneratedProtocolMessageType('requestData', (_message.
   # @@protoc_insertion_point(class_scope:stream.requestData)
   })
 _sym_db.RegisterMessage(requestData)
+
+detectCourtLinesRequestData = _reflection.GeneratedProtocolMessageType('detectCourtLinesRequestData', (_message.Message,), {
+  'DESCRIPTOR' : _DETECTCOURTLINESREQUESTDATA,
+  '__module__' : 'mainRouterServer_pb2'
+  # @@protoc_insertion_point(class_scope:stream.detectCourtLinesRequestData)
+  })
+_sym_db.RegisterMessage(detectCourtLinesRequestData)
+
+gameObservationRequestData = _reflection.GeneratedProtocolMessageType('gameObservationRequestData', (_message.Message,), {
+  'DESCRIPTOR' : _GAMEOBSERVATIONREQUESTDATA,
+  '__module__' : 'mainRouterServer_pb2'
+  # @@protoc_insertion_point(class_scope:stream.gameObservationRequestData)
+  })
+_sym_db.RegisterMessage(gameObservationRequestData)
 
 responseData = _reflection.GeneratedProtocolMessageType('responseData', (_message.Message,), {
   'DESCRIPTOR' : _RESPONSEDATA,
@@ -48,10 +64,14 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _REQUESTDATA._serialized_start=34
   _REQUESTDATA._serialized_end=61
-  _RESPONSEDATA._serialized_start=63
-  _RESPONSEDATA._serialized_end=91
-  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_start=93
-  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_end=157
-  _MAINROUTERSERVER._serialized_start=160
-  _MAINROUTERSERVER._serialized_end=754
+  _DETECTCOURTLINESREQUESTDATA._serialized_start=63
+  _DETECTCOURTLINESREQUESTDATA._serialized_end=119
+  _GAMEOBSERVATIONREQUESTDATA._serialized_start=121
+  _GAMEOBSERVATIONREQUESTDATA._serialized_end=230
+  _RESPONSEDATA._serialized_start=232
+  _RESPONSEDATA._serialized_end=260
+  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_start=262
+  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_end=326
+  _MAINROUTERSERVER._serialized_start=329
+  _MAINROUTERSERVER._serialized_end=954
 # @@protoc_insertion_point(module_scope)
