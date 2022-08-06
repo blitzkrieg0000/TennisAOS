@@ -3,9 +3,9 @@ from libs.logger import logger
 import pickle
 import time
 from concurrent import futures
-
+import cv2
 import grpc
-
+import numpy as np
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
 from clients.DetectCourtLines.dcl_client import DCLClient
@@ -36,6 +36,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
+
+    def bytes2Frame(self, img):
+        nparr = np.frombuffer(img, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        return frame
 
     def getUID(self):
         return int.from_bytes(hl.md5(str(time.time()).encode("utf-8")).digest(), "big")
@@ -120,10 +125,21 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
+            
 
-            return rc.responseData(data=courtPoints)
+            #TODO Draw Lines
+            cimage = self.bytes2Frame(bytes_frame.data)
+            for i, line in enumerate(self.bytes2obj(courtPoints)):
+                if len(line)>0:
+                    cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
+                if i==10:
+                    break
+
+            res, encodedImg = cv2.imencode('.jpg', cimage)
+            return rc.responseData(data=encodedImg.tobytes())
         else:
             assert "Stream Data (ID={}) Not Found".format(request.id)
+
 
     def gameObservationController(self, request, context):
         receivedData = self.bytes2obj(request.data)

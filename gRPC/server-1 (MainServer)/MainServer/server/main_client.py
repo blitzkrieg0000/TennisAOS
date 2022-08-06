@@ -6,7 +6,6 @@ import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
 from libs.logger import logger
 
-
 class MainClient():
     def __init__(self):
         self.channel = grpc.insecure_channel("localhost:50011") #MAIN-SERVICE-DEPLOYMENT-IP TODO: NODEPORT İLE DIŞARI AÇILACAK TEK BİR DEPLOYMENTA BU ŞEKİLDE BAĞLANILMAYACAK
@@ -111,7 +110,7 @@ if __name__ == "__main__":
                 cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
             if i==10:
                 break
-
+                
         cv2.imshow("", cimage)
         cv2.waitKey(0)
         cam.release()

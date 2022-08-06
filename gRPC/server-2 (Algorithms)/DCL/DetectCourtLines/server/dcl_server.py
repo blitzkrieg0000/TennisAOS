@@ -34,7 +34,6 @@ class DCLServer(rc_grpc.detectCourtLineServicer):
             logger.info("Saha Tespiti Başarısız !")
 
         court_points = list(court_points)
-
         return rc.extractCourtLinesResponse(point=self.obj2bytes(court_points))
 
 def serve():
