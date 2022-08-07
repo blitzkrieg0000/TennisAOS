@@ -1,3 +1,4 @@
+from ast import Return
 import base64
 import hashlib as hl
 from libs.logger import logger
@@ -88,6 +89,24 @@ class MainServer(rc_grpc.mainRouterServerServicer):
                 break
         return LinePackage
 
+    def byte2frame(self, bytes_frame):
+        nparr = np.frombuffer(bytes_frame, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        return frame
+
+    def drawLines(self, cimage, points):
+        for i, line in enumerate(points):
+            if len(line)>0:
+                cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
+            if i==10:
+                break
+        return cimage
+
+    def frame2base64(self, frame):
+        etval, buffer = cv2.imencode('.png', frame)
+        Base64Img = base64.b64encode(buffer)
+        return Base64Img
+
     def topicGarbageCollector(self, context, newCreatedTopicName):
         def cb():
             logger.warning(f"Sonlanan işlem: {newCreatedTopicName}")
@@ -97,18 +116,27 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             self.kpm.deleteTopics([newCreatedTopicName])
         context.add_callback(cb)
     
+    def createResponseData(self, frame, courtPoints):
+        courtPoints = self.bytes2obj(courtPoints)
+        frame = self.drawLines(frame, courtPoints)
+        Base64Img = self.frame2base64(frame)
+        LineProto = self.convertPoint2ProtoCustomArray(courtPoints)
+        response = rc.LinesResponseData(lines=LineProto, frame=Base64Img)
+        return response
+
     # ALGORITHMS---------------------------------------------------------------
     def detectCourtLinesController(self, request, context):
         
-        #! 1-REDIS: 
+
+        #! REDIS: 
         # Stream bilgilerini al
         streamData = self.getStreamData(request.id)
-        if streamData[2] is not None and not request.force:
-            return rc.LinesResponseData(lines=self.convertPoint2ProtoCustomArray(self.bytes2obj(streamData[2])))
 
         if len(streamData)>0:
             streamName = streamData[0]
             streamUrl = streamData[1]
+            courtPoints = streamData[2]
+
             newCreatedTopicName = self.getTopicName(streamName, 0) # İşlenecek Görüntüler için Unique bir isim
 
             self.topicGarbageCollector(context, newCreatedTopicName)
@@ -128,6 +156,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             #! 5-COURT_LINE_DETECTOR:
             # Tenis sahasının çizgilerini bul
             for bytes_frame in BYTE_FRAMES_GENERATOR:
+                frame = self.byte2frame(bytes_frame.data)
+
+                if courtPoints is not None and not request.force:
+                    return self.createResponseData(frame, courtPoints)
+
                 courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
 
             #! 6-REDIS:
@@ -136,8 +169,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
-            
-            return rc.LinesResponseData(lines=self.convertPoint2ProtoCustomArray(self.bytes2obj(courtPoints)))
+
+            return self.createResponseData(frame, courtPoints)
         else:
             assert "Stream Data (ID={}) Not Found".format(request.id)
 
