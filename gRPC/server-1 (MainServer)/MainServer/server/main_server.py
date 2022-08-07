@@ -1,3 +1,4 @@
+import base64
 import hashlib as hl
 from libs.logger import logger
 import pickle
@@ -57,13 +58,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         streamData = self.bytes2obj(streamData)
         return streamData
 
-    # TODO court point, d çekilecek
     def getCourtPointAreaId(self, AOS_TYPE_ID):
         QUERY = f'''SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'''
         streamData = self.rcm.isCached(query=QUERY)
         streamData = self.bytes2obj(streamData)
         return streamData
-
 
     def saveTopicName(self, stream_id, newCreatedTopicName):
         return self.rcm.writeCache(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
@@ -76,6 +75,18 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         f'''INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)''',
         [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ]) 
+
+    def convertPoint2ProtoCustomArray(self,lineArray):
+        #TODO Serialize
+        LinePackage = rc.linePackage()
+        for i, line in enumerate(lineArray):
+            if len(line)>0:
+                Line = rc.line()
+                Line.items.extend([rc.number(data=line[0]), rc.number(data=line[1]), rc.number(data=line[2]), rc.number(data=line[3])])
+                LinePackage.items.extend([Line])
+            if i==10:
+                break
+        return LinePackage
 
     def topicGarbageCollector(self, context, newCreatedTopicName):
         def cb():
@@ -93,7 +104,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         # Stream bilgilerini al
         streamData = self.getStreamData(request.id)
         if streamData[2] is not None and not request.force:
-            return rc.responseData(data=streamData[2])
+            return rc.LinesResponseData(lines=self.convertPoint2ProtoCustomArray(self.bytes2obj(streamData[2])))
 
         if len(streamData)>0:
             streamName = streamData[0]
@@ -126,17 +137,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
             
-
-            #TODO Draw Lines
-            cimage = self.bytes2Frame(bytes_frame.data)
-            for i, line in enumerate(self.bytes2obj(courtPoints)):
-                if len(line)>0:
-                    cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
-                if i==10:
-                    break
-
-            res, encodedImg = cv2.imencode('.jpg', cimage)
-            return rc.responseData(data=encodedImg.tobytes())
+            return rc.LinesResponseData(lines=self.convertPoint2ProtoCustomArray(self.bytes2obj(courtPoints)))
         else:
             assert "Stream Data (ID={}) Not Found".format(request.id)
 
