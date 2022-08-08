@@ -155,6 +155,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             #! 5-COURT_LINE_DETECTOR:
             # Tenis sahasının çizgilerini bul
+            frame = []
+            courtPoints = b""
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 frame = self.byte2frame(bytes_frame.data)
 
@@ -169,7 +171,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
-
+            logger.info("INFO: ",courtPoints)
             return self.createResponseData(frame, courtPoints)
         else:
             assert "Stream Data (ID={}) Not Found".format(request.id)
