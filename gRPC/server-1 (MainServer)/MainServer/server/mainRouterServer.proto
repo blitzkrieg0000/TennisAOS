@@ -36,9 +36,16 @@ message responseData{
   bytes data=1;
 }
 
+
+message point{
+  float x=1;
+  float y=2;
+}
+
 message gameObservationControllerResponse{
-  bytes data=1;
-  bytes frame=2;
+  int32 score=1;
+  repeated point fallPoints=2;
+  string frame=3;
 }
 
 
