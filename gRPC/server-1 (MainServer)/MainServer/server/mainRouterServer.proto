@@ -31,11 +31,11 @@ message gameObservationRequestData{
   int64 courtId=5;
 }
 
+
 // Response Array
 message responseData{
   bytes data=1;
 }
-
 
 message point{
   float x=1;

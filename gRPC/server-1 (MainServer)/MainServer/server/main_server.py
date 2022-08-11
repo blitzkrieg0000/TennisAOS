@@ -89,7 +89,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         return LinePackage
 
 
-
     def drawLines(self, cimage, points):
         for i, line in enumerate(points):
             if len(line)>0:
@@ -170,7 +169,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         else:
             assert "Stream Data (ID={}) Not Found".format(request.id)
 
-
     def gameObservationController(self, request, context):
         allData = {}
 
@@ -210,6 +208,8 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)
+            
+            allData["ball_fall_array"] = fall_points
 
             #PROCESS DATA
             court_point_area_data = self.getCourtPointAreaId(request.aosTypeId)
@@ -223,9 +223,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             allData["score"] = processedData["score"]
             allData["ball_position_area"] = self.obj2bytes(all_points)
             allData["player_position_area"] = self.obj2bytes([])
-            allData["ball_fall_array"] = fall_points
             allData["stream_id"] = request.id
-            
             allData["player_id"] = request.playerId
             allData["court_id"] = request.courtId
             allData["aos_type_id"] = request.aosTypeId
@@ -237,7 +235,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             response = rc.gameObservationControllerResponse()
             for item in processData["fall_point"]:
                 point = rc.point(x=item[0], y=item[1])
-                response.extend([point])
+                response.fallPoints.extend([point])
 
             response.score=processedData["score"]
             response.frame=self.frame2base64(self.byte2frame(canvas))
