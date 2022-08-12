@@ -193,18 +193,20 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
-            last_frame = []
+            last_frame = None
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 
                 #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
                 #! 4-TRACKBALL (DETECTION)
+
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newCreatedTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
 
-                points = self.bytes2obj(balldata)
-                all_points.append(points)
+                all_points.append(self.bytes2obj(balldata))
 
                 last_frame = bytes_frame.data
 
+            if last_frame is None:
+                assert "last_frame is None"
 
             # PREDICT BALL POSITION
             fall_points = self.pfpc.predictFallPosition(all_points)
@@ -232,13 +234,24 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             self.savePlayingData(allData)
             
             # CreateResponse
+            canvas = self.byte2frame(canvas)
             response = rc.gameObservationControllerResponse()
-            for item in processData["fall_point"]:
-                point = rc.point(x=item[0], y=item[1])
+            
+            if processData["fall_point"] is not None:
+                for item in processData["fall_point"]:
+                    cv2.circle(canvas, (int(item[0]),int(item[1])), 3, (0,255,0), -1)
+                    point = rc.point(x=item[0], y=item[1])
+                    response.fallPoints.extend([point])
+            else:
+                point = rc.point(x=-1, y=-1)
                 response.fallPoints.extend([point])
 
-            response.score=processedData["score"]
-            response.frame=self.frame2base64(self.byte2frame(canvas))
+            if processedData["score"] is not None:
+                response.score = processedData["score"]
+            else:
+                response.score = 0
+                
+            response.frame=self.frame2base64(canvas)
 
         return response
 

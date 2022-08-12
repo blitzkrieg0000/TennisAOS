@@ -153,7 +153,7 @@ class KafkaManager():
         ret_limit_count=0
         limit_count=0
         while self.producer_thread_statuses[thName]:
-            if (limit_count>=limit and limit != -1) or ret_limit_count>RET_COUNT-1:
+            if (limit_count>=limit and limit > 0) or ret_limit_count>RET_COUNT-1:
                 break
 
             ret_val, img = cam.read()
@@ -165,7 +165,7 @@ class KafkaManager():
                     producer.produce(topicName, encodedImg.tobytes(), callback=self.delivery_report)
                     producer.poll(0)
                     ret_limit_count=0
-                    if limit != -1:
+                    if limit > 0:
                         limit_count+=1
                 else:
                     logger.info(f"Streamdeki resim karesi jpg formatına dönüştürülemedi:{streamUrl}")
