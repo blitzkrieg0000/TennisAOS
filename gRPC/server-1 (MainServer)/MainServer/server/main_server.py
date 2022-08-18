@@ -1,22 +1,25 @@
 import base64
 import hashlib as hl
-from libs.logger import logger
 import pickle
 import time
 from concurrent import futures
+
 import cv2
 import grpc
 import numpy as np
+
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
+from clients.PredictFallPosition.predictFallPosition_client import PFPClient
+from clients.ProcessData.pd_client import PDClient
 from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
-from clients.PredictFallPosition.predictFallPosition_client import PFPClient
-from clients.ProcessData.pd_client import PDClient
+from libs.logger import logger
+
 
 class MainServer(rc_grpc.mainRouterServerServicer):
     EXCEPT_PREFIX = ['']

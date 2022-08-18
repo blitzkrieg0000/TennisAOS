@@ -1,13 +1,16 @@
 import os
 import pickle
 import threading
-from libs.consts import *
 
-from confluent_kafka import Producer
-from confluent_kafka.admin import AdminClient, NewTopic
 import cv2
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
+from confluent_kafka import Producer
+from confluent_kafka.admin import AdminClient, NewTopic
+
+from libs.consts import *
 from libs.logger import logger
+
+
 class KafkaManager():
 
     def __init__(self):

@@ -1,10 +1,13 @@
 import logging
 import queue
 import time
+
 import cv2
 import numpy as np
+
 # from libs.inference import InferenceManager
 from libs.inference import InferenceManager
+
 
 class KalmanFilter:
 	kf = cv2.KalmanFilter(4, 2)
@@ -199,7 +202,6 @@ class TrackNetObjectDetection(object):
 
 			# TrackNet channel_first bir yapı alır yani 640, 360, 3 değilde 3, 640, 360 şeklinde input shape ister.
 			X = np.rollaxis(X, 2, 0)
-
 
 			#TODO INFERENCE
 			# Inference
