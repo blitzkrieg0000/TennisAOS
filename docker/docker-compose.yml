@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  # SERVERS
+  #! TOOLS
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.1
     hostname: zookeeper
@@ -67,14 +67,6 @@ services:
       - "6379:6379"
     depends_on:
       - postgres
-    environment:
-      POSTGRES_USER: tenis
-      POSTGRES_PASSWORD: 2sfcNavA89A294V4
-      POSTGRES_DB: tenis
-      PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_HOST_AUTH_METHOD: trust
-    volumes:
-      - postgresql:/var/lib/postgresql/data
   kafdrop:
     image: obsidiandynamics/kafdrop
     hostname: kafdrop
@@ -89,8 +81,29 @@ services:
     environment:
       KAFKA_BROKERCONNECT: "broker:9092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-  
-  # SERVICES
+  triton:
+    image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
+    entrypoint: /bin/bash
+    #command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --pinned-memory-pool-byte-size 5368709120 --cuda-memory-pool-byte-size 0:64 --backend-config='tensorrt','default-max-batch-size'='0'"
+    command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --backend-config='tensorrt','default-max-batch-size'='0'"
+    restart: always
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+      - "8002:8002"
+    volumes:
+      - models:/models
+    networks:
+      - tennisnet
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  #! SERVICES
   mainservice:
     image: mainservice
     build: 
@@ -216,29 +229,7 @@ services:
     depends_on:
       - postgresservice
   
-  #TRITON
-  triton:
-    image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
-    entrypoint: /bin/bash
-    #command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --pinned-memory-pool-byte-size 5368709120 --cuda-memory-pool-byte-size 0:64 --backend-config='tensorrt','default-max-batch-size'='0'"
-    command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --backend-config='tensorrt','default-max-batch-size'='0'"
-    restart: always
-    ports:
-      - "8000:8000"
-      - "8001:8001"
-      - "8002:8002"
-    volumes:
-      - models:/models
-    networks:
-      - tennisnet
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-
+#! VOLUMES
 volumes:
   broker0:
     driver_opts:
@@ -271,6 +262,7 @@ volumes:
       o: "addr=192.168.1.100,nolock,soft,rw"
       device: ":/srv/nfs/mydata/docker-tennis/assets"
 
+#! NETWORK
 networks:
   tennisnet:
     driver: bridge

@@ -1,10 +1,8 @@
 numpy
-sympy
 protobuf
 grpcio
 requests
 certifi
+pytz
 opencv-python
 opencv-contrib-python
-pytz
-confluent-kafka==1.8.2
