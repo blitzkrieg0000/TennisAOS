@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16mainRouterServer.proto\x12\x06stream\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"8\n\x1b\x64\x65tectCourtLinesRequestData\x12\n\n\x02id\x18\x01 \x01(\x03\x12\r\n\x05\x66orce\x18\x02 \x01(\x08\"m\n\x1agameObservationRequestData\x12\n\n\x02id\x18\x01 \x01(\x03\x12\r\n\x05limit\x18\x02 \x01(\x03\x12\x11\n\taosTypeId\x18\x03 \x01(\x03\x12\x10\n\x08playerId\x18\x04 \x01(\x03\x12\x0f\n\x07\x63ourtId\x18\x05 \x01(\x03\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\x1d\n\x05point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"d\n!gameObservationControllerResponse\x12\r\n\x05score\x18\x01 \x01(\x05\x12!\n\nfallPoints\x18\x02 \x03(\x0b\x32\r.stream.point\x12\r\n\x05\x66rame\x18\x03 \x01(\t\"\x16\n\x06number\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x02\"%\n\x04line\x12\x1d\n\x05items\x18\x01 \x03(\x0b\x32\x0e.stream.number\"*\n\x0blinePackage\x12\x1b\n\x05items\x18\x01 \x03(\x0b\x32\x0c.stream.line\"F\n\x11LinesResponseData\x12\"\n\x05lines\x18\x01 \x01(\x0b\x32\x13.stream.linePackage\x12\r\n\x05\x66rame\x18\x02 \x01(\t2\xf6\x04\n\x10mainRouterServer\x12^\n\x1a\x64\x65tectCourtLinesController\x12#.stream.detectCourtLinesRequestData\x1a\x19.stream.LinesResponseData\"\x00\x12l\n\x19gameObservationController\x12\".stream.gameObservationRequestData\x1a).stream.gameObservationControllerResponse\"\x00\x12\x41\n\x12getProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12:\n\x0bstopProduce\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x45\n\x16stopAllProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13stopRunningConsumer\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x46\n\x17stopAllRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16mainRouterServer.proto\x12\x06stream\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\">\n\x1b\x64\x65tectCourtLinesRequestData\x12\x10\n\x08streamId\x18\x01 \x01(\x03\x12\r\n\x05\x66orce\x18\x02 \x01(\x08\"s\n\x1agameObservationRequestData\x12\x10\n\x08streamId\x18\x01 \x01(\x03\x12\r\n\x05limit\x18\x02 \x01(\x03\x12\x11\n\taosTypeId\x18\x03 \x01(\x03\x12\x10\n\x08playerId\x18\x04 \x01(\x03\x12\x0f\n\x07\x63ourtId\x18\x05 \x01(\x03\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\x1d\n\x05point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"d\n!gameObservationControllerResponse\x12\r\n\x05score\x18\x01 \x01(\x05\x12!\n\nfallPoints\x18\x02 \x03(\x0b\x32\r.stream.point\x12\r\n\x05\x66rame\x18\x03 \x01(\t\"\x16\n\x06number\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x02\"%\n\x04line\x12\x1d\n\x05items\x18\x01 \x03(\x0b\x32\x0e.stream.number\"*\n\x0blinePackage\x12\x1b\n\x05items\x18\x01 \x03(\x0b\x32\x0c.stream.line\"F\n\x11LinesResponseData\x12\"\n\x05lines\x18\x01 \x01(\x0b\x32\x13.stream.linePackage\x12\r\n\x05\x66rame\x18\x02 \x01(\t2\xf6\x04\n\x10mainRouterServer\x12^\n\x1a\x64\x65tectCourtLinesController\x12#.stream.detectCourtLinesRequestData\x1a\x19.stream.LinesResponseData\"\x00\x12l\n\x19gameObservationController\x12\".stream.gameObservationRequestData\x1a).stream.gameObservationControllerResponse\"\x00\x12\x41\n\x12getProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12:\n\x0bstopProduce\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x45\n\x16stopAllProducerThreads\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13getRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x42\n\x13stopRunningConsumer\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x12\x46\n\x17stopAllRunningConsumers\x12\x13.stream.requestData\x1a\x14.stream.responseData\"\x00\x62\x06proto3')
 
 
 
@@ -105,23 +105,23 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _REQUESTDATA._serialized_start=34
   _REQUESTDATA._serialized_end=61
   _DETECTCOURTLINESREQUESTDATA._serialized_start=63
-  _DETECTCOURTLINESREQUESTDATA._serialized_end=119
-  _GAMEOBSERVATIONREQUESTDATA._serialized_start=121
-  _GAMEOBSERVATIONREQUESTDATA._serialized_end=230
-  _RESPONSEDATA._serialized_start=232
-  _RESPONSEDATA._serialized_end=260
-  _POINT._serialized_start=262
-  _POINT._serialized_end=291
-  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_start=293
-  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_end=393
-  _NUMBER._serialized_start=395
-  _NUMBER._serialized_end=417
-  _LINE._serialized_start=419
-  _LINE._serialized_end=456
-  _LINEPACKAGE._serialized_start=458
-  _LINEPACKAGE._serialized_end=500
-  _LINESRESPONSEDATA._serialized_start=502
-  _LINESRESPONSEDATA._serialized_end=572
-  _MAINROUTERSERVER._serialized_start=575
-  _MAINROUTERSERVER._serialized_end=1205
+  _DETECTCOURTLINESREQUESTDATA._serialized_end=125
+  _GAMEOBSERVATIONREQUESTDATA._serialized_start=127
+  _GAMEOBSERVATIONREQUESTDATA._serialized_end=242
+  _RESPONSEDATA._serialized_start=244
+  _RESPONSEDATA._serialized_end=272
+  _POINT._serialized_start=274
+  _POINT._serialized_end=303
+  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_start=305
+  _GAMEOBSERVATIONCONTROLLERRESPONSE._serialized_end=405
+  _NUMBER._serialized_start=407
+  _NUMBER._serialized_end=429
+  _LINE._serialized_start=431
+  _LINE._serialized_end=468
+  _LINEPACKAGE._serialized_start=470
+  _LINEPACKAGE._serialized_end=512
+  _LINESRESPONSEDATA._serialized_start=514
+  _LINESRESPONSEDATA._serialized_end=584
+  _MAINROUTERSERVER._serialized_start=587
+  _MAINROUTERSERVER._serialized_end=1217
 # @@protoc_insertion_point(module_scope)

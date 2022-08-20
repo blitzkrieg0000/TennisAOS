@@ -127,7 +127,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
         #! REDIS: 
         # Stream bilgilerini al
-        streamData = self.getStreamData(request.id)
+        streamData = self.getStreamData(request.streamId)
 
         if len(streamData)>0:
             streamName = streamData[0]
@@ -140,7 +140,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             #! 2-REDIS:
             # TOPIC ismini kaydet
-            res = self.saveTopicName(request.id, newCreatedTopicName)
+            res = self.saveTopicName(request.streamId, newCreatedTopicName)
 
             #! 3-KAFKA_PRODUCER:
             # Streaming başlat
@@ -163,21 +163,21 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             #! 6-REDIS:
             # Tenis çizgilerini postgresqle kaydet
-            self.saveCourtLinePoints(request.id, courtPoints)
+            self.saveCourtLinePoints(request.streamId, courtPoints)
             
             # DeleteTopic
             self.kpm.deleteTopics([newCreatedTopicName])
 
             return self.createResponseData(frame, courtPoints)
         else:
-            assert "Stream Data (ID={}) Not Found".format(request.id)
+            assert "Stream Data (ID={}) Not Found".format(request.streamId)
 
     def gameObservationController(self, request, context):
         allData = {}
 
         #! 1-REDIS
         # Stream bilgilerini al
-        streamData = self.getStreamData(request.id)
+        streamData = self.getStreamData(request.streamId)
         
         if len(streamData)>0:
             topicName = streamData[0]
@@ -185,7 +185,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
             newCreatedTopicName = self.getTopicName(topicName, 0)
             self.topicGarbageCollector(context, newCreatedTopicName)
-            res = self.saveTopicName(request.id, newCreatedTopicName)
+            res = self.saveTopicName(request.streamId, newCreatedTopicName)
 
             #! 2-KAFKA_PRODUCER:
             # Streaming başlat
@@ -228,7 +228,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             allData["score"] = processedData["score"]
             allData["ball_position_area"] = self.obj2bytes(all_points)
             allData["player_position_area"] = self.obj2bytes([])
-            allData["stream_id"] = request.id
+            allData["stream_id"] = request.streamId
             allData["player_id"] = request.playerId
             allData["court_id"] = request.courtId
             allData["aos_type_id"] = request.aosTypeId
