@@ -3,7 +3,6 @@ sympy
 protobuf
 grpcio
 requests
-sympy
 certifi
 opencv-python
 opencv-contrib-python
