@@ -36,7 +36,10 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
     # HELPERS------------------------------------------------------------------
     def bytes2obj(self, bytes):
-        return pickle.loads(bytes)
+
+        logger.info(str(bytes))
+        if bytes is not None or bytes != b'':
+            return pickle.loads(bytes)
 
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
