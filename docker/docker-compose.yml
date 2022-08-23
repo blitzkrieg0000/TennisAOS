@@ -101,12 +101,12 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]
+              capabilities: [ gpu ]
 
   #! SERVICES
   mainservice:
     image: mainservice
-    build: 
+    build:
       context: "../gRPC/server-1 (MainServer)/"
       dockerfile: dockerfile
     hostname: mainservice
@@ -118,7 +118,7 @@ services:
       - "50011:50011"
   detectcourtlinesservice:
     image: detectcourtlinesservice
-    build: 
+    build:
       context: "../gRPC/server-2 (Algorithms)/DCL/"
       dockerfile: dockerfile
     hostname: detectcourtlinesservice
@@ -130,7 +130,7 @@ services:
       - "50021:50021"
   predictfallpositionservice:
     image: predictfallpositionservice
-    build: 
+    build:
       context: "../gRPC/server-2 (Algorithms)/PFP/"
       dockerfile: dockerfile
     hostname: predictfallpositionservice
@@ -142,7 +142,7 @@ services:
       - "50023:50023"
   processdataservice:
     image: processdataservice
-    build: 
+    build:
       context: "../gRPC/server-2 (Algorithms)/PD/"
       dockerfile: dockerfile
     hostname: processdataservice
@@ -154,7 +154,7 @@ services:
       - "50024:50024"
   trackballservice:
     image: trackballservice
-    build: 
+    build:
       context: "../gRPC/server-2 (Algorithms)/TB/"
       dockerfile: dockerfile
     hostname: trackballservice
@@ -172,10 +172,10 @@ services:
           devices:
             - driver: nvidia
               count: 1
-              capabilities: [gpu]       
+              capabilities: [ gpu ]
   producerservice:
     image: producerservice
-    build: 
+    build:
       context: "../gRPC/server-3 (StreamKafka)/server 3.1 (Producer)/"
       dockerfile: dockerfile
 
@@ -190,7 +190,7 @@ services:
       - assets:/assets
   consumerservice:
     image: consumerservice
-    build: 
+    build:
       context: "../gRPC/server-3 (StreamKafka)/server-3.2 (Consumer)/"
       dockerfile: dockerfile
     hostname: consumerservice
@@ -204,7 +204,7 @@ services:
       - producerservice
   postgresservice:
     image: postgresservice
-    build: 
+    build:
       context: "../gRPC/server-4 (Postgresql)/"
       dockerfile: dockerfile
     hostname: postgresservice
@@ -216,7 +216,7 @@ services:
       - "50041:50041"
   redisservice:
     image: redisservice
-    build: 
+    build:
       context: "../gRPC/server-5 (Redis)/"
       dockerfile: dockerfile
     hostname: redisservice
@@ -228,7 +228,7 @@ services:
       - "50051:50051"
     depends_on:
       - postgresservice
-  
+
 #! VOLUMES
 volumes:
   broker0:
