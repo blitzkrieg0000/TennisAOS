@@ -128,7 +128,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
     # ALGORITHMS---------------------------------------------------------------
     def detectCourtLinesController(self, request, context):
 
-        #! REDIS: 
+        #! 1-REDIS: 
         # Stream bilgilerini al
         streamData = self.getStreamData(request.streamId)
 
