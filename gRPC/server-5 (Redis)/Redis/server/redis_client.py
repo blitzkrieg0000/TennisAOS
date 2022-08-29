@@ -16,8 +16,8 @@ class RedisCacheManager():
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
 
-    def isCached(self, query):
-        requestData = rc.isCachedDataRequest(query=query)
+    def isCached(self, query, force=False):
+        requestData = rc.isCachedDataRequest(query=query, force=force)
         response = self.stub.isCached(requestData)
         return response.data
     

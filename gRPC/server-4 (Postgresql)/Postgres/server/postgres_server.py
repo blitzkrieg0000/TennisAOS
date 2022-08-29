@@ -38,8 +38,7 @@ class postgresServer(rc_grpc.postgresqlServicer):
 
         #TODO Dinamik olarak memoryviewler düzenlenecek: 2
         if response is not None:
-            for item in response[0]:
-                type(item)
+            for item in response:
                 if isinstance(item, memoryview):
                     res.append(bytes(item))
                 else:

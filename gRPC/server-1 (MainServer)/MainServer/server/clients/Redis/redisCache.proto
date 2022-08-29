@@ -11,6 +11,7 @@ service redisCache {
 // Request Name
 message isCachedDataRequest {
   string query=1;
+  bool force=2;
 }
 
 message writeCacheRequest {

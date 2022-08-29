@@ -1,15 +1,14 @@
+from asyncio.log import logger
 import hashlib
-from concurrent import futures
 import pickle
-
+from concurrent import futures
 
 import grpc
+
 import redisCache_pb2 as rc
 import redisCache_pb2_grpc as rc_grpc
-
-from libs.redisManager import RedisManager
 from clients.Postgres.postgres_client import PostgresDatabaseClient
-
+from libs.redisManager import RedisManager
 
 #*SERVER
 class redisCache(rc_grpc.redisCacheServicer):
@@ -30,20 +29,27 @@ class redisCache(rc_grpc.redisCacheServicer):
     def isCached(self, request, context):
         queryData = request.query
         key = self.sha256(queryData)
+        
+        #TODO Force u yapılandır
         if self.rm.isExist(key):
             keyType = self.rm.getType(key)
             # TODO Tipine göre okuma yap şuan sadece byte okuyor. Byte ve Json verileri "string" olarak geçiyor
             value = self.rm.read(key, val_type=None)
+            logger.info(value)
         else:
             conn_info = self.pDC.connect2DB()
             value = self.pDC.executeSelectQuery(queryData)
-            
+
             if not isinstance(value, bytes):
                 value = self.obj2bytes(value)
 
             self.rm.write(key, value)
 
-        self.rm.setExpire(key, 60)
+        if request.force:
+            self.rm.delete(key)
+        else:
+            self.rm.setExpire(key, 60)
+
         responseData = rc.isCachedResponse(data=value)
         return responseData
 

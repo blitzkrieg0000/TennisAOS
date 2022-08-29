@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10redisCache.proto\x12\x08producer\"$\n\x13isCachedDataRequest\x12\r\n\x05query\x18\x01 \x01(\t\"\"\n\x11writeCacheRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\"%\n\x14readCacheDataRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\" \n\x10isCachedResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"!\n\x12writeCacheResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\"!\n\x11readCacheResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xec\x01\n\nredisCache\x12I\n\nwriteCache\x12\x1b.producer.writeCacheRequest\x1a\x1c.producer.writeCacheResponse\"\x00\x12G\n\x08isCached\x12\x1d.producer.isCachedDataRequest\x1a\x1a.producer.isCachedResponse\"\x00\x12J\n\treadCache\x12\x1e.producer.readCacheDataRequest\x1a\x1b.producer.readCacheResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10redisCache.proto\x12\x08producer\"3\n\x13isCachedDataRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\r\n\x05\x66orce\x18\x02 \x01(\x08\"\"\n\x11writeCacheRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\"%\n\x14readCacheDataRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\" \n\x10isCachedResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"!\n\x12writeCacheResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\"!\n\x11readCacheResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xec\x01\n\nredisCache\x12I\n\nwriteCache\x12\x1b.producer.writeCacheRequest\x1a\x1c.producer.writeCacheResponse\"\x00\x12G\n\x08isCached\x12\x1d.producer.isCachedDataRequest\x1a\x1a.producer.isCachedResponse\"\x00\x12J\n\treadCache\x12\x1e.producer.readCacheDataRequest\x1a\x1b.producer.readCacheResponse\"\x00\x62\x06proto3')
 
 
 
@@ -71,17 +71,17 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _ISCACHEDDATAREQUEST._serialized_start=30
-  _ISCACHEDDATAREQUEST._serialized_end=66
-  _WRITECACHEREQUEST._serialized_start=68
-  _WRITECACHEREQUEST._serialized_end=102
-  _READCACHEDATAREQUEST._serialized_start=104
-  _READCACHEDATAREQUEST._serialized_end=141
-  _ISCACHEDRESPONSE._serialized_start=143
-  _ISCACHEDRESPONSE._serialized_end=175
-  _WRITECACHERESPONSE._serialized_start=177
-  _WRITECACHERESPONSE._serialized_end=210
-  _READCACHERESPONSE._serialized_start=212
-  _READCACHERESPONSE._serialized_end=245
-  _REDISCACHE._serialized_start=248
-  _REDISCACHE._serialized_end=484
+  _ISCACHEDDATAREQUEST._serialized_end=81
+  _WRITECACHEREQUEST._serialized_start=83
+  _WRITECACHEREQUEST._serialized_end=117
+  _READCACHEDATAREQUEST._serialized_start=119
+  _READCACHEDATAREQUEST._serialized_end=156
+  _ISCACHEDRESPONSE._serialized_start=158
+  _ISCACHEDRESPONSE._serialized_end=190
+  _WRITECACHERESPONSE._serialized_start=192
+  _WRITECACHERESPONSE._serialized_end=225
+  _READCACHERESPONSE._serialized_start=227
+  _READCACHERESPONSE._serialized_end=260
+  _REDISCACHE._serialized_start=263
+  _REDISCACHE._serialized_end=499
 # @@protoc_insertion_point(module_scope)

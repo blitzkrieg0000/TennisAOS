@@ -2,14 +2,11 @@ import base64
 import hashlib as hl
 import pickle
 import time
-from concurrent import futures
 
 import cv2
-import grpc
 import numpy as np
 
 import mainRouterServer_pb2 as rc
-import mainRouterServer_pb2_grpc as rc_grpc
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
@@ -20,7 +17,7 @@ from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.logger import logger
 
-class MainServer(rc_grpc.mainRouterServerServicer):
+class AlgorithmManager():
     EXCEPT_PREFIX = ['']
     def __init__(self):
         super().__init__()
@@ -60,7 +57,9 @@ class MainServer(rc_grpc.mainRouterServerServicer):
     def getStreamData(self, id):
         QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'''
         streamData = self.rcm.isCached(query=QUERY, force=False)
+        print(streamData)
         streamData = self.bytes2obj(streamData)
+        
         return streamData
 
     def getCourtPointAreaId(self, AOS_TYPE_ID):
@@ -106,15 +105,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         Base64Img = base64.b64encode(buffer)
         return Base64Img
 
-    def topicGarbageCollector(self, context, newCreatedTopicName):
-        def cb():
-            logger.warning(f"Sonlanan işlem: {newCreatedTopicName}")
-            self.kpm.stopProduce(f"streaming_thread_{newCreatedTopicName}")
-            self.kcm.stopRunningCosumer(newCreatedTopicName)
-            self.tbc.deleteDetector(newCreatedTopicName)
-            self.kpm.deleteTopics([newCreatedTopicName])
-        context.add_callback(cb)
-    
     def createResponseData(self, frame, courtPoints):
         courtPoints = self.bytes2obj(courtPoints)
         frame = self.drawLines(frame, courtPoints)
@@ -123,74 +113,28 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         response = rc.LinesResponseData(lines=LineProto, frame=Base64Img)
         return response
 
+
     # ALGORITHMS---------------------------------------------------------------
-    def detectCourtLinesController(self, request, context):
+    # p.id, s.id, s.stream_id, s.aos_type_id, s.player_id, s.court_id, s."limit", s."force"
+    def StartGameObservationController(self, data):
 
-        #! 1-REDIS: 
-        # Stream bilgilerini al
-        streamData = self.getStreamData(request.streamId)
-
-        if len(streamData)>0:
-            streamName = streamData[0]
-            streamUrl = streamData[1]
-            courtPoints = streamData[2]
-
-            newCreatedTopicName = self.getTopicName(streamName, 0) # İşlenecek Görüntüler için Unique bir isim
-
-            self.topicGarbageCollector(context, newCreatedTopicName)
-
-            #! 2-REDIS:
-            # TOPIC ismini kaydet
-            res = self.saveTopicName(request.streamId, newCreatedTopicName)
-
-            #! 3-KAFKA_PRODUCER:
-            # Streaming başlat
-            threadName = self.kpm.startProduce(newCreatedTopicName, streamUrl, limit=1)
-            
-            #! 4-KAFKA_CONSUMER:
-            # Streaming oku
-            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-courtlinedetector-0", 1, False)
-
-            #! 5-COURT_LINE_DETECTOR:
-            # Tenis sahasının çizgilerini bul
-            frame = []
-            for bytes_frame in BYTE_FRAMES_GENERATOR:
-                frame = self.byte2frame(bytes_frame.data)
-
-                if courtPoints is not None and courtPoints != b"" and not request.force:
-                    return self.createResponseData(frame, courtPoints)
-
-                courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
-
-            #! 6-REDIS:
-            # Tenis çizgilerini postgresqle kaydet
-            self.saveCourtLinePoints(request.streamId, courtPoints)
-            
-            # DeleteTopic
-            self.kpm.deleteTopics([newCreatedTopicName])
-
-            return self.createResponseData(frame, courtPoints)
-        else:
-            assert "Stream Data (ID={}) Not Found".format(request.streamId)
-
-    def gameObservationController(self, request, context):
         allData = {}
 
         #! 1-REDIS
         # Stream bilgilerini al
-        streamData = self.getStreamData(request.streamId)
-        
+        streamData = self.getStreamData(data["stream_id"])
+
         if len(streamData)>0:
             topicName = streamData[0]
             streamName = streamData[1]
 
             newCreatedTopicName = self.getTopicName(topicName, 0)
-            self.topicGarbageCollector(context, newCreatedTopicName)
-            res = self.saveTopicName(request.streamId, newCreatedTopicName)
+            
+            res = self.saveTopicName(data["stream_id"], newCreatedTopicName)
 
             #! 2-KAFKA_PRODUCER:
             # Streaming başlat
-            threadName = self.kpm.startProduce(newCreatedTopicName, streamName, limit=request.limit)
+            threadName = self.kpm.startProduce(newCreatedTopicName, streamName, limit=data["limit"])
             
             #! 3-KAFKA_CONSUMER:
             # Streaming oku
@@ -218,7 +162,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             allData["ball_fall_array"] = fall_points
 
             #PROCESS DATA
-            court_point_area_data = self.getCourtPointAreaId(request.aosTypeId)
+            court_point_area_data = self.getCourtPointAreaId(data["aos_type_id"])
             processData = {}
             processData["fall_point"] = self.bytes2obj(fall_points)
             processData["court_lines"] = self.bytes2obj(streamData[2])
@@ -229,10 +173,11 @@ class MainServer(rc_grpc.mainRouterServerServicer):
             allData["score"] = processedData["score"]
             allData["ball_position_area"] = self.obj2bytes(all_points)
             allData["player_position_area"] = self.obj2bytes([])
-            allData["stream_id"] = request.streamId
-            allData["player_id"] = request.playerId
-            allData["court_id"] = request.courtId
-            allData["aos_type_id"] = request.aosTypeId
+            allData["stream_id"] = data["stream_id"]
+            allData["aos_type_id"] = data["aos_type_id"]
+            allData["player_id"] = data["player_id"]
+            allData["court_id"] = data["court_id"]
+
 
             # SAVE DATA
             self.savePlayingData(allData)
@@ -256,7 +201,6 @@ class MainServer(rc_grpc.mainRouterServerServicer):
                 response.score = 0
                 
             response.frame=self.frame2base64(canvas)
-
         return response
 
     def getProducerThreads(self, request, context):
@@ -281,14 +225,3 @@ class MainServer(rc_grpc.mainRouterServerServicer):
     def stopAllRunningConsumers(self, request, context):
         msg = self.kcm.stopAllRunningConsumers()
         return rc.responseData(data=b"TRYING STOP CONSUMERS...")
-
-
-def serve():
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    rc_grpc.add_mainRouterServerServicer_to_server(MainServer(), server)
-    server.add_insecure_port('[::]:50011')
-    server.start()
-    server.wait_for_termination()
-
-if __name__ == '__main__':
-    serve()

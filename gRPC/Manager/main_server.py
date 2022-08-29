@@ -259,6 +259,95 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
         return response
 
+    # p.id, s.id, s.stream_id, s.aos_type_id, s.player_id, s.court_id, s."limit", s."force"
+    def StartGameObservationController(self, data):
+        allData = {}
+
+        #! 1-REDIS
+        # Stream bilgilerini al
+        streamData = self.getStreamData(data[2])
+        
+        if len(streamData)>0:
+            topicName = streamData[0]
+            streamName = streamData[1]
+
+            newCreatedTopicName = self.getTopicName(topicName, 0)
+            
+            res = self.saveTopicName(data[2], newCreatedTopicName)
+
+            #! 2-KAFKA_PRODUCER:
+            # Streaming başlat
+            threadName = self.kpm.startProduce(newCreatedTopicName, streamName, limit=data[6])
+            
+            #! 3-KAFKA_CONSUMER:
+            # Streaming oku
+            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
+
+            all_points = []
+            last_frame = None
+            for bytes_frame in BYTE_FRAMES_GENERATOR:
+                
+                #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
+                #! 4-TRACKBALL (DETECTION)
+
+                balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newCreatedTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
+
+                all_points.append(self.bytes2obj(balldata))
+
+                last_frame = bytes_frame.data
+
+            if last_frame is None:
+                assert "last_frame is None"
+
+            # PREDICT BALL POSITION
+            fall_points = self.pfpc.predictFallPosition(all_points)
+            
+            allData["ball_fall_array"] = fall_points
+
+            #PROCESS DATA
+            court_point_area_data = self.getCourtPointAreaId(data[3])
+            processData = {}
+            processData["fall_point"] = self.bytes2obj(fall_points)
+            processData["court_lines"] = self.bytes2obj(streamData[2])
+            processData["court_point_area_id"] = court_point_area_data[1]
+            canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)
+            processedData = self.bytes2obj(processedData)
+
+            allData["score"] = processedData["score"]
+            allData["ball_position_area"] = self.obj2bytes(all_points)
+            allData["player_position_area"] = self.obj2bytes([])
+            allData["stream_id"] = data[2]
+            allData["aos_type_id"] = data[3]
+            allData["player_id"] = data[4]
+            allData["court_id"] = data[5]
+
+
+            # SAVE DATA
+            self.savePlayingData(allData)
+            
+            # CreateResponse
+            canvas = self.byte2frame(canvas)
+            response = rc.gameObservationControllerResponse()
+            
+            if processData["fall_point"] is not None:
+                for item in processData["fall_point"]:
+                    cv2.circle(canvas, (int(item[0]),int(item[1])), 3, (0,255,0), -1)
+                    point = rc.point(x=item[0], y=item[1])
+                    response.fallPoints.extend([point])
+            else:
+                point = rc.point(x=-1, y=-1)
+                response.fallPoints.extend([point])
+
+            if processedData["score"] is not None:
+                response.score = processedData["score"]
+            else:
+                response.score = 0
+                
+            response.frame=self.frame2base64(canvas)
+        return response
+
+
+
     def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())
 
