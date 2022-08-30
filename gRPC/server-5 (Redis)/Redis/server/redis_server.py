@@ -1,6 +1,5 @@
 from asyncio.log import logger
 import hashlib
-import pickle
 from concurrent import futures
 
 import grpc
@@ -17,20 +16,13 @@ class redisCache(rc_grpc.redisCacheServicer):
         self.rm = RedisManager()
         self.pDC = PostgresDatabaseClient()
 
-    def sha256(self, str):
+    def Sha256(self, str) -> str:
         return hashlib.sha256(str.encode('utf-8')).hexdigest()
     
-    def obj2bytes(self, obj):
-        return pickle.dumps(obj)
-
-    def bytes2obj(self, bytes):
-        return pickle.loads(bytes)
-
-    def isCached(self, request, context):
-        queryData = request.query
-        key = self.sha256(queryData)
+    def Read(self, request, context):
+        query:str = request.query
+        key:str = self.Sha256(query)
         
-        #TODO Force u yapılandır
         if self.rm.isExist(key):
             keyType = self.rm.getType(key)
             # TODO Tipine göre okuma yap şuan sadece byte okuyor. Byte ve Json verileri "string" olarak geçiyor
@@ -38,7 +30,7 @@ class redisCache(rc_grpc.redisCacheServicer):
             logger.info(value)
         else:
             conn_info = self.pDC.connect2DB()
-            value = self.pDC.executeSelectQuery(queryData)
+            value = self.pDC.executeSelectQuery(query)
 
             if not isinstance(value, bytes):
                 value = self.obj2bytes(value)
@@ -53,11 +45,11 @@ class redisCache(rc_grpc.redisCacheServicer):
         responseData = rc.isCachedResponse(data=value)
         return responseData
 
-    def writeCache(self, request, context):
-        queryData = self.bytes2obj(request.query)
+    def Write(self, request, context):
+        query = self.bytes2obj(request.query)
         #TODO Redis + Postgrese kaydet
         self.pDC.connect2DB()
-        resultMessage = self.pDC.executeInsertQuery(queryData["query"], queryData["value"])
+        resultMessage = self.pDC.executeInsertQuery(query["query"], query["value"])
         responseData = rc.writeCacheResponse(key=resultMessage)
         return responseData
 

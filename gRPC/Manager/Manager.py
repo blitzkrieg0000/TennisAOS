@@ -56,7 +56,7 @@ class ProcessManager(AbstractHandler):
         self.processList = []
         self.futureIterators = []
 
-    def markComplete(self, process):
+    def markAsCompleted(self, process):
         self.rcm.writeCache(f'UPDATE public."Process" SET is_completed=%s WHERE id={process["process_id"]};', [True,])
 
     def process(self, processData):
@@ -75,7 +75,8 @@ class ProcessManager(AbstractHandler):
             for future in futureIterator:
                 if future.done():
                     process = threadSubmits[future]
-                    self.markComplete(process)
+                    #self.markAsCompleted(process)
+                    print("Marked As Completed")
                     self.processList.remove(process)
 
         return processData

@@ -1,40 +1,29 @@
 import json
-import pickle
 import redis
 import logging
 class RedisManager(object):
     def __init__(self):
-        self.r = redis.StrictRedis(host='redis', port=6379, db=0)
-        self.keyTypes = {"list":"L", "hash": "D", "string": "J"}
+        self.r = redis.StrictRedis(host='localhost', port=6379, db=0) # redis
+        self.keyTypes = {"string": str, "list": list, "hash": dict}
 
-    def write(self, key, value, val_type=None):
-        if val_type=="L":
-            #list
-            return self.r.lpush(key, *value)
-        if val_type=="D":
-            #hash
+    def write(self, key, value):
+        if isinstance(value, dict):
             return self.r.hset(name=key, mapping=value)
-        if val_type=="J":
-            #string
-            value = json.dumps(value)
+        if isinstance(value, list):
+            return self.r.lpush(key, *value)
+        if isinstance(value, str):
             return self.r.set(key, value)
-        return self.r.set(key, value)
+        return None
 
-    def read(self, key, val_type=None):
-        if val_type=="L":
-            #list
+    def read(self, key):
+        keyType = self.getType(key)
+        if keyType == list:
             return self.r.lrange(key, 0, -1)
-        if val_type=="D":
-            #hash
+        if keyType == dict:
             return self.r.hgetall(key)
-        if val_type=="J":
-            #string
-            val = self.r.get(key)
-            logging.info(val)
-            return json.loads(val.decode("utf-8"))
-        return self.r.get(key)
-
-        return self.r.get(key)
+        if keyType == str:
+            return self.r.get(key)
+        return None
 
     def addToDict(self, ikey, key, value):
         return self.r.hset(ikey, key, mapping=value)
@@ -49,24 +38,53 @@ class RedisManager(object):
         return self.r.exists(key)
 
     def getType(self, key):
-        keyType = self.r.type(key).decode("utf-8")
-        return self.keyTypes.get(keyType, "None")
+        return self.keyTypes.get(self.r.type(key).decode("utf-8"), None)
 
 
 if __name__ == "__main__":
+
+    def typeMapper(x, reverse:bool=False):
+        typeDict = {str : b"str", int : b"int", float: b"float", bytes : b"bytes"}
+        if reverse: 
+            x.reverse()
+            typeDict = dict(zip(typeDict.values(), typeDict.keys()))
+        return list(map(lambda item: typeDict[item], x))
+
+    def typeCaster(response, types):
+        types = typeMapper(types, True)
+        castList = []
+        response.reverse()
+        for i, t in enumerate(types):
+            print(response[i])
+            item = t(response[i].decode("utf-8")) if t!=bytes else response[i]
+            castList.append(item)
+        return castList
+
+
     rm = RedisManager()
     
-    key = "surname"
-    ty = rm.getType(key)
-    logging.info(ty)
+    key = "blitz"
+    rm.delete(key)
+    rm.delete(key+"type")
 
-    #del_val = rm.delete(key)
-    rm.setExpire(key, 5)
-    if rm.isExist(key):
-        logging.info("EXIST")
-        val = rm.read(key)
-    else:
-        logging.info("WRITING")
-        val = rm.write(key, 5)
+    val = ["value-1", 1, 3.4, b"value-3"]
+    # val = {"key-1": "value-1", "key-2" : 1,"key-3" : 3.4, "key-4": b"value-3"}
+    val_types = list(map(lambda x : type(x), val))
+
+
+    rm.write(key, val)
+    print(typeMapper(val_types))
+    rm.write(key+"type", typeMapper(val_types))
     
-    logging.info(val)
+
+    response = rm.read(key)
+    response_type = rm.read(key+"type")
+
+    print(response, response_type)
+
+        
+    response = typeCaster(response, response_type)
+
+    print("response: ", response)
+
+    rm.delete(key)    

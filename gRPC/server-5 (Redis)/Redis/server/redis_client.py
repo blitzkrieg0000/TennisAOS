@@ -36,3 +36,4 @@ class RedisCacheManager():
     
     def disconnect(self):
         self.channel.close()
+
