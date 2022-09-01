@@ -116,6 +116,32 @@ class AlgorithmManager():
         return courtPoints, Base64Img
 
 
+    # Manage Producer----------------------------------------------------------
+    def getProducerThreads(self, request, context):
+        return rc.responseData(data=self.kpm.getProducerThreads())
+
+    def stopProduce(self, request, context):
+        #Bu topic producer çalışıyorsa durdur.
+        self.kpm.stopProduce(f'streaming_thread_{request.data}')
+        return rc.responseData(data=b"TRYING STOP PRODUCER...")
+
+    def stopAllProducerThreads(self, request, context):
+        msg = self.kpm.stopAllProducerThreads()
+        return rc.responseData(data=b"TRYING STOP PRODUCERS...")
+
+    # Manage Consumer----------------------------------------------------------
+    def getRunningConsumers(self, request, context):
+        return rc.responseData(data=self.kcm.getRunningConsumers()) 
+
+    def stopRunningConsumer(self, request, context):
+        msg = self.kcm.stopRunningCosumer(request.data)
+        return rc.responseData(data=b"TRYING STOP CONSUMER...")
+
+    def stopAllRunningConsumers(self, request, context):
+        msg = self.kcm.stopAllRunningConsumers()
+        return rc.responseData(data=b"TRYING STOP CONSUMERS...")
+
+
     # ALGORITHMS---------------------------------------------------------------  
     def detectCourtLinesController(self, data):
         #! 1-REDIS: 
@@ -168,7 +194,6 @@ class AlgorithmManager():
             assert "Stream Data (ID={}) Not Found".format(data["stream_id"])
 
     def StartGameObservationController(self, data):
-
         allData = {}
 
         #! 1-REDIS
@@ -236,28 +261,3 @@ class AlgorithmManager():
             # CreateResponse
             canvas = self.byte2frame(canvas)
             return processData, self.frame2base64(canvas)
-
-
-    # Management
-    def getProducerThreads(self, request, context):
-        return rc.responseData(data=self.kpm.getProducerThreads())
-
-    def stopProduce(self, request, context):
-        #Bu topic producer çalışıyorsa durdur.
-        self.kpm.stopProduce(f'streaming_thread_{request.data}')
-        return rc.responseData(data=b"TRYING STOP PRODUCER...")
-
-    def stopAllProducerThreads(self, request, context):
-        msg = self.kpm.stopAllProducerThreads()
-        return rc.responseData(data=b"TRYING STOP PRODUCERS...")
-
-    def getRunningConsumers(self, request, context):
-        return rc.responseData(data=self.kcm.getRunningConsumers()) 
-
-    def stopRunningConsumer(self, request, context):
-        msg = self.kcm.stopRunningCosumer(request.data)
-        return rc.responseData(data=b"TRYING STOP CONSUMER...")
-
-    def stopAllRunningConsumers(self, request, context):
-        msg = self.kcm.stopAllRunningConsumers()
-        return rc.responseData(data=b"TRYING STOP CONSUMERS...")
