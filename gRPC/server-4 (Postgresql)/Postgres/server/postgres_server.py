@@ -28,23 +28,16 @@ class postgresServer(rc_grpc.postgresqlServicer):
 
     def executeSelectQuery(self, request, context):
         response=None
-        res=[]
+
         try:
             query_obj=self.bytes2obj(request.query)
             response = self.postgresManager.executeSelectQuery(query_obj["query"])
-            response = self.bytes2obj(response)
         except Exception as e:
             logger.warning("ERROR(executeSelectQuery): ", e)
 
-        #TODO Dinamik olarak memoryviewler düzenlenecek: 2
-        if response is not None:
-            for item in response:
-                if isinstance(item, memoryview):
-                    res.append(bytes(item))
-                else:
-                    res.append(item)
+        
 
-        responseData = rc.executeSelectQueryResponse(result=self.obj2bytes(res))
+        responseData = rc.executeSelectQueryResponse(result=self.obj2bytes(response))
         return responseData
 
     def executeInsertQuery(self, request, context):

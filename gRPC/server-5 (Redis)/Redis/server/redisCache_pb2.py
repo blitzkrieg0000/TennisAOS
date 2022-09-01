@@ -14,74 +14,54 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10redisCache.proto\x12\x08producer\"3\n\x13isCachedDataRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\r\n\x05\x66orce\x18\x02 \x01(\x08\"\"\n\x11writeCacheRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\"%\n\x14readCacheDataRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\" \n\x10isCachedResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"!\n\x12writeCacheResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\"!\n\x11readCacheResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32\xec\x01\n\nredisCache\x12I\n\nwriteCache\x12\x1b.producer.writeCacheRequest\x1a\x1c.producer.writeCacheResponse\"\x00\x12G\n\x08isCached\x12\x1d.producer.isCachedDataRequest\x1a\x1a.producer.isCachedResponse\"\x00\x12J\n\treadCache\x12\x1e.producer.readCacheDataRequest\x1a\x1b.producer.readCacheResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10redisCache.proto\x12\x05redis\"+\n\x0bReadRequest\x12\r\n\x05query\x18\x01 \x01(\t\x12\r\n\x05\x66orce\x18\x02 \x01(\x08\"\x1d\n\x0cWriteRequest\x12\r\n\x05query\x18\x01 \x01(\x0c\"\x1c\n\x0cReadResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\x1c\n\rWriteResponse\x12\x0b\n\x03key\x18\x01 \x01(\t2u\n\nredisCache\x12\x31\n\x04Read\x12\x12.redis.ReadRequest\x1a\x13.redis.ReadResponse\"\x00\x12\x34\n\x05Write\x12\x13.redis.WriteRequest\x1a\x14.redis.WriteResponse\"\x00\x62\x06proto3')
 
 
 
-_ISCACHEDDATAREQUEST = DESCRIPTOR.message_types_by_name['isCachedDataRequest']
-_WRITECACHEREQUEST = DESCRIPTOR.message_types_by_name['writeCacheRequest']
-_READCACHEDATAREQUEST = DESCRIPTOR.message_types_by_name['readCacheDataRequest']
-_ISCACHEDRESPONSE = DESCRIPTOR.message_types_by_name['isCachedResponse']
-_WRITECACHERESPONSE = DESCRIPTOR.message_types_by_name['writeCacheResponse']
-_READCACHERESPONSE = DESCRIPTOR.message_types_by_name['readCacheResponse']
-isCachedDataRequest = _reflection.GeneratedProtocolMessageType('isCachedDataRequest', (_message.Message,), {
-  'DESCRIPTOR' : _ISCACHEDDATAREQUEST,
+_READREQUEST = DESCRIPTOR.message_types_by_name['ReadRequest']
+_WRITEREQUEST = DESCRIPTOR.message_types_by_name['WriteRequest']
+_READRESPONSE = DESCRIPTOR.message_types_by_name['ReadResponse']
+_WRITERESPONSE = DESCRIPTOR.message_types_by_name['WriteResponse']
+ReadRequest = _reflection.GeneratedProtocolMessageType('ReadRequest', (_message.Message,), {
+  'DESCRIPTOR' : _READREQUEST,
   '__module__' : 'redisCache_pb2'
-  # @@protoc_insertion_point(class_scope:producer.isCachedDataRequest)
+  # @@protoc_insertion_point(class_scope:redis.ReadRequest)
   })
-_sym_db.RegisterMessage(isCachedDataRequest)
+_sym_db.RegisterMessage(ReadRequest)
 
-writeCacheRequest = _reflection.GeneratedProtocolMessageType('writeCacheRequest', (_message.Message,), {
-  'DESCRIPTOR' : _WRITECACHEREQUEST,
+WriteRequest = _reflection.GeneratedProtocolMessageType('WriteRequest', (_message.Message,), {
+  'DESCRIPTOR' : _WRITEREQUEST,
   '__module__' : 'redisCache_pb2'
-  # @@protoc_insertion_point(class_scope:producer.writeCacheRequest)
+  # @@protoc_insertion_point(class_scope:redis.WriteRequest)
   })
-_sym_db.RegisterMessage(writeCacheRequest)
+_sym_db.RegisterMessage(WriteRequest)
 
-readCacheDataRequest = _reflection.GeneratedProtocolMessageType('readCacheDataRequest', (_message.Message,), {
-  'DESCRIPTOR' : _READCACHEDATAREQUEST,
+ReadResponse = _reflection.GeneratedProtocolMessageType('ReadResponse', (_message.Message,), {
+  'DESCRIPTOR' : _READRESPONSE,
   '__module__' : 'redisCache_pb2'
-  # @@protoc_insertion_point(class_scope:producer.readCacheDataRequest)
+  # @@protoc_insertion_point(class_scope:redis.ReadResponse)
   })
-_sym_db.RegisterMessage(readCacheDataRequest)
+_sym_db.RegisterMessage(ReadResponse)
 
-isCachedResponse = _reflection.GeneratedProtocolMessageType('isCachedResponse', (_message.Message,), {
-  'DESCRIPTOR' : _ISCACHEDRESPONSE,
+WriteResponse = _reflection.GeneratedProtocolMessageType('WriteResponse', (_message.Message,), {
+  'DESCRIPTOR' : _WRITERESPONSE,
   '__module__' : 'redisCache_pb2'
-  # @@protoc_insertion_point(class_scope:producer.isCachedResponse)
+  # @@protoc_insertion_point(class_scope:redis.WriteResponse)
   })
-_sym_db.RegisterMessage(isCachedResponse)
-
-writeCacheResponse = _reflection.GeneratedProtocolMessageType('writeCacheResponse', (_message.Message,), {
-  'DESCRIPTOR' : _WRITECACHERESPONSE,
-  '__module__' : 'redisCache_pb2'
-  # @@protoc_insertion_point(class_scope:producer.writeCacheResponse)
-  })
-_sym_db.RegisterMessage(writeCacheResponse)
-
-readCacheResponse = _reflection.GeneratedProtocolMessageType('readCacheResponse', (_message.Message,), {
-  'DESCRIPTOR' : _READCACHERESPONSE,
-  '__module__' : 'redisCache_pb2'
-  # @@protoc_insertion_point(class_scope:producer.readCacheResponse)
-  })
-_sym_db.RegisterMessage(readCacheResponse)
+_sym_db.RegisterMessage(WriteResponse)
 
 _REDISCACHE = DESCRIPTOR.services_by_name['redisCache']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _ISCACHEDDATAREQUEST._serialized_start=30
-  _ISCACHEDDATAREQUEST._serialized_end=81
-  _WRITECACHEREQUEST._serialized_start=83
-  _WRITECACHEREQUEST._serialized_end=117
-  _READCACHEDATAREQUEST._serialized_start=119
-  _READCACHEDATAREQUEST._serialized_end=156
-  _ISCACHEDRESPONSE._serialized_start=158
-  _ISCACHEDRESPONSE._serialized_end=190
-  _WRITECACHERESPONSE._serialized_start=192
-  _WRITECACHERESPONSE._serialized_end=225
-  _READCACHERESPONSE._serialized_start=227
-  _READCACHERESPONSE._serialized_end=260
-  _REDISCACHE._serialized_start=263
-  _REDISCACHE._serialized_end=499
+  _READREQUEST._serialized_start=27
+  _READREQUEST._serialized_end=70
+  _WRITEREQUEST._serialized_start=72
+  _WRITEREQUEST._serialized_end=101
+  _READRESPONSE._serialized_start=103
+  _READRESPONSE._serialized_end=131
+  _WRITERESPONSE._serialized_start=133
+  _WRITERESPONSE._serialized_end=161
+  _REDISCACHE._serialized_start=163
+  _REDISCACHE._serialized_end=280
 # @@protoc_insertion_point(module_scope)

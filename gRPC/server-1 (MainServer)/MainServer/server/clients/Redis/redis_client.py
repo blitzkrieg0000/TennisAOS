@@ -16,12 +16,12 @@ class RedisCacheManager():
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
 
-    def isCached(self, query, force=False):
-        requestData = rc.isCachedDataRequest(query=query, force=force)
-        response = self.stub.isCached(requestData)
+    def Read(self, query, force=False):
+        requestData = rc.ReadRequest(query=query, force=force)
+        response = self.stub.Read(requestData)
         return response.data
     
-    def writeCache(self, query, value):
+    def Write(self, query, value):
         queryData = {}
         queryData["query"] = query
         queryData["value"] = value
@@ -30,14 +30,17 @@ class RedisCacheManager():
         if not isinstance(queryData, bytes):
             queryData= self.obj2bytes(queryData)
 
-        requestData = rc.writeCacheRequest(query=queryData)
-        response = self.stub.writeCache(requestData)
-        return rc.writeCacheResponse(key=response.key)
+        requestData = rc.WriteRequest(query=queryData)
+        response = self.stub.Write(requestData)
+        return response.key
 
-    """
-    def readCache(self, key):
-        pass
-    """
-    
     def disconnect(self):
         self.channel.close()
+
+
+if __name__ == "__main__":
+    rcm = RedisCacheManager()
+    QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id=28 AND is_activated=true'''
+    streamData = rcm.Read(query=QUERY, force=False)
+    val = pickle.loads(streamData)
+    print(val)

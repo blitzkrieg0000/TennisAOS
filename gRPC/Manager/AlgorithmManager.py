@@ -56,15 +56,14 @@ class AlgorithmManager():
 
     def getStreamData(self, id):
         QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'''
-        streamData = self.rcm.isCached(query=QUERY, force=False)
-        print(streamData)
+        streamData = self.rcm.Read(query=QUERY, force=False)
         streamData = self.bytes2obj(streamData)
         
         return streamData
 
     def getCourtPointAreaId(self, AOS_TYPE_ID):
         QUERY = f'''SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'''
-        streamData = self.rcm.isCached(query=QUERY, force=False)
+        streamData = self.rcm.Read(query=QUERY, force=False)
         streamData = self.bytes2obj(streamData)
         return streamData
 

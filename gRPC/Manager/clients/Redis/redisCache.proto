@@ -1,37 +1,29 @@
 syntax = "proto3";
-package producer;
+package redis;
 
 // Service
 service redisCache {
-  rpc writeCache(writeCacheRequest) returns (writeCacheResponse) {}
-  rpc isCached(isCachedDataRequest) returns (isCachedResponse) {}
-  rpc readCache(readCacheDataRequest) returns (readCacheResponse) {}
+  rpc Read(ReadRequest) returns (ReadResponse) {}
+  rpc Write(WriteRequest) returns (WriteResponse) {}
+
 }
 
 // Request Name
-message isCachedDataRequest {
+message ReadRequest {
   string query=1;
   bool force=2;
 }
 
-message writeCacheRequest {
-  bytes query=1;
-}
-
-message readCacheDataRequest {
+message WriteRequest {
   bytes query=1;
 }
 
 
 // Response Array
-message isCachedResponse{
+message ReadResponse{
   bytes data=1;
 }
 
-message writeCacheResponse{
+message WriteResponse{
   string key=1;
-}
-
-message readCacheResponse{
-  bytes data=1;
 }

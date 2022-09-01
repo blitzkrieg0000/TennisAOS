@@ -36,7 +36,7 @@ class PostgresManager(object):
         values = None
         self.cursor.execute(query)
         values = self.cursor.fetchall()
-        return values
+        return [item for item in values[0]]
     #end
 
     #*INSERT---------------------------------------------------------------------------------------

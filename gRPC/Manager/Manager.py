@@ -30,7 +30,7 @@ class StatusChecker(AbstractHandler):
     def checkDatabase(self):
         query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force"]
         QUERY = f'''SELECT p.id, p.name, s.id, s.stream_id, s.aos_type_id, s.player_id, s.court_id, s."limit", s."force" FROM public."Process" as p INNER JOIN public."SessionParameter" as s ON p.session_id = s.id WHERE p.is_completed=false'''
-        processData = self.rcm.isCached(query=QUERY, force = True)
+        processData = self.rcm.Read(query=QUERY, force = True)
         
         processes = bytes2obj(processData)
         

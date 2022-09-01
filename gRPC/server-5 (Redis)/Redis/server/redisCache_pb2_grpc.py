@@ -15,20 +15,15 @@ class redisCacheStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.writeCache = channel.unary_unary(
-                '/producer.redisCache/writeCache',
-                request_serializer=redisCache__pb2.writeCacheRequest.SerializeToString,
-                response_deserializer=redisCache__pb2.writeCacheResponse.FromString,
+        self.Read = channel.unary_unary(
+                '/redis.redisCache/Read',
+                request_serializer=redisCache__pb2.ReadRequest.SerializeToString,
+                response_deserializer=redisCache__pb2.ReadResponse.FromString,
                 )
-        self.isCached = channel.unary_unary(
-                '/producer.redisCache/isCached',
-                request_serializer=redisCache__pb2.isCachedDataRequest.SerializeToString,
-                response_deserializer=redisCache__pb2.isCachedResponse.FromString,
-                )
-        self.readCache = channel.unary_unary(
-                '/producer.redisCache/readCache',
-                request_serializer=redisCache__pb2.readCacheDataRequest.SerializeToString,
-                response_deserializer=redisCache__pb2.readCacheResponse.FromString,
+        self.Write = channel.unary_unary(
+                '/redis.redisCache/Write',
+                request_serializer=redisCache__pb2.WriteRequest.SerializeToString,
+                response_deserializer=redisCache__pb2.WriteResponse.FromString,
                 )
 
 
@@ -36,19 +31,13 @@ class redisCacheServicer(object):
     """Service
     """
 
-    def writeCache(self, request, context):
+    def Read(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def isCached(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def readCache(self, request, context):
+    def Write(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -57,24 +46,19 @@ class redisCacheServicer(object):
 
 def add_redisCacheServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'writeCache': grpc.unary_unary_rpc_method_handler(
-                    servicer.writeCache,
-                    request_deserializer=redisCache__pb2.writeCacheRequest.FromString,
-                    response_serializer=redisCache__pb2.writeCacheResponse.SerializeToString,
+            'Read': grpc.unary_unary_rpc_method_handler(
+                    servicer.Read,
+                    request_deserializer=redisCache__pb2.ReadRequest.FromString,
+                    response_serializer=redisCache__pb2.ReadResponse.SerializeToString,
             ),
-            'isCached': grpc.unary_unary_rpc_method_handler(
-                    servicer.isCached,
-                    request_deserializer=redisCache__pb2.isCachedDataRequest.FromString,
-                    response_serializer=redisCache__pb2.isCachedResponse.SerializeToString,
-            ),
-            'readCache': grpc.unary_unary_rpc_method_handler(
-                    servicer.readCache,
-                    request_deserializer=redisCache__pb2.readCacheDataRequest.FromString,
-                    response_serializer=redisCache__pb2.readCacheResponse.SerializeToString,
+            'Write': grpc.unary_unary_rpc_method_handler(
+                    servicer.Write,
+                    request_deserializer=redisCache__pb2.WriteRequest.FromString,
+                    response_serializer=redisCache__pb2.WriteResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'producer.redisCache', rpc_method_handlers)
+            'redis.redisCache', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
@@ -84,7 +68,7 @@ class redisCache(object):
     """
 
     @staticmethod
-    def writeCache(request,
+    def Read(request,
             target,
             options=(),
             channel_credentials=None,
@@ -94,14 +78,14 @@ class redisCache(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.redisCache/writeCache',
-            redisCache__pb2.writeCacheRequest.SerializeToString,
-            redisCache__pb2.writeCacheResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/redis.redisCache/Read',
+            redisCache__pb2.ReadRequest.SerializeToString,
+            redisCache__pb2.ReadResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def isCached(request,
+    def Write(request,
             target,
             options=(),
             channel_credentials=None,
@@ -111,25 +95,8 @@ class redisCache(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.redisCache/isCached',
-            redisCache__pb2.isCachedDataRequest.SerializeToString,
-            redisCache__pb2.isCachedResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def readCache(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.redisCache/readCache',
-            redisCache__pb2.readCacheDataRequest.SerializeToString,
-            redisCache__pb2.readCacheResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/redis.redisCache/Write',
+            redisCache__pb2.WriteRequest.SerializeToString,
+            redisCache__pb2.WriteResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
