@@ -34,8 +34,9 @@ class StatusChecker(AbstractHandler):
         QUERY = f'''SELECT p.id, p.name, s.id, s.stream_id, s.aos_type_id, s.player_id, s.court_id, s."limit", s."force" FROM public."Process" as p INNER JOIN public."SessionParameter" as s ON p.session_id = s.id WHERE p.is_completed=false'''
         processData = self.rcm.Read(query=QUERY, force=True)
         processes = bytes2obj(processData)
-
-        return [dict(zip(query_keys, process)) for process in processes]
+        if processes is not None:
+            return [dict(zip(query_keys, process)) for process in processes]
+        return None
     
     def handle(self, data: Any):
         data: list = self.checkDatabase()

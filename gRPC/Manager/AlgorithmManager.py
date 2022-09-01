@@ -72,7 +72,7 @@ class AlgorithmManager():
         Base64Img = self.frame2base64(frame)
         return courtPoints, Base64Img
 
-    # Database-----------------------------------------------------------------
+    # Redis-Postgresql---------------------------------------------------------
     def getUID(self):
         return int.from_bytes(hl.md5(str(time.time()).encode("utf-8")).digest(), "big")
 
@@ -83,11 +83,12 @@ class AlgorithmManager():
         return f"{prefix}-{id}-{self.getUID()}"
 
     def getStreamData(self, id):
+        query_keys = ["stream_name", "source", "court_line_array", "kafka_topic_name"]
         QUERY = f'SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'
         streamData = self.rcm.Read(query=QUERY, force=False)
         streamData = self.bytes2obj(streamData)
         if streamData is not None:
-            return streamData[0]
+            return [dict(zip(query_keys, process)) for process in streamData]
         assert "Stream Bilgisi Bulunamadı."
 
     def getCourtPointAreaId(self, AOS_TYPE_ID):
@@ -98,8 +99,8 @@ class AlgorithmManager():
             return streamData[0]
         return None
 
-    def saveTopicName(self, stream_id, newCreatedTopicName):
-        return self.rcm.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
+    def saveTopicName(self, stream_id, newTopicName):
+        return self.rcm.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newTopicName,])
 
     def saveCourtLinePoints(self, stream_id, courtPoints):
         return self.rcm.Write(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
@@ -152,27 +153,26 @@ class AlgorithmManager():
         # Stream bilgilerini al
         streamData = self.getStreamData(data["stream_id"])
 
-        if len(streamData)>0:
-            streamName = streamData[0]
-            streamUrl = streamData[1]
-            SerializedCourtPoints = streamData[2]
-            courtPoints = None
 
-            newCreatedTopicName = self.getTopicName(streamName, 0) # İşlenecek Görüntüler için Unique bir isim
+        if len(streamData)>0:
+            
+            courtPoints = None
+            newTopicName = self.getTopicName(streamData["stream_name"], 0) # Unique name
+            
             # TODO Hata olduğunda servis isteğini sonlandırmak için gerekli hamleleri yap.
-            # self.topicGarbageCollector(context, newCreatedTopicName)
+            # self.topicGarbageCollector(context, newTopicName)
 
             #! 2-REDIS:
             # TOPIC ismini kaydet
-            res = self.saveTopicName(data["stream_id"], newCreatedTopicName)
+            res = self.saveTopicName(data["stream_id"], newTopicName)
 
             #! 3-KAFKA_PRODUCER:
             # Streaming başlat
-            threadName = self.kpm.startProduce(newCreatedTopicName, streamUrl, limit=1)
+            threadName = self.kpm.startProduce(newTopicName, streamData["source"], limit=1)
             
             #! 4-KAFKA_CONSUMER:
             # Streaming oku
-            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-courtlinedetector-0", 1, False)
+            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-courtlinedetector-0", 1, False)
 
             #! 5-COURT_LINE_DETECTOR:
             # Tenis sahasının çizgilerini bul
@@ -180,8 +180,8 @@ class AlgorithmManager():
             for bytes_frame in BYTE_FRAMES_GENERATOR:
                 frame = self.byte2frame(bytes_frame.data)
 
-                if SerializedCourtPoints is not None and SerializedCourtPoints != "" and not data["force"]:
-                    return self.createResponseData(frame, SerializedCourtPoints)
+                if streamData["court_line_array"] is not None and streamData["court_line_array"] != "" and not data["force"]:
+                    return self.createResponseData(frame, streamData["court_line_array"])
 
                 courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
 
@@ -191,11 +191,12 @@ class AlgorithmManager():
             self.saveCourtLinePoints(data["stream_id"], SerializedCourtPoints)
             
             # DeleteTopic
-            self.kpm.deleteTopics([newCreatedTopicName])
+            self.kpm.deleteTopics([newTopicName])
 
             return self.createResponseData(frame, SerializedCourtPoints)
         else:
             assert "Stream Data (ID={}) Not Found".format(data["stream_id"])
+
 
     def StartGameObservationController(self, data):
         allData = {}
@@ -205,19 +206,17 @@ class AlgorithmManager():
         streamData = self.getStreamData(data["stream_id"])
         
         if len(streamData)>0:
-            topicName = streamData[0]
-            streamName = streamData[1]
 
-            newCreatedTopicName = self.getTopicName(topicName, 0)
-            res = self.saveTopicName(data["stream_id"], newCreatedTopicName)
+            newTopicName = self.getTopicName(streamData["kafka_topic_name"], 0)
+            res = self.saveTopicName(data["stream_id"], newTopicName)
 
             #! 2-KAFKA_PRODUCER:
             # Streaming başlat
-            threadName = self.kpm.startProduce(newCreatedTopicName, streamName, limit=data["limit"])
+            threadName = self.kpm.startProduce(newTopicName, streamData["stream_name"], limit=data["limit"])
             
             #! 3-KAFKA_CONSUMER:
             # Streaming oku
-            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-balltracker-0", -1, False)
+            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
             last_frame = None
@@ -226,7 +225,7 @@ class AlgorithmManager():
                 #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
                 #! 4-TRACKBALL (DETECTION)
 
-                balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newCreatedTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
+                balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
 
                 all_points.append(self.bytes2obj(balldata))
 
@@ -246,9 +245,12 @@ class AlgorithmManager():
             processData = {}
             processData["fall_point"] = self.bytes2obj(fall_points)
 
-            processData["court_lines"] = self.encodeManager.deserialize(streamData[2])
+
+            courtArrays, canvas = self.detectCourtLinesController(data)
+            processData["court_lines"] = self.encodeManager.deserialize(courtArrays)
+
             processData["court_point_area_id"] = court_point_area_data[1]
-            canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)
+            canvas, processedData = self.processDataClient.processAOS(image=canvas, data=processData)
             processedData = self.bytes2obj(processedData)
 
             allData["score"] = processedData["score"]

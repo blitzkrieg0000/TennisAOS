@@ -41,7 +41,9 @@ class ProcessManager(AbstractHandler):
         return processData
 
     def handle(self, data: Any):
-        data = self.process(data)
+        if data is not None:
+            self.algorithmManager.StartGameObservationController(data[0])
+            #data = self.process(data)
         return super().handle(data)
 
 
