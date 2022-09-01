@@ -15,7 +15,9 @@ from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
+from libs.EncodeManager import EncodeManager
 from libs.logger import logger
+
 
 class AlgorithmManager():
     EXCEPT_PREFIX = ['']
@@ -29,8 +31,9 @@ class AlgorithmManager():
         self.tbc = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
+        self.encodeManager = EncodeManager()
 
-    # HELPERS------------------------------------------------------------------
+    # Helpers------------------------------------------------------------------
     def bytes2obj(self, bytes):
 
         logger.info(str(bytes))
@@ -66,7 +69,9 @@ class AlgorithmManager():
         QUERY = f'SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'
         streamData = self.rcm.Read(query=QUERY, force=False)
         streamData = self.bytes2obj(streamData)
-        return streamData
+        if streamData is not None:
+            return streamData[0]
+        return None
 
     def saveTopicName(self, stream_id, newCreatedTopicName):
         return self.rcm.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
@@ -106,16 +111,64 @@ class AlgorithmManager():
         return Base64Img
 
     def createResponseData(self, frame, courtPoints):
-        courtPoints = self.bytes2obj(courtPoints)
         frame = self.drawLines(frame, courtPoints)
         Base64Img = self.frame2base64(frame)
-        LineProto = self.convertPoint2ProtoCustomArray(courtPoints)
-        response = rc.LinesResponseData(lines=LineProto, frame=Base64Img)
-        return response
+        return courtPoints, Base64Img
 
 
-    # ALGORITHMS---------------------------------------------------------------
-    # p.id, s.id, s.stream_id, s.aos_type_id, s.player_id, s.court_id, s."limit", s."force"
+    # ALGORITHMS---------------------------------------------------------------  
+
+    def detectCourtLinesController(self, data):
+        #! 1-REDIS: 
+        # Stream bilgilerini al
+        streamData = self.getStreamData(data["stream_id"])
+
+        if len(streamData)>0:
+            streamName = streamData[0]
+            streamUrl = streamData[1]
+            SerializedCourtPoints = streamData[2]
+            courtPoints = None
+
+            newCreatedTopicName = self.getTopicName(streamName, 0) # İşlenecek Görüntüler için Unique bir isim
+            # TODO Hata olduğunda servis isteğini sonlandırmak için gerekli hamleleri yap.
+            # self.topicGarbageCollector(context, newCreatedTopicName)
+
+            #! 2-REDIS:
+            # TOPIC ismini kaydet
+            res = self.saveTopicName(data["stream_id"], newCreatedTopicName)
+
+            #! 3-KAFKA_PRODUCER:
+            # Streaming başlat
+            threadName = self.kpm.startProduce(newCreatedTopicName, streamUrl, limit=1)
+            
+            #! 4-KAFKA_CONSUMER:
+            # Streaming oku
+            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newCreatedTopicName, "consumergroup-courtlinedetector-0", 1, False)
+
+            #! 5-COURT_LINE_DETECTOR:
+            # Tenis sahasının çizgilerini bul
+            frame = []
+            for bytes_frame in BYTE_FRAMES_GENERATOR:
+                frame = self.byte2frame(bytes_frame.data)
+
+                if SerializedCourtPoints is not None and SerializedCourtPoints != "" and not data["force"]:
+                    return self.createResponseData(frame, SerializedCourtPoints)
+
+                courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
+
+            #! 6-REDIS:
+            # Tenis çizgilerini postgresqle kaydet
+            SerializedCourtPoints = self.encodeManager.serialize(self.bytes2obj(courtPoints))
+            self.saveCourtLinePoints(data["stream_id"], SerializedCourtPoints)
+            
+            # DeleteTopic
+            self.kpm.deleteTopics([newCreatedTopicName])
+
+            return self.createResponseData(frame, SerializedCourtPoints)
+        else:
+            assert "Stream Data (ID={}) Not Found".format(data["stream_id"])
+
+    
     def StartGameObservationController(self, data):
 
         allData = {}
@@ -123,7 +176,7 @@ class AlgorithmManager():
         #! 1-REDIS
         # Stream bilgilerini al
         streamData = self.getStreamData(data["stream_id"])
-
+        
         if len(streamData)>0:
             topicName = streamData[0]
             streamName = streamData[1]
@@ -165,10 +218,8 @@ class AlgorithmManager():
             court_point_area_data = self.getCourtPointAreaId(data["aos_type_id"])
             processData = {}
             processData["fall_point"] = self.bytes2obj(fall_points)
-            
-            return processData["fall_point"]
 
-            processData["court_lines"] = self.bytes2obj(streamData[2])
+            processData["court_lines"] = self.encodeManager.deserialize(streamData[2])
             processData["court_point_area_id"] = court_point_area_data[1]
             canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)
             processedData = self.bytes2obj(processedData)
@@ -181,31 +232,15 @@ class AlgorithmManager():
             allData["player_id"] = data["player_id"]
             allData["court_id"] = data["court_id"]
 
-
             # SAVE DATA
             self.savePlayingData(allData)
             
             # CreateResponse
             canvas = self.byte2frame(canvas)
-            response = rc.gameObservationControllerResponse()
-            
-            if processData["fall_point"] is not None:
-                for item in processData["fall_point"]:
-                    cv2.circle(canvas, (int(item[0]),int(item[1])), 3, (0,255,0), -1)
-                    point = rc.point(x=item[0], y=item[1])
-                    response.fallPoints.extend([point])
-            else:
-                point = rc.point(x=-1, y=-1)
-                response.fallPoints.extend([point])
+            return processData, self.frame2base64(canvas)
 
-            if processedData["score"] is not None:
-                response.score = processedData["score"]
-            else:
-                response.score = 0
-                
-            response.frame=self.frame2base64(canvas)
-        return response
 
+    # Managerment
     def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())
 

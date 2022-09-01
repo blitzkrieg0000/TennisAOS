@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import concurrent.futures
+import pickle
 import time
 from typing import Any
-import pickle
-import concurrent.futures
-from clients.Redis.redis_client import RedisCacheManager
+
 from AlgorithmManager import AlgorithmManager
+from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
 from libs.logger import logger
 
@@ -23,7 +24,6 @@ def timer(func):
         return func(*args,  **kwargs)
 
     return wrapper
-
 
 class StatusChecker(AbstractHandler):
     def __init__(self) -> None:
@@ -52,9 +52,10 @@ class StatusChecker(AbstractHandler):
 
 class ProcessManager(AbstractHandler):
     def __init__(self):
+        MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
         self.algorithmManager = AlgorithmManager()
-        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=5)
+        self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self.processList = []
         self.futureIterators = []
 
@@ -62,7 +63,6 @@ class ProcessManager(AbstractHandler):
         self.rcm.Write(f'UPDATE public."Process" SET is_completed=%s WHERE id={process["process_id"]};', [True,])
 
     def process(self, processData):
-
         for process in processData:
             if process not in self.processList:
                 self.processList.append(process)
@@ -75,14 +75,13 @@ class ProcessManager(AbstractHandler):
                 if future.done():
                     process = threadSubmits[future]
                     self.markAsCompleted(process)
-                    data = threadSubmits[future]['process_id']
-                    print(f"Process - {data} Marked As Completed")
+                    data = threadSubmits[future]
+                    print("Results:", data)
                     self.processList.remove(process)
 
         return processData
 
     def handle(self, data: Any):
-        #self.algorithmManager.StartGameObservationController(data[0])
         data: dict = self.process(data)
         return super().handle(data)
 
