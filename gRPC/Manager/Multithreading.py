@@ -13,12 +13,14 @@ def main():
    executor = concurrent.futures.ThreadPoolExecutor(max_workers=5) 
 
 
-   threadSubmits = {executor.submit(UpdateProcess, i) : f"ProcessName_{i}" for i in range(2)}
+   threadSubmits = {executor.submit(UpdateProcess, i) : f"ProcessName_{i}" for i in range(3)}
    threadIterator = concurrent.futures.as_completed(threadSubmits)
    threadIterators.append(threadIterator)
-
    
-   threadSubmits = {executor.submit(UpdateProcess, i) : f"ProcessName_{i}" for i in range(2, 6)}
+   for futureIterator in threadIterators:
+      print(futureIterator)
+   
+   threadSubmits = {executor.submit(UpdateProcess, i) : f"ProcessName_{i}" for i in range(3, 6)}
    threadIterator = concurrent.futures.as_completed(threadSubmits)
    threadIterators.append(threadIterator)
    

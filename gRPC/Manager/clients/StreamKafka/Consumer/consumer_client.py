@@ -9,7 +9,7 @@ import logging
 logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 class KafkaConsumerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('consumerservice:50032')
+        self.channel = grpc.insecure_channel('localhost:50032') #consumerservice
         self.stub = rc_grpc.kafkaConsumerStub(self.channel)
 
     def bytes2frame(self, byte_img ):

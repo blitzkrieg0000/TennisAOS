@@ -5,8 +5,8 @@
 
 # encoded_string = base64.b64encode(canvas.tobytes())
 
-import pickle
+val = [(1,2),(2,3)]
 
-var = None
-var = pickle.dumps(var)
-print(var)
+val = list(map(lambda x : list(x), val))
+
+print(val)

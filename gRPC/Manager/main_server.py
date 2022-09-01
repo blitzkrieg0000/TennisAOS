@@ -70,15 +70,15 @@ class MainServer(rc_grpc.mainRouterServerServicer):
         return streamData
 
     def saveTopicName(self, stream_id, newCreatedTopicName):
-        return self.rcm.writeCache(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
+        return self.rcm.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
 
     def saveCourtLinePoints(self, stream_id, courtPoints):
-        return self.rcm.writeCache(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
+        return self.rcm.Write(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
 
     def savePlayingData(self, data):
-        return self.rcm.writeCache(
-        f'''INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
-        VALUES(%s,%s,%s,%s,%s,%s,%s,%s)''',
+        return self.rcm.Write(
+        f'INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
+        VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
         [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ]) 
 
     def convertPoint2ProtoCustomArray(self,lineArray):

@@ -7,7 +7,7 @@ import clients.StreamKafka.Producer.kafkaProducer_pb2_grpc as rc_grpc
 class KafkaProducerManager():
 
     def __init__(self):
-        self.channel = grpc.insecure_channel('producerservice:50031')
+        self.channel = grpc.insecure_channel('localhost:50031') #producerservice
         self.stub = rc_grpc.kafkaProducerStub(self.channel)
 
     def obj2bytes(self, obj):

@@ -7,7 +7,7 @@ import redisCache_pb2_grpc as rc_grpc
 class RedisCacheManager():
 
     def __init__(self):
-        self.channel = grpc.insecure_channel('localhost:50051') #redisservice:50051
+        self.channel = grpc.insecure_channel('redis:50051') #redisservice:50051
         self.stub = rc_grpc.redisCacheStub(self.channel)
 
     def bytes2obj(self, bytes):
@@ -40,7 +40,8 @@ class RedisCacheManager():
 
 if __name__ == "__main__":
     rcm = RedisCacheManager()
-    QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id=28 AND is_activated=true'''
+    id = 46
+    QUERY = f'SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'
     streamData = rcm.Read(query=QUERY, force=False)
     val = pickle.loads(streamData)
     print(val)

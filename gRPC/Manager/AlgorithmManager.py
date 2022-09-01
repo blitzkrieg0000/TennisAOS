@@ -55,28 +55,29 @@ class AlgorithmManager():
         return f"{prefix}-{id}-{self.getUID()}"
 
     def getStreamData(self, id):
-        QUERY = f'''SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'''
+        QUERY = f'SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'
         streamData = self.rcm.Read(query=QUERY, force=False)
         streamData = self.bytes2obj(streamData)
-        
-        return streamData
+        if streamData is not None:
+            return streamData[0]
+        assert "Stream Bilgisi Bulunamadı."
 
     def getCourtPointAreaId(self, AOS_TYPE_ID):
-        QUERY = f'''SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'''
+        QUERY = f'SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'
         streamData = self.rcm.Read(query=QUERY, force=False)
         streamData = self.bytes2obj(streamData)
         return streamData
 
     def saveTopicName(self, stream_id, newCreatedTopicName):
-        return self.rcm.writeCache(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
+        return self.rcm.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newCreatedTopicName,])
 
     def saveCourtLinePoints(self, stream_id, courtPoints):
-        return self.rcm.writeCache(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
+        return self.rcm.Write(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
 
     def savePlayingData(self, data):
-        return self.rcm.writeCache(
-        f'''INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
-        VALUES(%s,%s,%s,%s,%s,%s,%s,%s)''',
+        return self.rcm.Write(
+        'INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
+        VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
         [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ]) 
 
     def convertPoint2ProtoCustomArray(self,lineArray):
@@ -128,7 +129,6 @@ class AlgorithmManager():
             streamName = streamData[1]
 
             newCreatedTopicName = self.getTopicName(topicName, 0)
-            
             res = self.saveTopicName(data["stream_id"], newCreatedTopicName)
 
             #! 2-KAFKA_PRODUCER:
@@ -151,7 +151,8 @@ class AlgorithmManager():
                 all_points.append(self.bytes2obj(balldata))
 
                 last_frame = bytes_frame.data
-
+            
+            response = None
             if last_frame is None:
                 assert "last_frame is None"
 
@@ -164,6 +165,9 @@ class AlgorithmManager():
             court_point_area_data = self.getCourtPointAreaId(data["aos_type_id"])
             processData = {}
             processData["fall_point"] = self.bytes2obj(fall_points)
+            
+            return processData["fall_point"]
+
             processData["court_lines"] = self.bytes2obj(streamData[2])
             processData["court_point_area_id"] = court_point_area_data[1]
             canvas, processedData = self.processDataClient.processAOS(image=last_frame, data=processData)

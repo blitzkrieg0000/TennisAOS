@@ -34,9 +34,10 @@ class PostgresManager(object):
     #*QUERY----------------------------------------------------------------------------------------
     def executeSelectQuery(self, query):
         values = None
+        
         self.cursor.execute(query)
         values = self.cursor.fetchall()
-        return [item for item in values[0]]
+        return list(map(lambda x : list(x), values))
     #end
 
     #*INSERT---------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ import pickle
 
 class PostgresDatabaseClient():
     def __init__(self) -> None:
-        self.channel = grpc.insecure_channel('postgresservice:50041')
+        self.channel = grpc.insecure_channel('localhost:50041') #postgresservice
         self.stub = rc_grpc.postgresqlStub(self.channel)
 
     def connect2DB(self, host="postgres", database="tenis", user="tenis", password="2sfcNavA89A294V4"):

@@ -87,7 +87,6 @@ class KafkaManager():
         self.consumerGenerators[topics[0]] = ConsumerGen(consumerGroup, offsetMethod, topics, limit)
 
         for msg in self.consumerGenerators[topics[0]]:
-            logger.info(topics[0])
             yield msg.value()
 
         logger.info(f"Consumer Durduruldu: {topics[0]}")
