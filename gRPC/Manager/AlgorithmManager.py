@@ -151,7 +151,7 @@ class AlgorithmManager():
     def detectCourtLinesController(self, data):
         #! 1-REDIS: 
         # Stream bilgilerini al
-        streamData = self.getStreamData(data["stream_id"])
+        streamData = self.getStreamData(data["stream_id"])[0]
 
 
         if len(streamData)>0:
@@ -203,7 +203,7 @@ class AlgorithmManager():
 
         #! 1-REDIS
         # Stream bilgilerini al
-        streamData = self.getStreamData(data["stream_id"])
+        streamData = self.getStreamData(data["stream_id"])[0]
         
         if len(streamData)>0:
 
