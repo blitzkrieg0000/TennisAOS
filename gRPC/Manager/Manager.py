@@ -1,53 +1,12 @@
 from __future__ import annotations
 
 import concurrent.futures
-import pickle
-import time
 from typing import Any
 
 from AlgorithmManager import AlgorithmManager
 from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
-from libs.logger import logger
-
-INTERVAL = 3 # Second(s)
-
-def bytes2obj(bytes):
-    if bytes is not None or bytes != b'':
-        return pickle.loads(bytes)
-
-def timer(func):
-    def wrapper(*args, **kwargs):
-        time.sleep(INTERVAL)
-        
-        logger.info("Yeni Processler Kontrol Ediliyor...")
-        return func(*args,  **kwargs)
-
-    return wrapper
-
-class StatusChecker(AbstractHandler):
-    def __init__(self) -> None:
-        self.rcm = RedisCacheManager()
-
-    @timer
-    def checkDatabase(self):
-        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force"]
-        QUERY = f'''SELECT p.id, p.name, s.id, s.stream_id, s.aos_type_id, s.player_id, s.court_id, s."limit", s."force" FROM public."Process" as p INNER JOIN public."SessionParameter" as s ON p.session_id = s.id WHERE p.is_completed=false'''
-        processData = self.rcm.Read(query=QUERY, force = True)
-        processes = bytes2obj(processData)
-
-        processData = []
-        for process in processes:
-            process_dict = {}
-            for i, key in enumerate(query_keys):
-                process_dict[key] = process[i]
-            processData.append(process_dict)
-
-        return processData
-    
-    def handle(self, data: Any):
-        data: list = self.checkDatabase()
-        return super().handle(data)
+from StatusChecker import StatusChecker
 
 
 class ProcessManager(AbstractHandler):
@@ -75,14 +34,14 @@ class ProcessManager(AbstractHandler):
                 if future.done():
                     process = threadSubmits[future]
                     self.markAsCompleted(process)
-                    data = threadSubmits[future]
-                    print("Results:", data)
                     self.processList.remove(process)
+
+                    data = threadSubmits[future]
 
         return processData
 
     def handle(self, data: Any):
-        data: dict = self.process(data)
+        data = self.process(data)
         return super().handle(data)
 
 
