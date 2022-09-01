@@ -33,7 +33,9 @@ class AlgorithmManager():
         self.processDataClient = PDClient()
         self.encodeManager = EncodeManager()
 
-    # Helpers------------------------------------------------------------------
+
+    #! TOOLS
+    # Converters---------------------------------------------------------------
     def bytes2obj(self, bytes):
 
         logger.info(str(bytes))
@@ -48,6 +50,29 @@ class AlgorithmManager():
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         return frame
 
+    def frame2base64(self, frame):
+        etval, buffer = cv2.imencode('.png', frame)
+        Base64Img = base64.b64encode(buffer)
+        return Base64Img
+
+    def convertPoint2ProtoCustomArray(self,lineArray):
+        #TODO Serialize
+        LinePackage = rc.linePackage()
+        for i, line in enumerate(lineArray):
+            if len(line)>0:
+                Line = rc.line()
+                Line.items.extend([rc.number(data=line[0]), rc.number(data=line[1]), rc.number(data=line[2]), rc.number(data=line[3])])
+                LinePackage.items.extend([Line])
+            if i==10:
+                break
+        return LinePackage
+
+    def createResponseData(self, frame, courtPoints):
+        frame = self.drawLines(frame, courtPoints)
+        Base64Img = self.frame2base64(frame)
+        return courtPoints, Base64Img
+
+    # Database-----------------------------------------------------------------
     def getUID(self):
         return int.from_bytes(hl.md5(str(time.time()).encode("utf-8")).digest(), "big")
 
@@ -85,18 +110,7 @@ class AlgorithmManager():
         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
         [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ]) 
 
-    def convertPoint2ProtoCustomArray(self,lineArray):
-        #TODO Serialize
-        LinePackage = rc.linePackage()
-        for i, line in enumerate(lineArray):
-            if len(line)>0:
-                Line = rc.line()
-                Line.items.extend([rc.number(data=line[0]), rc.number(data=line[1]), rc.number(data=line[2]), rc.number(data=line[3])])
-                LinePackage.items.extend([Line])
-            if i==10:
-                break
-        return LinePackage
-
+    # Canvas-------------------------------------------------------------------
     def drawLines(self, cimage, points):
         for i, line in enumerate(points):
             if len(line)>0:
@@ -105,17 +119,8 @@ class AlgorithmManager():
                 break
         return cimage
 
-    def frame2base64(self, frame):
-        etval, buffer = cv2.imencode('.png', frame)
-        Base64Img = base64.b64encode(buffer)
-        return Base64Img
 
-    def createResponseData(self, frame, courtPoints):
-        frame = self.drawLines(frame, courtPoints)
-        Base64Img = self.frame2base64(frame)
-        return courtPoints, Base64Img
-
-
+    #! Main Server
     # Manage Producer----------------------------------------------------------
     def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())
@@ -141,8 +146,7 @@ class AlgorithmManager():
         msg = self.kcm.stopAllRunningConsumers()
         return rc.responseData(data=b"TRYING STOP CONSUMERS...")
 
-
-    # ALGORITHMS---------------------------------------------------------------  
+    # Algorithms---------------------------------------------------------------  
     def detectCourtLinesController(self, data):
         #! 1-REDIS: 
         # Stream bilgilerini al
