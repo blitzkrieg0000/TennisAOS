@@ -117,7 +117,6 @@ class AlgorithmManager():
 
 
     # ALGORITHMS---------------------------------------------------------------  
-
     def detectCourtLinesController(self, data):
         #! 1-REDIS: 
         # Stream bilgilerini al
@@ -168,7 +167,6 @@ class AlgorithmManager():
         else:
             assert "Stream Data (ID={}) Not Found".format(data["stream_id"])
 
-    
     def StartGameObservationController(self, data):
 
         allData = {}
@@ -240,7 +238,7 @@ class AlgorithmManager():
             return processData, self.frame2base64(canvas)
 
 
-    # Managerment
+    # Management
     def getProducerThreads(self, request, context):
         return rc.responseData(data=self.kpm.getProducerThreads())
 
