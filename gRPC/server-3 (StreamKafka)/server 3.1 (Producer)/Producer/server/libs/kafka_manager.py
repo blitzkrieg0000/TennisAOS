@@ -140,7 +140,7 @@ class KafkaManager():
         logger.info(f"Stream-Producer şu kaynak için {topicName}'e {limit if limit!=-1 else 'stream sonuna'} kadar veri yüklüyor: {streamUrl}")
 
         # Stream ayarları
-        cam = cv2.VideoCapture(f"/assets/{streamUrl}" if os.access(f"/assets/{streamUrl}", mode=0) else streamUrl)
+        cam = cv2.VideoCapture(streamUrl if os.access(streamUrl, mode=0) else streamUrl)
         fps = int(cam.get(5))
 
         cam.set(cv2.CAP_PROP_FRAME_WIDTH, int(cam.get(3)))

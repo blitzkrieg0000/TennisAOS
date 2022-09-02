@@ -1,12 +1,18 @@
-# import cv2
-# import base64
-# import numpy as np
-# canvas = cv2.imread("TEST/test.jpg")
+import cv2
+import numpy as np
 
-# encoded_string = base64.b64encode(canvas.tobytes())
+canvas = cv2.imread("TEST/test.jpg")
 
-val = [(1,2),(2,3)]
+def frame2bytes(frame):
+    res, encodedImg = cv2.imencode('.jpg', frame)
+    return encodedImg.tobytes()
 
-val = list(map(lambda x : list(x), val))
+def bytes2frame(image):
+    nparr = np.frombuffer(image, np.uint8)
+    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    return frame
 
-print(val)
+byte_frame = frame2bytes(canvas)
+frame = bytes2frame(byte_frame)
+
+print(frame)

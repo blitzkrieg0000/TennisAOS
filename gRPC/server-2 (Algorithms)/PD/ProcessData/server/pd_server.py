@@ -21,7 +21,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
 
-    def bytes2img(self, image):
+    def bytes2frame(self, image):
         nparr = np.frombuffer(image, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         return frame
@@ -32,7 +32,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
         return frame
 
     def processAOS(self, request, context):
-        frame = self.bytes2img(request.frame) 
+        frame = self.bytes2frame(request.frame) 
         data = self.bytes2obj(request.data)
 
         canvas = frame.copy()
