@@ -1,0 +1,17 @@
+syntax = "proto3";
+package test;
+ 
+// Service
+service TestServer {
+  rpc Process(requestData) returns (stream responseData) {}
+}
+
+//Request
+message requestData {
+  string data=1;
+}
+
+// Response Array
+message responseData{
+  string data=1;
+}

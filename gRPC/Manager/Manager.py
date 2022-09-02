@@ -35,9 +35,7 @@ class ProcessManager(AbstractHandler):
                     process = threadSubmits[future]
                     self.markAsCompleted(process)
                     self.processList.remove(process)
-
-                    data = threadSubmits[future]
-
+                    data = future.result()
         return processData
 
     def handle(self, data: Any):

@@ -50,99 +50,57 @@ class AlgorithmManager():
         return rc.responseData(data=b"TRYING STOP CONSUMERS...")
 
 
-    # Algorithms---------------------------------------------------------------  
-    def detectCourtLinesController(self, data, streamData):
-
-        courtPoints = None
-        SerializedCourtPoints = None
-        newTopicName = Tools.generateTopicName(streamData["stream_name"], 0) # Unique name
-        
-        # TODO Hata olduğunda servis isteğini sonlandırmak için gerekli hamleleri yap.
-        # self.topicGarbageCollector(context, newTopicName)
-
-        #! 2-REDIS:
-        # TOPIC ismini kaydet
-        res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
-
-        #! 3-KAFKA_PRODUCER:
-        # Streaming başlat
-        threadName = self.kpm.startProduce(newTopicName, streamData["source"], limit=1)
-        
-        #! 4-KAFKA_CONSUMER:
-        # Streaming oku
-        BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-courtlinedetector-0", 1, False)
-
-        #! 5-COURT_LINE_DETECTOR:
-        # Tenis sahasının çizgilerini bul
-        frame = []
-        for bytes_frame in BYTE_FRAMES_GENERATOR:
-            frame = Converters.bytes2frame(bytes_frame.data)
-
-            if streamData["court_line_array"] is not None and streamData["court_line_array"] != "" and not data["force"]:
-                line_arrays = EncodeManager.deserialize(streamData["court_line_array"])
-                frame = Tools.drawLines(frame, line_arrays)
-                return line_arrays, Converters.frame2bytes(frame)
-
-            courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
-
-        #! 6-REDIS:
-        # Tenis çizgilerini postgresqle kaydet
-        if courtPoints is not None:
-            SerializedCourtPoints = EncodeManager.serialize(Converters.bytes2obj(courtPoints))
-            Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
-        
-        # DeleteTopic
-        self.kpm.deleteTopics([newTopicName])
-
-        frame = Tools.drawLines(frame, courtPoints)
-        return courtPoints, Converters.frame2bytes(frame)
-
-
+    # Algorithms--------------------------------------------------------------- 
     def StartGameObservationController(self, data):
         allData = {}
 
-        #! 1-REDIS
-        # Stream bilgilerini al
-        streamData = Repositories.getStreamData(self.rcm, data["stream_id"])[0]
-        
-        if len(streamData)>0:
-
-            newTopicName = Tools.generateTopicName(streamData["kafka_topic_name"], 0)
+        if len(data)>0:
+            newTopicName = Tools.generateTopicName(data["kafka_topic_name"], 0)
             res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
 
-            #! 2-KAFKA_PRODUCER:
+            #! 1-KAFKA_PRODUCER:
             # Streaming başlat
-            threadName = self.kpm.startProduce(newTopicName, streamData["source"], limit=data["limit"])
+            threadName = self.kpm.startProduce(newTopicName, data["source"], limit=data["limit"])
             
-            #! 3-KAFKA_CONSUMER:
+            #! 2-KAFKA_CONSUMER:
             # Streaming oku
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
-            last_frame = None
-            for bytes_frame in BYTE_FRAMES_GENERATOR:
-                
-                #TODO TrackNet modülünü HIZLANDIR.( findTennisBallPosition )
-                #! 4-TRACKBALL (DETECTION)
+            processData = {}
+            canvas = None
+            first_frame = None
+            for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
+                if i==0:
+                    first_frame = bytes_frame.data
+                    courtPoints = None
+                    frame = Converters.bytes2frame(bytes_frame.data)
+                    if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
+                        courtPoints = EncodeManager.deserialize(data["court_line_array"])
+                    else:
+                        courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
 
+                        # Tenis çizgilerini postgresqle kaydet
+                        if courtPoints is not None:
+                            SerializedCourtPoints = EncodeManager.serialize(Converters.bytes2obj(courtPoints))
+                            Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
+                    frame = Tools.drawLines(frame, courtPoints)
+                    processData["court_lines"], canvas = courtPoints, Converters.frame2bytes(frame)
+
+                #! 4-TRACKBALL (DETECTION)
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
                 all_points.append(Converters.bytes2obj(balldata))
-                last_frame = bytes_frame.data
-            
-            if last_frame is None:
-                assert "last_frame is None"
+                
+            if first_frame is None:
+                assert "first_frame is None"
 
             # PREDICT BALL POSITION
-            fall_points = self.pfpc.predictFallPosition(all_points)
+            allData["ball_fall_array"] = self.pfpc.predictFallPosition(all_points)
             
-            allData["ball_fall_array"] = fall_points
-
             #PROCESS DATA
             court_point_area_data = Repositories.getCourtPointAreaId(self.rcm, data["aos_type_id"])[0]
 
-            processData = {}
-            processData["fall_point"] = Converters.bytes2obj(fall_points)
-            processData["court_lines"], canvas = self.detectCourtLinesController(data, streamData)
+            processData["fall_point"] = Converters.bytes2obj(allData["ball_fall_array"])
             processData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
 
             canvas, processedData = self.processDataClient.processAOS(image=canvas, data=processData)
