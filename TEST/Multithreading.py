@@ -1,25 +1,35 @@
 import concurrent.futures
 import time
 
-def UpdateProcess():
-   time.sleep(5)
+def UpdateProcess(i):
+   time.sleep(10)
+   print(f"Bitti {i}")
+   
 
 def main():
    
-   with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+   threadIterators = []
 
-      threadSubmits = {executor.submit(UpdateProcess) : f"ProcessName_{i}" for i in range(5)}
-      
-      for future in concurrent.futures.as_completed(threadSubmits):
+   executor = concurrent.futures.ThreadPoolExecutor(max_workers=5) 
 
-         message = threadSubmits[future]
-        
-         try:
-            data = future.result()
-         except Exception as e:
-            print(f"{message} hata hile sonuçlandı: {e}")
-         else:
-            print(f"{message} tamamlandı.")
+
+   threadSubmits = {executor.submit(UpdateProcess, i) : f"ProcessName_{i}" for i in range(3)}
+   threadIterator = concurrent.futures.as_completed(threadSubmits)
+   threadIterators.append(threadIterator)
+   
+   for futureIterator in threadIterators:
+      print(futureIterator)
+   
+   threadSubmits = {executor.submit(UpdateProcess, i) : f"ProcessName_{i}" for i in range(3, 6)}
+   threadIterator = concurrent.futures.as_completed(threadSubmits)
+   threadIterators.append(threadIterator)
+   
+
+   print("Bekleniyor.")
+
+   for iterator in threadIterators:
+      for future in iterator:
+         pass #print(future.done())
 
 
 if __name__ == '__main__':

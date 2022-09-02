@@ -1,18 +1,27 @@
-import cv2
-import numpy as np
 
-canvas = cv2.imread("TEST/test.jpg")
 
-def frame2bytes(frame):
-    res, encodedImg = cv2.imencode('.jpg', frame)
-    return encodedImg.tobytes()
+def checkNull(func):
+    def wrapper(*args, **kwargs):
+        if not all( [False for val in kwargs.values() if val is None]): return None
+        if not all( [False for arg in args if arg is None]): return None
+        return func(*args, **kwargs)
+    return wrapper
 
-def bytes2frame(image):
-    nparr = np.frombuffer(image, np.uint8)
-    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-    return frame
+def for_all_methods(decorator):
+    def decorate(cls):
+        for attr in cls.__dict__:
+            if callable(getattr(cls, attr)):
+                setattr(cls, attr, decorator(getattr(cls, attr)))
+        return cls
+    return decorate
 
-byte_frame = frame2bytes(canvas)
-frame = bytes2frame(byte_frame)
+@for_all_methods(checkNull)
+class Converters():
 
-print(frame)
+    @staticmethod
+    def myfunc(x):
+        return x
+
+
+x = Converters.myfunc(2)
+print(x)
