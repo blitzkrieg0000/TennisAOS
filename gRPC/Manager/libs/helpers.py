@@ -1,12 +1,13 @@
 import base64
 import hashlib
+import json
 import pickle
 import time
+from json import JSONEncoder
 
 import cv2
 import numpy as np
 
-from clients.Redis.redis_client import RedisCacheManager
 
 #* Gelen Argümanlardan herhangi birisi None ise None döndür.
 def checkNull(func):
@@ -87,9 +88,10 @@ class Tools():
 @for_all_methods(checkNull)
 class Repositories():
     def __init__(self) -> None:
-        self.rcm = RedisCacheManager()
+        pass
 
-    def getStreamData(self, manager, id):
+    @staticmethod
+    def getStreamData(manager, id):
         query_keys = ["stream_name", "source", "court_line_array", "kafka_topic_name"]
         QUERY = f'SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'
         streamData = manager.Read(query=QUERY, force=False)
@@ -98,23 +100,48 @@ class Repositories():
             return [dict(zip(query_keys, item)) for item in streamData]
         assert "Stream Bilgisi Bulunamadı."
 
-    def getCourtPointAreaId(self, manager, AOS_TYPE_ID):
+    @staticmethod
+    def getCourtPointAreaId(manager, AOS_TYPE_ID):
         query_keys = ["aos_type_name", "court_point_area_id" ]
         QUERY = f'SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'
         streamData = manager.Read(query=QUERY, force=False)
-        streamData = self.bytes2obj(streamData)
+        streamData = Converters.bytes2obj(streamData)
         if streamData is not None:
             return [dict(zip(query_keys, item)) for item in streamData]
         return None
-
-    def saveTopicName(self, manager, stream_id, newTopicName):
+    
+    @staticmethod
+    def saveTopicName(manager, stream_id, newTopicName):
         return manager.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newTopicName,])
 
-    def saveCourtLinePoints(self,manager, stream_id, courtPoints):
+    @staticmethod
+    def saveCourtLinePoints(manager, stream_id, courtPoints):
         return manager.Write(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
 
-    def savePlayingData(self,manager, data):
+    @staticmethod
+    def savePlayingData(manager, data):
         return manager.Write(
         'INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
-        [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ]) 
+        [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ])
+
+
+class NumpyArrayEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return JSONEncoder.default(self, obj)
+
+@for_all_methods(checkNull)
+class EncodeManager():
+    def __init__(self) -> None:
+        pass
+    
+    @staticmethod
+    def serialize(arr):
+        return json.dumps(arr, cls=NumpyArrayEncoder)
+
+    @staticmethod
+    def deserialize(arr):
+        decodedArrays = json.loads(arr)
+        return decodedArrays #np.asarray(decodedArrays)

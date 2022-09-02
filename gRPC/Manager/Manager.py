@@ -49,4 +49,4 @@ class ProcessManager(AbstractHandler):
 
 if __name__ == "__main__":
     sc = StatusChecker()
-    results = sc.set_next(ProcessManager()).set_next(sc).handle({})
+    results = sc.set_next(ProcessManager()).set_next(sc).handle([])

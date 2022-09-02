@@ -7,13 +7,11 @@ from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
-from libs.EncodeManager import EncodeManager
-from libs.helpers import Converters, Repositories, Tools
+from libs.helpers import Converters, Repositories, Tools, EncodeManager
 from libs.logger import logger
 
 
 class AlgorithmManager():
-    EXCEPT_PREFIX = ['']
     def __init__(self):
         super().__init__()
         self.kpm  = KafkaProducerManager()
@@ -24,7 +22,6 @@ class AlgorithmManager():
         self.tbc = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
-        self.encodeManager = EncodeManager()
 
     #! Main Server
     # Manage Producer----------------------------------------------------------
@@ -52,58 +49,54 @@ class AlgorithmManager():
         msg = self.kcm.stopAllRunningConsumers()
         return rc.responseData(data=b"TRYING STOP CONSUMERS...")
 
+
     # Algorithms---------------------------------------------------------------  
-    def detectCourtLinesController(self, data):
-        #! 1-REDIS: 
-        # Stream bilgilerini al
-        streamData = Repositories.getStreamData(self.rcm, data["stream_id"])[0]
+    def detectCourtLinesController(self, data, streamData):
 
-        if len(streamData)>0:
-            courtPoints = None
-            SerializedCourtPoints = None
-            newTopicName = Tools.generateTopicName(streamData["stream_name"], 0) # Unique name
-            
-            # TODO Hata olduğunda servis isteğini sonlandırmak için gerekli hamleleri yap.
-            # self.topicGarbageCollector(context, newTopicName)
+        courtPoints = None
+        SerializedCourtPoints = None
+        newTopicName = Tools.generateTopicName(streamData["stream_name"], 0) # Unique name
+        
+        # TODO Hata olduğunda servis isteğini sonlandırmak için gerekli hamleleri yap.
+        # self.topicGarbageCollector(context, newTopicName)
 
-            #! 2-REDIS:
-            # TOPIC ismini kaydet
-            res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
+        #! 2-REDIS:
+        # TOPIC ismini kaydet
+        res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
 
-            #! 3-KAFKA_PRODUCER:
-            # Streaming başlat
-            threadName = self.kpm.startProduce(newTopicName, streamData["source"], limit=1)
-            
-            #! 4-KAFKA_CONSUMER:
-            # Streaming oku
-            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-courtlinedetector-0", 1, False)
+        #! 3-KAFKA_PRODUCER:
+        # Streaming başlat
+        threadName = self.kpm.startProduce(newTopicName, streamData["source"], limit=1)
+        
+        #! 4-KAFKA_CONSUMER:
+        # Streaming oku
+        BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-courtlinedetector-0", 1, False)
 
-            #! 5-COURT_LINE_DETECTOR:
-            # Tenis sahasının çizgilerini bul
-            frame = []
-            for bytes_frame in BYTE_FRAMES_GENERATOR:
-                frame = Converters.bytes2frame(bytes_frame.data)
+        #! 5-COURT_LINE_DETECTOR:
+        # Tenis sahasının çizgilerini bul
+        frame = []
+        for bytes_frame in BYTE_FRAMES_GENERATOR:
+            frame = Converters.bytes2frame(bytes_frame.data)
 
-                if streamData["court_line_array"] is not None and streamData["court_line_array"] != "" and not data["force"]:
-                    line_arrays = self.encodeManager.deserialize(streamData["court_line_array"])
-                    frame = Tools.drawLines(frame, line_arrays)
-                    return line_arrays, Converters.frame2bytes(frame)
+            if streamData["court_line_array"] is not None and streamData["court_line_array"] != "" and not data["force"]:
+                line_arrays = EncodeManager.deserialize(streamData["court_line_array"])
+                frame = Tools.drawLines(frame, line_arrays)
+                return line_arrays, Converters.frame2bytes(frame)
 
-                courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
+            courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
 
-            #! 6-REDIS:
-            # Tenis çizgilerini postgresqle kaydet
-            if courtPoints is not None:
-                SerializedCourtPoints = self.encodeManager.serialize(Converters.bytes2obj(courtPoints))
-                Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
-            
-            # DeleteTopic
-            self.kpm.deleteTopics([newTopicName])
+        #! 6-REDIS:
+        # Tenis çizgilerini postgresqle kaydet
+        if courtPoints is not None:
+            SerializedCourtPoints = EncodeManager.serialize(Converters.bytes2obj(courtPoints))
+            Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
+        
+        # DeleteTopic
+        self.kpm.deleteTopics([newTopicName])
 
-            frame = Tools.drawLines(frame, courtPoints)
-            return courtPoints, Converters.frame2bytes(frame)
-        else:
-            assert "Stream Data (ID={}) Not Found".format(data["stream_id"])
+        frame = Tools.drawLines(frame, courtPoints)
+        return courtPoints, Converters.frame2bytes(frame)
+
 
     def StartGameObservationController(self, data):
         allData = {}
@@ -149,7 +142,7 @@ class AlgorithmManager():
 
             processData = {}
             processData["fall_point"] = Converters.bytes2obj(fall_points)
-            processData["court_lines"], canvas = self.detectCourtLinesController(data)
+            processData["court_lines"], canvas = self.detectCourtLinesController(data, streamData)
             processData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
 
             canvas, processedData = self.processDataClient.processAOS(image=canvas, data=processData)
