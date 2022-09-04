@@ -119,11 +119,19 @@ class Repositories():
         return manager.Write(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
 
     @staticmethod
+    def saveProcessData(manager, process_id, data):
+        return manager.Write(f'UPDATE public."ProcessResponse" SET description=%s, canvas=%s, ball_position_array=%s, ball_fall_array=%s, player_position_array=%s, score=%s WHERE id={process_id};',
+         [data["description"], data["canvas"], data["ball_position_array"],
+         data["ball_fall_array"],data["player_position_array"],data["score"]])
+
+    @staticmethod
     def savePlayingData(manager, data):
         return manager.Write(
         'INSERT INTO public."PlayingData"(player_id, court_id, aos_type_id, stream_id, score, ball_position_area, player_position_area, ball_fall_array) \
         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
-        [data["player_id"],data["court_id"],data["aos_type_id"],data["stream_id"],data["score"],data["ball_position_area"],data["player_position_area"],data["ball_fall_array"] ])
+        [data["player_id"],data["court_id"],data["aos_type_id"],
+        data["stream_id"],data["score"],data["ball_position_array"],
+        data["player_position_array"],data["ball_fall_array"]])
 
 
 class NumpyArrayEncoder(JSONEncoder):
