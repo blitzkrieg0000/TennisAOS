@@ -22,5 +22,3 @@ def applySettings():
     return logger
 
 logger = applySettings()
-
-logger.info("abc")
