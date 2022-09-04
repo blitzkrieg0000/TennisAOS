@@ -119,8 +119,8 @@ class Repositories():
         return manager.Write(f'UPDATE public."Stream" SET court_line_array=%s WHERE id={stream_id};', [courtPoints,])
 
     @staticmethod
-    def saveProcessData(manager, process_id, data):
-        return manager.Write(f'UPDATE public."ProcessResponse" SET description=%s, canvas=%s, ball_position_array=%s, ball_fall_array=%s, player_position_array=%s, score=%s WHERE id={process_id};',
+    def saveProcessData(manager, data):
+        return manager.Write(f'UPDATE public."ProcessResponse" SET description=%s, canvas=%s, ball_position_array=%s, ball_fall_array=%s, player_position_array=%s, score=%s WHERE id={data["process_id"]};',
          [data["description"], data["canvas"], data["ball_position_array"],
          data["ball_fall_array"],data["player_position_array"],data["score"]])
 

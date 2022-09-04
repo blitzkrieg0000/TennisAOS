@@ -122,7 +122,7 @@ class AlgorithmManager():
             resultData["player_position_array"] = Converters.obj2bytes([])
             resultData["ball_fall_array"] = ball_fall_array
             resultData["score"] = processedAOSData["score"]
-
+            resultData["process_id"] = data["process_id"]
             resultData["court_line_array"] = data["court_line_array"]
             resultData["stream_id"] = data["stream_id"]
             resultData["aos_type_id"] = data["aos_type_id"]
