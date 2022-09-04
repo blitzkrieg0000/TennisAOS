@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import concurrent.futures
+import logging
 from typing import Any
 
 from AlgorithmManager import AlgorithmManager
@@ -27,6 +28,7 @@ class ProcessManager(AbstractHandler):
                 self.processList.append(process)
 
         if len(self.processList) > 0:
+            [logging.info(f'{process["process_id"]} numaralı process işleme alındı.') for process in self.processList]
             threadSubmits = {self.executor.submit(self.algorithmManager.StartGameObservationController, process) : process for process in self.processList}
             futureIterator = concurrent.futures.as_completed(threadSubmits)
 

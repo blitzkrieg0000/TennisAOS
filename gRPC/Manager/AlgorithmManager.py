@@ -120,9 +120,6 @@ class AlgorithmManager():
             # "stream_name", "source", "court_line_array",
             # "kafka_topic_name", "is_video"
             
-            logging.info(type(all_points))
-            logging.info( type(all_points[0]))
-            
             resultData["ball_position_array"] = EncodeManager.serialize(np.array(all_points))
             resultData["player_position_array"] = EncodeManager.serialize([])
             resultData["ball_fall_array"] = EncodeManager.serialize(Converters.bytes2obj(ball_fall_array))
