@@ -18,7 +18,7 @@ from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
-from libs.logger import logger
+import logging
 
 class MainServer(rc_grpc.mainRouterServerServicer):
     EXCEPT_PREFIX = ['']
@@ -36,7 +36,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
     # HELPERS------------------------------------------------------------------
     def bytes2obj(self, bytes):
 
-        logger.info(str(bytes))
+        logging.info(str(bytes))
         if bytes is not None or bytes != b'':
             return pickle.loads(bytes)
 
@@ -108,7 +108,7 @@ class MainServer(rc_grpc.mainRouterServerServicer):
 
     def topicGarbageCollector(self, context, newCreatedTopicName):
         def cb():
-            logger.warning(f"Sonlanan işlem: {newCreatedTopicName}")
+            logging.warning(f"Sonlanan işlem: {newCreatedTopicName}")
             self.kpm.stopProduce(f"streaming_thread_{newCreatedTopicName}")
             self.kcm.stopRunningCosumer(newCreatedTopicName)
             self.tbc.deleteDetector(newCreatedTopicName)

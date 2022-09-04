@@ -1,4 +1,4 @@
-from libs.logger import logger
+import logging
 from libs.consts import *
 from confluent_kafka import Consumer
 import numpy as np
@@ -26,7 +26,7 @@ class ConsumerGen():
         try:
             self.consumer.close()
         except Exception as e:
-            logger.warning(f"ConsumerGen: {e}")
+            logging.warning(f"ConsumerGen: {e}")
 
     def stopGen(self):
         self.stopFlag = True
@@ -47,7 +47,7 @@ class ConsumerGen():
                 continue
 
             if msg.error():
-                logger.info(f"Consumer-error: {msg.error()}")
+                logging.info(f"Consumer-error: {msg.error()}")
                 self.ret_limit +=1
                 continue
             
@@ -89,7 +89,7 @@ class KafkaManager():
         for msg in self.consumerGenerators[topics[0]]:
             yield msg.value()
 
-        logger.info(f"Consumer Durduruldu: {topics[0]}")
+        logging.info(f"Consumer Durduruldu: {topics[0]}")
         try: self.consumerGenerators.pop(topics[0])
         except: pass
         

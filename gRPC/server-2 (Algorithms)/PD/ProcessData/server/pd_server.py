@@ -1,4 +1,4 @@
-from libs.logger import logger
+import logging
 from libs.canvasTools import extractSpecialLocations
 from libs.scoreTools import get_score
 from concurrent import futures
@@ -26,7 +26,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         return frame
         
-    def img2bytes(self, image):
+    def frame2bytes(self, image):
         res, encodedImg = cv2.imencode('.jpg', image)
         frame = encodedImg.tobytes()
         return frame
@@ -44,7 +44,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
         responseData["line_data"] = line_data
         responseData["point_area_data"] = point_area_data
 
-        return rc.processAOSResponse(data=self.obj2bytes(responseData), frame=self.img2bytes(canvas))
+        return rc.processAOSResponse(data=self.obj2bytes(responseData), frame=self.frame2bytes(canvas))
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

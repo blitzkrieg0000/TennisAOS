@@ -4,7 +4,7 @@ import pickle
 import grpc
 import mainRouterServer_pb2 as rc
 import mainRouterServer_pb2_grpc as rc_grpc
-from libs.logger import logger
+import logging
 
 class MainClient():
     def __init__(self):
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     if TEST==1:
         res = mc.detectCourtLines(data)
         points = mc.bytes2obj(res)
-        logger.info(points)
+        logging.info(points)
 
         # PRINT
         cam = cv2.VideoCapture(f"/srv/nfs/mydata/docker-tennis/assets/video_{data['id']}.mp4")
@@ -123,7 +123,7 @@ if __name__ == "__main__":
 
         score = resdata["score"]
         points = resdata["fall_point"]
-        logger.info(f"PUAN: {score} ")
+        logging.info(f"PUAN: {score} ")
 
         # PRINT
         if points is not None:
@@ -138,8 +138,8 @@ if __name__ == "__main__":
     elif TEST==3:
         producers = mc.getProducerThreads()
         consumers = mc.getRunningConsumers()
-        logger.info(f"PRODUCERS: {producers}")
-        logger.info(F"CONSUMERS: {consumers}")
+        logging.info(f"PRODUCERS: {producers}")
+        logging.info(F"CONSUMERS: {consumers}")
 
 
     elif TEST==4:

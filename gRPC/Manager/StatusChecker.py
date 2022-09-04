@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import pickle
 import time
 from typing import Any
 
 from clients.Redis.redis_client import RedisCacheManager
 from libs.helpers import Converters
 from libs.base import AbstractHandler
-from libs.logger import logger
+import logging
 
 
 INTERVAL = 3 # Second(s)
@@ -16,7 +15,7 @@ def timer(func):
     def wrapper(*args, **kwargs):
         time.sleep(INTERVAL)
         
-        logger.info("Yeni Processler Kontrol Ediliyor...")
+        logging.info("Yeni Processler Kontrol Ediliyor...")
         return func(*args,  **kwargs)
 
     return wrapper

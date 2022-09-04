@@ -8,7 +8,9 @@ from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
-from libs.logger import logger
+
+import numpy as np
+import logging
 
 
 class AlgorithmManager():
@@ -54,7 +56,8 @@ class AlgorithmManager():
         resultData = {}
 
         if len(data)>0:
-            newTopicName = Tools.generateTopicName(data["kafka_topic_name"], 0)
+            newTopicName = Tools.generateTopicName(data["stream_name"], 0)
+
             res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
 
             #! 1-KAFKA_PRODUCER:
@@ -96,7 +99,7 @@ class AlgorithmManager():
             #! 4-TRACKBALL (DETECTION)
             for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
-                all_points.append(Converters.bytes2obj(balldata))
+                all_points.append(np.array(Converters.bytes2obj(balldata)))
                 
             #! 5-PREDICT_BALL_POSITION
             ball_fall_array = self.pfpc.predictFallPosition(all_points)
@@ -106,8 +109,7 @@ class AlgorithmManager():
             processAOSRequestData["court_lines"] = courtLines
             processAOSRequestData["fall_point"] = Converters.bytes2obj(ball_fall_array)
             processAOSRequestData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
-            canvas, processedAOSData = self.processDataClient.processAOS(image=canvas, data=processAOSRequestData)
-            canvas = Converters.bytes2frame(canvas)
+            canvasBytes, processedAOSData = self.processDataClient.processAOS(image=canvas, data=processAOSRequestData)
             processedAOSData = Converters.bytes2obj(processedAOSData)
 
             #! 7-SAVE_PROCESSED_DATA
@@ -117,10 +119,13 @@ class AlgorithmManager():
             # "court_id", "limit", "force",
             # "stream_name", "source", "court_line_array",
             # "kafka_topic_name", "is_video"
-
-            resultData["ball_position_array"] = Converters.obj2bytes(all_points)
-            resultData["player_position_array"] = Converters.obj2bytes([])
-            resultData["ball_fall_array"] = ball_fall_array
+            
+            logging.info(type(all_points))
+            logging.info( type(all_points[0]))
+            
+            resultData["ball_position_array"] = EncodeManager.serialize(np.array(all_points))
+            resultData["player_position_array"] = EncodeManager.serialize([])
+            resultData["ball_fall_array"] = EncodeManager.serialize(Converters.bytes2obj(ball_fall_array))
             resultData["score"] = processedAOSData["score"]
             resultData["process_id"] = data["process_id"]
             resultData["court_line_array"] = data["court_line_array"]
@@ -129,7 +134,8 @@ class AlgorithmManager():
             resultData["player_id"] = data["player_id"]
             resultData["court_id"] = data["court_id"]
             resultData["description"] = "Bilgi Verilmedi."
-            resultData["canvas"] = Converters.frame2base64(canvas)
+
+            resultData["canvas"] = Converters.frame2base64(Converters.bytes2frame(canvasBytes))
 
             Repositories.saveProcessData(self.rcm, resultData)
             Repositories.savePlayingData(self.rcm, resultData)

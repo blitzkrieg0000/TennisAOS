@@ -1,5 +1,5 @@
 from __future__ import print_function
-from libs.logger import logger
+import logging
 import pickle
 import grpc
 import clients.StreamKafka.Producer.kafkaProducer_pb2 as rc

@@ -1,4 +1,4 @@
-from libs.logger import logger
+import logging
 from concurrent import futures
 import pickle
 import grpc
@@ -33,7 +33,7 @@ class postgresServer(rc_grpc.postgresqlServicer):
             query_obj=self.bytes2obj(request.query)
             response = self.postgresManager.executeSelectQuery(query_obj["query"])
         except Exception as e:
-            logger.warning("ERROR(executeSelectQuery): ", e)
+            logging.warning("ERROR(executeSelectQuery): ", e)
 
         
 

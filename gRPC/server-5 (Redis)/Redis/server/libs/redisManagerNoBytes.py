@@ -1,6 +1,6 @@
 import json
 import redis
-# from libs.logger import logger
+# import logging
 class RedisManager(object):
     def __init__(self):
         self.r = redis.StrictRedis(host='localhost', port=6379, db=0) # redis

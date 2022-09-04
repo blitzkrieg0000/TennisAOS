@@ -31,9 +31,7 @@ class PDClient():
     def processAOS(self, image, data):
         requestData = rc.processAOSRequest(frame=image, data=self.obj2bytes(data))
         responseData = self.stub.processAOS(requestData)
-        frame = responseData.frame
-        resData = responseData.data
-        return frame, resData
+        return responseData.frame, responseData.data
 
     def disconnect(self):
         self.channel.close()
