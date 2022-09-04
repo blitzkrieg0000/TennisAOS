@@ -49,74 +49,73 @@ class AlgorithmManager():
         msg = self.kcm.stopAllRunningConsumers()
         return rc.responseData(data=b"TRYING STOP CONSUMERS...")
 
-
     # Algorithms--------------------------------------------------------------- 
     def StartGameObservationController(self, data):
-        allData = {}
+        resultData = {}
 
         if len(data)>0:
             newTopicName = Tools.generateTopicName(data["kafka_topic_name"], 0)
             res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
 
             #! 1-KAFKA_PRODUCER:
-            # Streaming başlat
             threadName = self.kpm.startProduce(newTopicName, data["source"], limit=data["limit"])
             
             #! 2-KAFKA_CONSUMER:
-            # Streaming oku
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
 
             all_points = []
-            processData = {}
+            processAOSRequestData = {}
             canvas = None
             first_frame = None
+
+            #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
+            bytes_frame = next(BYTE_FRAMES_GENERATOR)
+            if bytes_frame is not None:
+                first_frame = bytes_frame.data
+                frame = Converters.bytes2frame(first_frame)
+                
+                if frame is None:
+                    assert "İlk kare doğru alınamadı."
+
+                if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
+                    processAOSRequestData["court_lines"] = EncodeManager.deserialize(data["court_line_array"])
+                else:
+                    courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
+                    processAOSRequestData["court_lines"] = Converters.bytes2obj(courtPointsBytes)
+
+                    # Tenis çizgilerini postgresqle kaydet
+                    if processAOSRequestData["court_lines"] is not None:
+                        SerializedCourtPoints = EncodeManager.serialize(processAOSRequestData["court_lines"])
+                        Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
+                
+                frame = Tools.drawLines(frame, processAOSRequestData["court_lines"])
+                canvas = Converters.frame2bytes(frame)
+            
+            #! 4-TRACKBALL (DETECTION)
             for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
-                if i==0:
-                    first_frame = bytes_frame.data
-                    courtPoints = None
-                    frame = Converters.bytes2frame(bytes_frame.data)
-                    if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
-                        courtPoints = EncodeManager.deserialize(data["court_line_array"])
-                    else:
-                        courtPoints = self.dclc.extractCourtLines(image=bytes_frame.data)
-
-                        # Tenis çizgilerini postgresqle kaydet
-                        if courtPoints is not None:
-                            SerializedCourtPoints = EncodeManager.serialize(Converters.bytes2obj(courtPoints))
-                            Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
-                    frame = Tools.drawLines(frame, courtPoints)
-                    processData["court_lines"], canvas = courtPoints, Converters.frame2bytes(frame)
-
-                #! 4-TRACKBALL (DETECTION)
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
                 all_points.append(Converters.bytes2obj(balldata))
                 
-            if first_frame is None:
-                assert "first_frame is None"
-
-            # PREDICT BALL POSITION
-            allData["ball_fall_array"] = self.pfpc.predictFallPosition(all_points)
+            #! 5-PREDICT_BALL_POSITION
+            resultData["ball_fall_array"] = self.pfpc.predictFallPosition(all_points)
             
-            #PROCESS DATA
+            #! 6-PROCESS_AOS_DATA
             court_point_area_data = Repositories.getCourtPointAreaId(self.rcm, data["aos_type_id"])[0]
+            processAOSRequestData["fall_point"] = Converters.bytes2obj(resultData["ball_fall_array"])
+            processAOSRequestData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
+            canvas, processedAOSData = self.processDataClient.processAOS(image=canvas, data=processAOSRequestData)
+            canvas = Converters.bytes2frame(canvas)
+            processedAOSData = Converters.bytes2obj(processedAOSData)
 
-            processData["fall_point"] = Converters.bytes2obj(allData["ball_fall_array"])
-            processData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
-
-            canvas, processedData = self.processDataClient.processAOS(image=canvas, data=processData)
-            processedData = Converters.bytes2obj(processedData)
-
-            allData["score"] = processedData["score"]
-            allData["ball_position_area"] = Converters.obj2bytes(all_points)
-            allData["player_position_area"] = Converters.obj2bytes([])
-            allData["stream_id"] = data["stream_id"]
-            allData["aos_type_id"] = data["aos_type_id"]
-            allData["player_id"] = data["player_id"]
-            allData["court_id"] = data["court_id"]
-
-            # SAVE DATA
-            Repositories.savePlayingData(self.rcm, allData)
+            #! 7-SAVE_PROCESSED_DATA
+            resultData["score"] = processedAOSData["score"]
+            resultData["ball_position_area"] = Converters.obj2bytes(all_points)
+            resultData["player_position_area"] = Converters.obj2bytes([])
+            resultData["stream_id"] = data["stream_id"]
+            resultData["aos_type_id"] = data["aos_type_id"]
+            resultData["player_id"] = data["player_id"]
+            resultData["court_id"] = data["court_id"]
+            Repositories.savePlayingData(self.rcm, resultData)
             
             # CreateResponse
-            canvas = Converters.bytes2frame(canvas)
-            return processData, Converters.frame2base64(canvas)
+            return resultData, Converters.frame2base64(canvas)

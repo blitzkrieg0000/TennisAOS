@@ -49,7 +49,7 @@ class Converters():
     
     @staticmethod
     def frame2bytes(frame):
-        res, encodedImg = cv2.imencode('.jpg', frame)
+        res, encodedImg = cv2.imencode('.png', frame)
         return encodedImg.tobytes()
     
     @staticmethod
