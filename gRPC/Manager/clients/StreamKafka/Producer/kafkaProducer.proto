@@ -12,9 +12,7 @@ service kafkaProducer {
 
 // Request Name
 message producerRequest {
-  string topicName=1;
-  string streamUrl=2;
-  int64 limit=3;
+  string data=1;
 }
 message stopProduceRequest {
   string thread_name=1;

@@ -16,10 +16,9 @@ class KafkaProducerManager():
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
 
-    def startProduce(self, topicName, streamUrl, limit=-1):
-        requestData = rc.producerRequest(topicName=topicName, streamUrl=streamUrl, limit=limit)
+    def startProduce(self, data):
+        requestData = rc.producerRequest(data=data)
         response = self.stub.producer(requestData)
-
         return response.thread_name
 
     def getProducerThreads(self):

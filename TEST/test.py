@@ -1,17 +1,26 @@
+from concurrent import futures
+import multiprocessing
+
+class Test():
+    def __init__(self):
+        self.counter = 0
     
-import base64
-import cv2
-
-img = cv2.imread("TEST/test.jpg")
-
-
-def frame2base64(frame):
-    etval, buffer = cv2.imencode('.png', frame)
-    return base64.b64encode(buffer).decode()
+    def islem(self, i):
+        for _ in range(10000000):
+            if i%2==0:
+                self.counter = 1+self.counter
+            else:
+                self.counter = -1+self.counter
 
 
-result = frame2base64(img)
+test = Test()
+executer = futures.ThreadPoolExecutor(5)
+submits = {executer.submit(test.islem, i) : i for i in range(2)}
+futureIterator = futures.as_completed(submits)
 
-f = open("TEST/temp.txt", "a")
-f.write(result)
-f.close()
+for future in futureIterator:
+    if future.done():
+        print(f"{submits[future]} is done\n")
+
+
+print(test.counter)

@@ -1,5 +1,9 @@
+import logging
+import multiprocessing
 import os
 import pickle
+import signal
+import sys
 import threading
 
 import cv2
@@ -8,16 +12,135 @@ from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from libs.consts import *
-import logging
+from libs.helpers import EncodeManager
 
 
-class KafkaManager():
+class ProducerContextManager(object):
+    def __init__(self, data):
+        self.topicName = data["topicName"]
+        self.streamUrl = data["streamUrl"]
+        self.is_video =  data["is_video"]
+        self.limit = data["limit"]
+        self.adminConfluent = None
+        self._sigint = None
+        self._sigterm = None
+        self.stop_flag = True
+        self.cam = None
+        self.producerClient = None
+
+    def delivery_report(self, err, msg):
+        # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
+        if err is not None:
+            logging.warning(f'Message delivery failed: {err}')
+        else:
+        #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
+            pass
+
+    def getTopicList(self):
+        topicList = []
+        try: topicList = self.adminConfluent.list_topics().topics.keys()
+        except Exception as e: logging.warning(e)
+        return topicList
+
+    def createTopics(self, topic_list):
+        create_topic_recipies = []
+        for new_topic in topic_list:
+            created_top = NewTopic(new_topic, num_partitions=TOPICS_NUM_PARTITION, replication_factor=-1)
+            create_topic_recipies.append(created_top)
+        
+        if len(create_topic_recipies)>0:
+            fs = None
+            try: fs = self.adminConfluent.create_topics(create_topic_recipies)
+            except Exception as e: logging.warning(e)
+            
+            if fs is not None:
+                for topic, f in fs.items():
+                    try:
+                        x = f.result()
+                        logging.info(f"Topic {topic} created")
+                    except Exception as e:
+                        logging.warning(f"Failed to create topic {topic}: {e}") 
+
+    def updateTopics(self, topicName):
+        topics = set(self.getTopicList())
+        existTopics = topics - TOPICS_IGNORE_SET
+        newTopicName = set([topicName])
+        self.createTopics((newTopicName - existTopics))
+
+    def _handler(self, signum, frame):
+        logging.warning("Received SIGINT or SIGTERM! Finishing self.producerClient, then exiting.")
+        #! CLOSE CONNECTION
+        # Release Sources
+        self.cam.release()
+        self.producerClient.flush()
+        sys.exit(0)
+
+    def __enter__(self):
+        self._sigint = signal.signal(signal.SIGINT, self._handler)
+        self._sigterm = signal.signal(signal.SIGTERM, self._handler)
+        self.adminConfluent = AdminClient({'bootstrap.servers': ",".join(["localhost:9092"])})
+        try: self.producerClient = Producer({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
+        except Exception as e: logging.warning(e)
+        if self.producerClient is None: assert "Producera bağlanamıyor..."
+        return self
+     
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        signal.signal(signal.SIGINT, self._sigint)
+        signal.signal(signal.SIGTERM, self._sigterm)
+        print('exit method called')
+    
+    def producer(self):
+        logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
+        
+        # Stream Settings
+        if self.is_video and not os.access(self.streamUrl, mode=0):
+            raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
+
+        self.cam = cv2.VideoCapture(self.streamUrl)
+        fps = int(self.cam.get(5))
+
+        self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, int(self.cam.get(3)))
+        self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, int(self.cam.get(4)))
+        self.cam.set(cv2.CAP_PROP_EXPOSURE, 0.1)
+        self.cam.set(cv2.CAP_PROP_FPS, fps if fps>0 else 30)
+        self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
+        
+        # Create Topic if not exist
+        self.updateTopics(self.topicName)
+
+        ret_limit_count=0
+        limit_count=0
+        while self.stop_flag:
+            if (limit_count>=self.limit and self.limit > 0) or ret_limit_count>RET_COUNT-1:
+                break
+
+            ret_val, img = self.cam.read()
+            if ret_val:
+                encodedImg = []
+                res, encodedImg = cv2.imencode('.png', img)
+                if res:
+                    self.producerClient.produce(self.topicName, encodedImg.tobytes(), callback=self.delivery_report)
+                    self.producerClient.poll(0)
+                    ret_limit_count=0
+                    if self.limit > 0:
+                        limit_count+=1
+                else:
+                    logging.info(f"PNG formatına dönüştürülemedi:{self.streamUrl}")
+                    ret_limit_count+=1
+            else:
+                logging.warning(f"{self.topicName}: Streamden okunamıyor... Bu kaynak başka bir yerden kullanımda olabilir: {self.streamUrl}")
+                ret_limit_count+=1
+        
+        logging.info(f"Producer Sonlandı: {self.topicName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
+
+
+class KafkaProducerManager():
 
     def __init__(self):
         self.adminC = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
-        self.producer_thread_statuses = {}
         self.kcm = KafkaConsumerManager()
-
+        self.producer_process_statuses = {} # multiprocessing.Manager().dict()
+        
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
 
@@ -30,156 +153,82 @@ class KafkaManager():
             pass
 
     def getTopicList(self):
-        topicList = self.adminC.list_topics() #.topics.keys()
+        topicList = self.adminC.list_topics().topics.keys()
         return topicList
-
-    def createTopics(self, topic_list):
-        create_topic_recipies = []
-        for new_topic in topic_list:
-            created_top = NewTopic(new_topic, num_partitions=TOPICS_NUM_PARTITION, replication_factor=-1)
-            create_topic_recipies.append(created_top)
-
-        if len(create_topic_recipies)>0:
-            fs = self.adminC.create_topics(create_topic_recipies)
-            for topic, f in fs.items():
-                try:
-                    f.result()
-                    logging.info(f"Topic {topic} created")
-                except Exception as e:
-                    logging.warning(f"Failed to create topic {topic}: {e}") 
 
     def deleteTopics(self, topic_list):
         if len(topic_list) > 0:
             fs = self.adminC.delete_topics(topic_list)
             for topic, f in fs.items():
                 try:
-                    f.result()
+                    x = f.result()
                     logging.info(f"Topic {topic} deleted")
                 except Exception as e:
                     logging.warning(f"Failed to delete topic {topic}: {e}")
 
-    def updateTopics(self, topicName):
-        topics = set(self.getTopicList().topics.keys())
-        existTopics = topics - TOPICS_IGNORE_SET
-        newTopicName = set([topicName])
-        self.createTopics((newTopicName - existTopics))
-
     def deleteNotUsingTopic(self):
-        topics = set(self.getTopicList().topics.keys())
+        topics = set(self.getTopicList())
         existTopics = topics - TOPICS_IGNORE_SET
 
-        producer_items = set(self.producer_thread_statuses.keys())
+        producer_items = set(self.producer_process_statuses.keys())
         producerDellTopics = existTopics - producer_items
 
         consumer_items = set(self.bytes2obj(self.kcm.getRunningConsumers()))
         dellTopics = producerDellTopics - consumer_items
 
-        # TODO: Farkını bul
         self.deleteTopics([*dellTopics])
 
     def updateThreads(self): 
         # Eğer bu thread yoksa temizle
         running_threads = [thread.name for thread in threading.enumerate()]
-        items = list(self.producer_thread_statuses.keys())
+        items = list(self.producer_process_statuses.keys())
         for item in items:
             if not item in running_threads:
                 try:
-                    self.producer_thread_statuses.pop(item)
+                    self.producer_process_statuses.pop(item)
                 except: pass
-
-        self.deleteNotUsingTopic()
-
-
+   
     def getProducerThreads(self):
         self.updateThreads()
-        return self.producer_thread_statuses
+        self.deleteNotUsingTopic()
+        return self.producer_process_statuses
 
     def stopProducerThread(self, thread_name):
         logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
         if thread_name in [thread.name for thread in threading.enumerate()]:
             try:
-                self.producer_thread_statuses[thread_name] = False
+                self.producer_process_statuses[thread_name] = False
             except: pass
 
         self.updateThreads()
 
     def stopAllProducerThreads(self):
-        items = list(self.producer_thread_statuses.keys())
+        items = list(self.producer_process_statuses.keys())
         for x in items:
             try:
-                self.producer_thread_statuses[x] = False
+                self.producer_process_statuses[x] = False
             except: pass
         self.updateThreads()
 
     def producers(func):
-        def wrap(self, *args, **kwargs):
-            #items = args[0].split("-")   #{prefix}-{id}-{random_id} ->  streaming_thread_tenis_saha_1-0
+        def wrapper(self, *args, **kwargs):
+            data = EncodeManager.deserialize(args[0])
+            
+            if data["topicName"] is None or data["topicName"] == "":
+                raise ValueError("topicName cannot be empty.")
+            
+            if data["limit"] is None or data["limit"] == "":
+                data["limit"] = -1
 
-            thread_name = f"{THREAD_PREFIX}{args[0]}" #f"{THREAD_PREFIX}{items[0]}-{items[1]}"
-            if not kwargs.get("thName", False):
-                kwargs['thName'] = thread_name
-
-            if not kwargs.get("limit", False):
-                kwargs['limit'] = -1
-
-            self.updateThreads()
-            self.producer_thread_statuses[kwargs['thName']] = True 
-            t = threading.Thread(name=kwargs['thName'], target=func, args=(self, *args), kwargs=kwargs)
+            t = multiprocessing.Process(name=data["topicName"], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
-            logging.info(f"Starting: {kwargs['thName']}")
-        
-            return kwargs['thName']
-        return wrap
+
+            return data["topicName"]
+        return wrapper
 
     @producers
-    def streamProducer(self, topicName, streamUrl, limit=None, thName=None):
-        if not topicName:
-            raise ValueError("Topic adı boş bırakılamaz!")
+    def streamProducer(self, data):
+        with ProducerContextManager(data) as manager:
+            manager.producer()
 
-        producer = Producer({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
-        logging.info(f"Stream-Producer şu kaynak için {topicName}'e {limit if limit!=-1 else 'stream sonuna'} kadar veri yüklüyor: {streamUrl}")
 
-        # Stream ayarları
-        cam = cv2.VideoCapture(streamUrl if os.access(streamUrl, mode=0) else streamUrl)
-        fps = int(cam.get(5))
-
-        cam.set(cv2.CAP_PROP_FRAME_WIDTH, int(cam.get(3)))
-        cam.set(cv2.CAP_PROP_FRAME_HEIGHT, int(cam.get(4)))
-        cam.set(cv2.CAP_PROP_EXPOSURE, 0.1)
-        cam.set(cv2.CAP_PROP_FPS, fps if fps>0 else 30)
-        cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
-        
-        # Topic yoksa oluştur
-        self.updateTopics(topicName)
-
-        ret_limit_count=0
-        limit_count=0
-        while self.producer_thread_statuses[thName]:
-            if (limit_count>=limit and limit > 0) or ret_limit_count>RET_COUNT-1:
-                break
-
-            ret_val, img = cam.read()
-            if ret_val:
-
-                encodedImg = []
-                res, encodedImg = cv2.imencode('.jpg', img)
-                if res:
-                    producer.produce(topicName, encodedImg.tobytes(), callback=self.delivery_report)
-                    producer.poll(0)
-                    ret_limit_count=0
-                    if limit > 0:
-                        limit_count+=1
-                else:
-                    logging.info(f"Streamdeki resim karesi jpg formatına dönüştürülemedi:{streamUrl}")
-                    ret_limit_count+=1
-            else:
-                logging.info(f"WARNING {thName}: Streamden okunamıyor... Bu kaynak başka bir yerden kullanımda olabilir: {streamUrl}")
-                ret_limit_count+=1
-        
-        # Release Sources
-        cam.release()
-        producer.flush()
-        
-        self.updateThreads()
-        logging.info(f"Producer Sonlandı: {thName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
-        

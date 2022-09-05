@@ -9,7 +9,7 @@ class MainClient():
         self.stub = rc_grpc.TestServerStub(self.channel)
 
     def Process(self):
-        requestData = rc.requestData(data="Burakhan")
+        requestData = rc.requestData(data="")
         responseData = self.stub.Process(requestData)
         return responseData
 
@@ -19,6 +19,5 @@ class MainClient():
 
 if __name__ == "__main__":
     client = MainClient()
-    MESSAGE_ITERATOR = client.Process()
-    for x in MESSAGE_ITERATOR:
-        print(x.data)
+    message = client.Process()
+    print(message.data)

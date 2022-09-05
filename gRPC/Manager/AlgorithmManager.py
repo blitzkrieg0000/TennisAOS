@@ -57,11 +57,11 @@ class AlgorithmManager():
 
         if len(data)>0:
             newTopicName = Tools.generateTopicName(data["stream_name"], 0)
-
             res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
 
             #! 1-KAFKA_PRODUCER:
-            threadName = self.kpm.startProduce(newTopicName, data["source"], limit=data["limit"])
+            data["newTopicName"] = newTopicName
+            threadName = self.kpm.startProduce(EncodeManager.serialize(data))
             
             #! 2-KAFKA_CONSUMER:
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
@@ -98,6 +98,7 @@ class AlgorithmManager():
             
             #! 4-TRACKBALL (DETECTION)
             for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
+                # TODO Diğer algoritmalar için concurency.future ile aynı frame kullanılarak işlem yapılacak 
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
                 all_points.append(np.array(Converters.bytes2obj(balldata)))
                 
@@ -113,16 +114,10 @@ class AlgorithmManager():
             processedAOSData = Converters.bytes2obj(processedAOSData)
 
             #! 7-SAVE_PROCESSED_DATA
-            # data : 
-            # "process_id", "process_name", "session_id",
-            # "stream_id", "aos_type_id", "player_id",
-            # "court_id", "limit", "force",
-            # "stream_name", "source", "court_line_array",
-            # "kafka_topic_name", "is_video"
-            
             resultData["ball_position_array"] = EncodeManager.serialize(np.array(all_points))
             resultData["player_position_array"] = EncodeManager.serialize([])
             resultData["ball_fall_array"] = EncodeManager.serialize(Converters.bytes2obj(ball_fall_array))
+            resultData["canvas"] = Converters.frame2base64(Converters.bytes2frame(canvasBytes)) 
             resultData["score"] = processedAOSData["score"]
             resultData["process_id"] = data["process_id"]
             resultData["court_line_array"] = data["court_line_array"]
@@ -131,8 +126,7 @@ class AlgorithmManager():
             resultData["player_id"] = data["player_id"]
             resultData["court_id"] = data["court_id"]
             resultData["description"] = "Bilgi Verilmedi."
-
-            resultData["canvas"] = Converters.frame2base64(Converters.bytes2frame(canvasBytes))
+            
 
             Repositories.saveProcessData(self.rcm, resultData)
             Repositories.savePlayingData(self.rcm, resultData)

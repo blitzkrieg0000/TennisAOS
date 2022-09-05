@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import clients.StreamKafka.Producer.kafkaProducer_pb2 as kafkaProducer__pb2
+import kafkaProducer_pb2 as kafkaProducer__pb2
 
 
 class kafkaProducerStub(object):
