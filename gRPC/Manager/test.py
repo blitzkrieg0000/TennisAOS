@@ -6,7 +6,7 @@ img = cv2.imread("TEST/test.jpg")
 
 
 def frame2base64(frame):
-    etval, buffer = cv2.imencode('.png', frame)
+    etval, buffer = cv2.imencode('.jpg', frame)
     return base64.b64encode(buffer)
 
 

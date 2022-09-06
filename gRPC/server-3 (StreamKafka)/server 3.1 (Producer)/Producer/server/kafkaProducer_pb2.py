@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaProducer.proto\x12\x08producer\"F\n\x0fproducerRequest\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\x11\n\tstreamUrl\x18\x02 \x01(\t\x12\r\n\x05limit\x18\x03 \x01(\x03\")\n\x12stopProduceRequest\x12\x13\n\x0bthread_name\x18\x01 \x01(\t\")\n\x19getProducerThreadsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"-\n\x1dstopAllProducerThreadsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"#\n\x13\x64\x65leteTopicsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"7\n\x10producerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\x12\x13\n\x0bthread_name\x18\x02 \x01(\t\"%\n\x13stopProduceResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"*\n\x1agetProducerThreadsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\".\n\x1estopAllProducerThreadsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"$\n\x14\x64\x65leteTopicsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2\xbd\x03\n\rkafkaProducer\x12\x43\n\x08producer\x12\x19.producer.producerRequest\x1a\x1a.producer.producerResponse\"\x00\x12L\n\x0bstopProduce\x12\x1c.producer.stopProduceRequest\x1a\x1d.producer.stopProduceResponse\"\x00\x12\x61\n\x12getProducerThreads\x12#.producer.getProducerThreadsRequest\x1a$.producer.getProducerThreadsResponse\"\x00\x12\x65\n\x16stopAllProducerThreads\x12#.producer.getProducerThreadsRequest\x1a$.producer.getProducerThreadsResponse\"\x00\x12O\n\x0c\x64\x65leteTopics\x12\x1d.producer.deleteTopicsRequest\x1a\x1e.producer.deleteTopicsResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaProducer.proto\x12\x08producer\"\x1f\n\x0fproducerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\")\n\x12stopProduceRequest\x12\x13\n\x0bthread_name\x18\x01 \x01(\t\")\n\x19getProducerThreadsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"-\n\x1dstopAllProducerThreadsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"#\n\x13\x64\x65leteTopicsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"7\n\x10producerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\x12\x13\n\x0bthread_name\x18\x02 \x01(\t\"%\n\x13stopProduceResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"*\n\x1agetProducerThreadsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\".\n\x1estopAllProducerThreadsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"$\n\x14\x64\x65leteTopicsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2\xbd\x03\n\rkafkaProducer\x12\x43\n\x08producer\x12\x19.producer.producerRequest\x1a\x1a.producer.producerResponse\"\x00\x12L\n\x0bstopProduce\x12\x1c.producer.stopProduceRequest\x1a\x1d.producer.stopProduceResponse\"\x00\x12\x61\n\x12getProducerThreads\x12#.producer.getProducerThreadsRequest\x1a$.producer.getProducerThreadsResponse\"\x00\x12\x65\n\x16stopAllProducerThreads\x12#.producer.getProducerThreadsRequest\x1a$.producer.getProducerThreadsResponse\"\x00\x12O\n\x0c\x64\x65leteTopics\x12\x1d.producer.deleteTopicsRequest\x1a\x1e.producer.deleteTopicsResponse\"\x00\x62\x06proto3')
 
 
 
@@ -103,25 +103,25 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _PRODUCERREQUEST._serialized_start=33
-  _PRODUCERREQUEST._serialized_end=103
-  _STOPPRODUCEREQUEST._serialized_start=105
-  _STOPPRODUCEREQUEST._serialized_end=146
-  _GETPRODUCERTHREADSREQUEST._serialized_start=148
-  _GETPRODUCERTHREADSREQUEST._serialized_end=189
-  _STOPALLPRODUCERTHREADSREQUEST._serialized_start=191
-  _STOPALLPRODUCERTHREADSREQUEST._serialized_end=236
-  _DELETETOPICSREQUEST._serialized_start=238
-  _DELETETOPICSREQUEST._serialized_end=273
-  _PRODUCERRESPONSE._serialized_start=275
-  _PRODUCERRESPONSE._serialized_end=330
-  _STOPPRODUCERESPONSE._serialized_start=332
-  _STOPPRODUCERESPONSE._serialized_end=369
-  _GETPRODUCERTHREADSRESPONSE._serialized_start=371
-  _GETPRODUCERTHREADSRESPONSE._serialized_end=413
-  _STOPALLPRODUCERTHREADSRESPONSE._serialized_start=415
-  _STOPALLPRODUCERTHREADSRESPONSE._serialized_end=461
-  _DELETETOPICSRESPONSE._serialized_start=463
-  _DELETETOPICSRESPONSE._serialized_end=499
-  _KAFKAPRODUCER._serialized_start=502
-  _KAFKAPRODUCER._serialized_end=947
+  _PRODUCERREQUEST._serialized_end=64
+  _STOPPRODUCEREQUEST._serialized_start=66
+  _STOPPRODUCEREQUEST._serialized_end=107
+  _GETPRODUCERTHREADSREQUEST._serialized_start=109
+  _GETPRODUCERTHREADSREQUEST._serialized_end=150
+  _STOPALLPRODUCERTHREADSREQUEST._serialized_start=152
+  _STOPALLPRODUCERTHREADSREQUEST._serialized_end=197
+  _DELETETOPICSREQUEST._serialized_start=199
+  _DELETETOPICSREQUEST._serialized_end=234
+  _PRODUCERRESPONSE._serialized_start=236
+  _PRODUCERRESPONSE._serialized_end=291
+  _STOPPRODUCERESPONSE._serialized_start=293
+  _STOPPRODUCERESPONSE._serialized_end=330
+  _GETPRODUCERTHREADSRESPONSE._serialized_start=332
+  _GETPRODUCERTHREADSRESPONSE._serialized_end=374
+  _STOPALLPRODUCERTHREADSRESPONSE._serialized_start=376
+  _STOPALLPRODUCERTHREADSRESPONSE._serialized_end=422
+  _DELETETOPICSRESPONSE._serialized_start=424
+  _DELETETOPICSRESPONSE._serialized_end=460
+  _KAFKAPRODUCER._serialized_start=463
+  _KAFKAPRODUCER._serialized_end=908
 # @@protoc_insertion_point(module_scope)

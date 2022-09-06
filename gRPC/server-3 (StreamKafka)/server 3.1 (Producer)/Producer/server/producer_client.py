@@ -4,11 +4,12 @@ import pickle
 import grpc
 import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
+from libs.helpers import EncodeManager
 
 class KafkaProducerManager():
 
     def __init__(self):
-        self.channel = grpc.insecure_channel('producerservice:50031')
+        self.channel = grpc.insecure_channel('localhost:50031') #producerservice:50031
         self.stub = rc_grpc.kafkaProducerStub(self.channel)
 
     def obj2bytes(self, obj):
@@ -17,10 +18,9 @@ class KafkaProducerManager():
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
 
-    def startProduce(self, topicName, streamUrl, limit=-1):
-        requestData = rc.producerRequest(topicName=topicName, streamName=streamUrl, limit=limit)
+    def producer(self, data):
+        requestData = rc.producerRequest(data=EncodeManager.serialize(data))
         response = self.stub.producer(requestData)
-        logging.info(f"RESULTS: {response.result} \n THREAD_NAME: {response.thread_name}")
         return response.thread_name
 
     def getProducerThreads(self):
@@ -45,3 +45,14 @@ class KafkaProducerManager():
 
     def disconnect(self):
         self.channel.close()
+
+
+if "__main__" == __name__:
+    client = KafkaProducerManager()
+    data = {}
+    data["topicName"] = "deneme"
+    data["streamUrl"] = "/assets/en_yeni.mp4"
+    data["is_video"] = True
+    data["limit"] = -1
+
+    client.producer(data)

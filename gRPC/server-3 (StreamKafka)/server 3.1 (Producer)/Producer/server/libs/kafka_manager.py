@@ -17,6 +17,7 @@ from libs.helpers import EncodeManager
 
 class ProducerContextManager(object):
     def __init__(self, data):
+        logging.info(data)
         self.topicName = data["topicName"]
         self.streamUrl = data["streamUrl"]
         self.is_video =  data["is_video"]
@@ -78,7 +79,7 @@ class ProducerContextManager(object):
     def __enter__(self):
         self._sigint = signal.signal(signal.SIGINT, self._handler)
         self._sigterm = signal.signal(signal.SIGTERM, self._handler)
-        self.adminConfluent = AdminClient({'bootstrap.servers': ",".join(["localhost:9092"])})
+        self.adminConfluent = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         try: self.producerClient = Producer({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         except Exception as e: logging.warning(e)
         if self.producerClient is None: assert "Producera bağlanamıyor..."
@@ -87,7 +88,7 @@ class ProducerContextManager(object):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         signal.signal(signal.SIGINT, self._sigint)
         signal.signal(signal.SIGTERM, self._sigterm)
-        print('exit method called')
+        logging.warning('Exit Producer')
     
     def producer(self):
         logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
@@ -117,7 +118,8 @@ class ProducerContextManager(object):
             ret_val, img = self.cam.read()
             if ret_val:
                 encodedImg = []
-                res, encodedImg = cv2.imencode('.png', img)
+
+                res, encodedImg = cv2.imencode('.jpg', img) #.png formatından boyutu daha düşük
                 if res:
                     self.producerClient.produce(self.topicName, encodedImg.tobytes(), callback=self.delivery_report)
                     self.producerClient.poll(0)
@@ -128,7 +130,7 @@ class ProducerContextManager(object):
                     logging.info(f"PNG formatına dönüştürülemedi:{self.streamUrl}")
                     ret_limit_count+=1
             else:
-                logging.warning(f"{self.topicName}: Streamden okunamıyor... Bu kaynak başka bir yerden kullanımda olabilir: {self.streamUrl}")
+                logging.warning(f"{self.topicName}: Streamden okunamıyor...Kaynak kullanımda olabilir: {self.streamUrl}")
                 ret_limit_count+=1
         
         logging.info(f"Producer Sonlandı: {self.topicName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
@@ -212,7 +214,7 @@ class KafkaProducerManager():
 
     def producers(func):
         def wrapper(self, *args, **kwargs):
-            data = EncodeManager.deserialize(args[0])
+            data = args[0]
             
             if data["topicName"] is None or data["topicName"] == "":
                 raise ValueError("topicName cannot be empty.")

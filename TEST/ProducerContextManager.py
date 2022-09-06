@@ -66,7 +66,7 @@ class ProducerContextManager():
             ret_val, img = cam.read()
             if ret_val:
                 encodedImg = []
-                res, encodedImg = cv2.imencode('.png', img)
+                res, encodedImg = cv2.imencode('.jpg', img)
                 if res:
                     producer.produce(self.topicName, encodedImg.tobytes(), callback=self.delivery_report)
                     producer.poll(0)

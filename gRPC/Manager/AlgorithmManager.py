@@ -10,7 +10,6 @@ from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
 
 import numpy as np
-import logging
 
 
 class AlgorithmManager():

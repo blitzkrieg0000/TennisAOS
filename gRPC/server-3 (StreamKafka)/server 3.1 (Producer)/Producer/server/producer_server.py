@@ -2,6 +2,7 @@ from concurrent import futures
 import pickle
 
 import grpc
+from libs.helpers import EncodeManager
 import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
 from libs.kafka_manager import KafkaProducerManager
@@ -20,7 +21,7 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
         return pickle.loads(bytes)
 
     def producer(self, request, context):
-        thread_name = self.kafkaManager.streamProducer(data=request.data)
+        thread_name = self.kafkaManager.streamProducer(EncodeManager.deserialize(request.data))
         responseData = rc.producerResponse(result=f"Producer Started For: {thread_name}", thread_name=thread_name)
         return responseData
 
