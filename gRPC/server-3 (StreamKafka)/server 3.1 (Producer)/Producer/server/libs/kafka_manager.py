@@ -12,8 +12,6 @@ from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from libs.consts import *
-from libs.helpers import EncodeManager
-
 
 class ProducerContextManager(object):
     def __init__(self, data):
@@ -88,12 +86,15 @@ class ProducerContextManager(object):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         signal.signal(signal.SIGINT, self._sigint)
         signal.signal(signal.SIGTERM, self._sigterm)
+        self.cam.release()
+        self.producerClient.flush()
         logging.warning('Exit Producer')
     
     def producer(self):
         logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
         
         # Stream Settings
+        logging.warning(os.access(self.streamUrl, mode=0))
         if self.is_video and not os.access(self.streamUrl, mode=0):
             raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
 
