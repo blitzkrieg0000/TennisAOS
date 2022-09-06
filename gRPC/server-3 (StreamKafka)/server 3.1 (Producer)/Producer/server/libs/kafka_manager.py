@@ -1,10 +1,9 @@
 import logging
 import multiprocessing
 import os
-import pickle
 import signal
 import sys
-import threading
+from multiprocessing.process import BaseProcess
 
 import cv2
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
@@ -12,6 +11,8 @@ from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
 from libs.consts import *
+from libs.helpers import Converters
+
 
 class ProducerContextManager(object):
     def __init__(self, data):
@@ -27,7 +28,7 @@ class ProducerContextManager(object):
         self.cam = None
         self.producerClient = None
 
-    def delivery_report(self, err, msg):
+    def __delivery_report(self, err, msg):
         # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
         if err is not None:
             logging.warning(f'Message delivery failed: {err}')
@@ -35,13 +36,13 @@ class ProducerContextManager(object):
         #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
             pass
 
-    def getTopicList(self):
+    def __getTopicList(self):
         topicList = []
         try: topicList = self.adminConfluent.list_topics().topics.keys()
         except Exception as e: logging.warning(e)
         return topicList
 
-    def createTopics(self, topic_list):
+    def __createTopics(self, topic_list):
         create_topic_recipies = []
         for new_topic in topic_list:
             created_top = NewTopic(new_topic, num_partitions=TOPICS_NUM_PARTITION, replication_factor=-1)
@@ -60,23 +61,20 @@ class ProducerContextManager(object):
                     except Exception as e:
                         logging.warning(f"Failed to create topic {topic}: {e}") 
 
-    def updateTopics(self, topicName):
-        topics = set(self.getTopicList())
+    def __updateTopics(self, topicName):
+        topics = set(self.__getTopicList())
         existTopics = topics - TOPICS_IGNORE_SET
         newTopicName = set([topicName])
-        self.createTopics((newTopicName - existTopics))
+        self.__createTopics((newTopicName - existTopics))
 
-    def _handler(self, signum, frame):
-        logging.warning("Received SIGINT or SIGTERM! Finishing self.producerClient, then exiting.")
-        #! CLOSE CONNECTION
-        # Release Sources
-        self.cam.release()
-        self.producerClient.flush()
+    def __handler(self, signum, frame):
+        logging.warning("Received SIGINT or SIGTERM! Closing Connections, then exiting Producer.")
+        self.__closeConnections()
         sys.exit(0)
 
     def __enter__(self):
-        self._sigint = signal.signal(signal.SIGINT, self._handler)
-        self._sigterm = signal.signal(signal.SIGTERM, self._handler)
+        self._sigint = signal.signal(signal.SIGINT, self.__handler)
+        self._sigterm = signal.signal(signal.SIGTERM, self.__handler)
         self.adminConfluent = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         try: self.producerClient = Producer({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         except Exception as e: logging.warning(e)
@@ -86,10 +84,14 @@ class ProducerContextManager(object):
     def __exit__(self, exc_type, exc_value, exc_traceback):
         signal.signal(signal.SIGINT, self._sigint)
         signal.signal(signal.SIGTERM, self._sigterm)
+        self.__closeConnections()
+        logging.warning('Normal Exiting Producer')
+    
+    def __closeConnections(self):
+        self.stop_flag = False
         self.cam.release()
         self.producerClient.flush()
-        logging.warning('Exit Producer')
-    
+
     def producer(self):
         logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
         
@@ -108,7 +110,7 @@ class ProducerContextManager(object):
         self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
         
         # Create Topic if not exist
-        self.updateTopics(self.topicName)
+        self.__updateTopics(self.topicName)
 
         ret_limit_count=0
         limit_count=0
@@ -119,10 +121,10 @@ class ProducerContextManager(object):
             ret_val, img = self.cam.read()
             if ret_val:
                 encodedImg = []
+                encodedImg = Converters.frame2bytes(img)
 
-                res, encodedImg = cv2.imencode('.jpg', img) #.png formatından boyutu daha düşük
-                if res:
-                    self.producerClient.produce(self.topicName, encodedImg.tobytes(), callback=self.delivery_report)
+                if encodedImg is not None:
+                    self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
                     self.producerClient.poll(0)
                     ret_limit_count=0
                     if self.limit > 0:
@@ -138,82 +140,48 @@ class ProducerContextManager(object):
 
 
 class KafkaProducerManager():
-
     def __init__(self):
         self.adminC = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
         self.kcm = KafkaConsumerManager()
         self.producer_process_statuses = {} # multiprocessing.Manager().dict()
         
-    def bytes2obj(self, bytes):
-        return pickle.loads(bytes)
+    def __getAllProceses(self):
+        return multiprocessing.active_children()
 
-    def delivery_report(self, err, msg):
-        # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
-        if err is not None:
-            logging.warning(f'Message delivery failed: {err}')
-        else:
-        #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
-            pass
+    def __getProcessByName(self, name):
+        for process in self.__getAllProceses():
+            if process.name == name: return process
+        return None
 
-    def getTopicList(self):
-        topicList = self.adminC.list_topics().topics.keys()
-        return topicList
+    def __stopProcess(self, process:BaseProcess):
+        try:
+            if process.is_alive():
+                process.terminate()
+                process.join(time=1)
+                if process.is_alive():
+                    process.kill()
+            process.close()
+            del process
+        except Exception as e:
+            logging.warning(e)
 
-    def deleteTopics(self, topic_list):
-        if len(topic_list) > 0:
-            fs = self.adminC.delete_topics(topic_list)
-            for topic, f in fs.items():
-                try:
-                    x = f.result()
-                    logging.info(f"Topic {topic} deleted")
-                except Exception as e:
-                    logging.warning(f"Failed to delete topic {topic}: {e}")
+    def getAllProducerProcesses(self):
+        return [process.name for process in self.__getAllProceses() if process.is_alive]
 
-    def deleteNotUsingTopic(self):
-        topics = set(self.getTopicList())
-        existTopics = topics - TOPICS_IGNORE_SET
+    def stopProducerProcesses(self, processName):
+        logging.info(f"{processName} isimli process varsa durdurulmaya çalışılacak.")
+        process = self.__getProcessByName(processName)
+        if process is not None:
+            self.__stopProcess(process)
+        return f"{processName} başarıyla durduruldu." if self.__getProcessByName(processName) is None else f"{processName} durdurulmaya çalışılıyor."
 
-        producer_items = set(self.producer_process_statuses.keys())
-        producerDellTopics = existTopics - producer_items
+    def stopAllProducerProcess(self):
+        allProcesses = self.getAllProducerProcesses()
+        for process in allProcesses:
+            self.__stopProcess(process)
+        return f"Çalışan tüm processler durdurulacak... Çalışan process sayısı: {allProcesses.count()}."
 
-        consumer_items = set(self.bytes2obj(self.kcm.getRunningConsumers()))
-        dellTopics = producerDellTopics - consumer_items
-
-        self.deleteTopics([*dellTopics])
-
-    def updateThreads(self): 
-        # Eğer bu thread yoksa temizle
-        running_threads = [thread.name for thread in threading.enumerate()]
-        items = list(self.producer_process_statuses.keys())
-        for item in items:
-            if not item in running_threads:
-                try:
-                    self.producer_process_statuses.pop(item)
-                except: pass
-   
-    def getProducerThreads(self):
-        self.updateThreads()
-        self.deleteNotUsingTopic()
-        return self.producer_process_statuses
-
-    def stopProducerThread(self, thread_name):
-        logging.info(f"THREAD: {thread_name} varsa durdurulmaya çalışılacak.")
-        if thread_name in [thread.name for thread in threading.enumerate()]:
-            try:
-                self.producer_process_statuses[thread_name] = False
-            except: pass
-
-        self.updateThreads()
-
-    def stopAllProducerThreads(self):
-        items = list(self.producer_process_statuses.keys())
-        for x in items:
-            try:
-                self.producer_process_statuses[x] = False
-            except: pass
-        self.updateThreads()
-
-    def producers(func):
+    def producer(func):
         def wrapper(self, *args, **kwargs):
             data = args[0]
             
@@ -226,12 +194,11 @@ class KafkaProducerManager():
             t = multiprocessing.Process(name=data["topicName"], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
 
-            return data["topicName"]
+            return f"Producer Started For: {data['topicName'] }"
         return wrapper
 
-    @producers
-    def streamProducer(self, data):
+    @producer
+    def startProducer(self, data):
         with ProducerContextManager(data) as manager:
             manager.producer()
-
 

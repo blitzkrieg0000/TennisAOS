@@ -2,7 +2,7 @@ from concurrent import futures
 import pickle
 
 import grpc
-from libs.helpers import EncodeManager
+from libs.helpers import Converters, EncodeManager
 import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
 from libs.kafka_manager import KafkaProducerManager
@@ -13,37 +13,30 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
     def __init__(self):
         super().__init__()
         self.kafkaManager = KafkaProducerManager()
-
-    def obj2bytes(self, obj):
-        return pickle.dumps(obj)
         
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
 
     def producer(self, request, context):
-        thread_name = self.kafkaManager.streamProducer(EncodeManager.deserialize(request.data))
-        responseData = rc.producerResponse(result=f"Producer Started For: {thread_name}", thread_name=thread_name)
+        requestData = EncodeManager.deserialize(request.data)
+        msg = self.kafkaManager.startProducer(requestData)
+        responseData = rc.producerResponse(result=msg, process_name=requestData["process_name"])
         return responseData
 
-    def getProducerThreads(self, request, context):
-        th = self.obj2bytes(self.kafkaManager.getProducerThreads())
-        return rc.getProducerThreadsResponse(data=th)
+    def getAllProducerProcesses(self, request, context):
+        th = Converters.obj2bytes(self.kafkaManager.getAllProducerProcesses())
+        return rc.getAllProducerProcessesResponse(data=th)
 
-    def stopAllProducerThreads(self, request, context):
-        self.kafkaManager.stopAllProducerThreads()
-        responseData = rc.stopAllProducerThreadsResponse(data=f"Tüm Producer Thread ler Durdurulmaya Çalışılıyor...")
+    def stopProducer(self, request, context):
+        process_name = request.process_name
+        msg = self.kafkaManager.stopProducerProcesses(process_name)
+        responseData = rc.stopProducerResponse(result=msg)
         return responseData
 
-    def stopProduce(self, request, context):
-        thread_name = request.thread_name
-        self.kafkaManager.stopProducerThread(thread_name)
-        responseData = rc.stopProduceResponse(result=f"Durdurulmaya Çalışılacak Stream Thread: {thread_name}")
+    def stopAllProducerProcess(self, request, context):
+        msg = self.kafkaManager.stopAllProducerProcess()
+        responseData = rc.stopAllProducerProcessesResponse(data=msg)
         return responseData
-
-    def deleteTopics(self, request, context):
-        requestData = self.bytes2obj(request.data)
-        self.kafkaManager.deleteTopics(requestData)
-        return rc.deleteTopicsResponse(data=f"Deleting Topics: {requestData}")
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

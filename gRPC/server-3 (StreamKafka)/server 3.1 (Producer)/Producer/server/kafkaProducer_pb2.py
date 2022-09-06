@@ -14,20 +14,18 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaProducer.proto\x12\x08producer\"\x1f\n\x0fproducerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\")\n\x12stopProduceRequest\x12\x13\n\x0bthread_name\x18\x01 \x01(\t\")\n\x19getProducerThreadsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"-\n\x1dstopAllProducerThreadsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"#\n\x13\x64\x65leteTopicsRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"7\n\x10producerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\x12\x13\n\x0bthread_name\x18\x02 \x01(\t\"%\n\x13stopProduceResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"*\n\x1agetProducerThreadsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\".\n\x1estopAllProducerThreadsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"$\n\x14\x64\x65leteTopicsResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2\xbd\x03\n\rkafkaProducer\x12\x43\n\x08producer\x12\x19.producer.producerRequest\x1a\x1a.producer.producerResponse\"\x00\x12L\n\x0bstopProduce\x12\x1c.producer.stopProduceRequest\x1a\x1d.producer.stopProduceResponse\"\x00\x12\x61\n\x12getProducerThreads\x12#.producer.getProducerThreadsRequest\x1a$.producer.getProducerThreadsResponse\"\x00\x12\x65\n\x16stopAllProducerThreads\x12#.producer.getProducerThreadsRequest\x1a$.producer.getProducerThreadsResponse\"\x00\x12O\n\x0c\x64\x65leteTopics\x12\x1d.producer.deleteTopicsRequest\x1a\x1e.producer.deleteTopicsResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaProducer.proto\x12\x08producer\"\x1f\n\x0fproducerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\".\n\x1egetAllProducerProcessesRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"+\n\x13stopProducerRequest\x12\x14\n\x0cprocess_name\x18\x01 \x01(\t\"/\n\x1fstopAllProducerProcessesRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"8\n\x10producerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\x12\x14\n\x0cprocess_name\x18\x02 \x01(\t\"/\n\x1fgetAllProducerProcessesResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"&\n\x14stopProducerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"0\n stopAllProducerProcessesResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2\x8c\x03\n\rkafkaProducer\x12\x43\n\x08producer\x12\x19.producer.producerRequest\x1a\x1a.producer.producerResponse\"\x00\x12p\n\x17getAllProducerProcesses\x12(.producer.getAllProducerProcessesRequest\x1a).producer.getAllProducerProcessesResponse\"\x00\x12O\n\x0cstopProducer\x12\x1d.producer.stopProducerRequest\x1a\x1e.producer.stopProducerResponse\"\x00\x12s\n\x18stopAllProducerProcesses\x12).producer.stopAllProducerProcessesRequest\x1a*.producer.stopAllProducerProcessesResponse\"\x00\x62\x06proto3')
 
 
 
 _PRODUCERREQUEST = DESCRIPTOR.message_types_by_name['producerRequest']
-_STOPPRODUCEREQUEST = DESCRIPTOR.message_types_by_name['stopProduceRequest']
-_GETPRODUCERTHREADSREQUEST = DESCRIPTOR.message_types_by_name['getProducerThreadsRequest']
-_STOPALLPRODUCERTHREADSREQUEST = DESCRIPTOR.message_types_by_name['stopAllProducerThreadsRequest']
-_DELETETOPICSREQUEST = DESCRIPTOR.message_types_by_name['deleteTopicsRequest']
+_GETALLPRODUCERPROCESSESREQUEST = DESCRIPTOR.message_types_by_name['getAllProducerProcessesRequest']
+_STOPPRODUCERREQUEST = DESCRIPTOR.message_types_by_name['stopProducerRequest']
+_STOPALLPRODUCERPROCESSESREQUEST = DESCRIPTOR.message_types_by_name['stopAllProducerProcessesRequest']
 _PRODUCERRESPONSE = DESCRIPTOR.message_types_by_name['producerResponse']
-_STOPPRODUCERESPONSE = DESCRIPTOR.message_types_by_name['stopProduceResponse']
-_GETPRODUCERTHREADSRESPONSE = DESCRIPTOR.message_types_by_name['getProducerThreadsResponse']
-_STOPALLPRODUCERTHREADSRESPONSE = DESCRIPTOR.message_types_by_name['stopAllProducerThreadsResponse']
-_DELETETOPICSRESPONSE = DESCRIPTOR.message_types_by_name['deleteTopicsResponse']
+_GETALLPRODUCERPROCESSESRESPONSE = DESCRIPTOR.message_types_by_name['getAllProducerProcessesResponse']
+_STOPPRODUCERRESPONSE = DESCRIPTOR.message_types_by_name['stopProducerResponse']
+_STOPALLPRODUCERPROCESSESRESPONSE = DESCRIPTOR.message_types_by_name['stopAllProducerProcessesResponse']
 producerRequest = _reflection.GeneratedProtocolMessageType('producerRequest', (_message.Message,), {
   'DESCRIPTOR' : _PRODUCERREQUEST,
   '__module__' : 'kafkaProducer_pb2'
@@ -35,33 +33,26 @@ producerRequest = _reflection.GeneratedProtocolMessageType('producerRequest', (_
   })
 _sym_db.RegisterMessage(producerRequest)
 
-stopProduceRequest = _reflection.GeneratedProtocolMessageType('stopProduceRequest', (_message.Message,), {
-  'DESCRIPTOR' : _STOPPRODUCEREQUEST,
+getAllProducerProcessesRequest = _reflection.GeneratedProtocolMessageType('getAllProducerProcessesRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GETALLPRODUCERPROCESSESREQUEST,
   '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.stopProduceRequest)
+  # @@protoc_insertion_point(class_scope:producer.getAllProducerProcessesRequest)
   })
-_sym_db.RegisterMessage(stopProduceRequest)
+_sym_db.RegisterMessage(getAllProducerProcessesRequest)
 
-getProducerThreadsRequest = _reflection.GeneratedProtocolMessageType('getProducerThreadsRequest', (_message.Message,), {
-  'DESCRIPTOR' : _GETPRODUCERTHREADSREQUEST,
+stopProducerRequest = _reflection.GeneratedProtocolMessageType('stopProducerRequest', (_message.Message,), {
+  'DESCRIPTOR' : _STOPPRODUCERREQUEST,
   '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.getProducerThreadsRequest)
+  # @@protoc_insertion_point(class_scope:producer.stopProducerRequest)
   })
-_sym_db.RegisterMessage(getProducerThreadsRequest)
+_sym_db.RegisterMessage(stopProducerRequest)
 
-stopAllProducerThreadsRequest = _reflection.GeneratedProtocolMessageType('stopAllProducerThreadsRequest', (_message.Message,), {
-  'DESCRIPTOR' : _STOPALLPRODUCERTHREADSREQUEST,
+stopAllProducerProcessesRequest = _reflection.GeneratedProtocolMessageType('stopAllProducerProcessesRequest', (_message.Message,), {
+  'DESCRIPTOR' : _STOPALLPRODUCERPROCESSESREQUEST,
   '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.stopAllProducerThreadsRequest)
+  # @@protoc_insertion_point(class_scope:producer.stopAllProducerProcessesRequest)
   })
-_sym_db.RegisterMessage(stopAllProducerThreadsRequest)
-
-deleteTopicsRequest = _reflection.GeneratedProtocolMessageType('deleteTopicsRequest', (_message.Message,), {
-  'DESCRIPTOR' : _DELETETOPICSREQUEST,
-  '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.deleteTopicsRequest)
-  })
-_sym_db.RegisterMessage(deleteTopicsRequest)
+_sym_db.RegisterMessage(stopAllProducerProcessesRequest)
 
 producerResponse = _reflection.GeneratedProtocolMessageType('producerResponse', (_message.Message,), {
   'DESCRIPTOR' : _PRODUCERRESPONSE,
@@ -70,33 +61,26 @@ producerResponse = _reflection.GeneratedProtocolMessageType('producerResponse', 
   })
 _sym_db.RegisterMessage(producerResponse)
 
-stopProduceResponse = _reflection.GeneratedProtocolMessageType('stopProduceResponse', (_message.Message,), {
-  'DESCRIPTOR' : _STOPPRODUCERESPONSE,
+getAllProducerProcessesResponse = _reflection.GeneratedProtocolMessageType('getAllProducerProcessesResponse', (_message.Message,), {
+  'DESCRIPTOR' : _GETALLPRODUCERPROCESSESRESPONSE,
   '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.stopProduceResponse)
+  # @@protoc_insertion_point(class_scope:producer.getAllProducerProcessesResponse)
   })
-_sym_db.RegisterMessage(stopProduceResponse)
+_sym_db.RegisterMessage(getAllProducerProcessesResponse)
 
-getProducerThreadsResponse = _reflection.GeneratedProtocolMessageType('getProducerThreadsResponse', (_message.Message,), {
-  'DESCRIPTOR' : _GETPRODUCERTHREADSRESPONSE,
+stopProducerResponse = _reflection.GeneratedProtocolMessageType('stopProducerResponse', (_message.Message,), {
+  'DESCRIPTOR' : _STOPPRODUCERRESPONSE,
   '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.getProducerThreadsResponse)
+  # @@protoc_insertion_point(class_scope:producer.stopProducerResponse)
   })
-_sym_db.RegisterMessage(getProducerThreadsResponse)
+_sym_db.RegisterMessage(stopProducerResponse)
 
-stopAllProducerThreadsResponse = _reflection.GeneratedProtocolMessageType('stopAllProducerThreadsResponse', (_message.Message,), {
-  'DESCRIPTOR' : _STOPALLPRODUCERTHREADSRESPONSE,
+stopAllProducerProcessesResponse = _reflection.GeneratedProtocolMessageType('stopAllProducerProcessesResponse', (_message.Message,), {
+  'DESCRIPTOR' : _STOPALLPRODUCERPROCESSESRESPONSE,
   '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.stopAllProducerThreadsResponse)
+  # @@protoc_insertion_point(class_scope:producer.stopAllProducerProcessesResponse)
   })
-_sym_db.RegisterMessage(stopAllProducerThreadsResponse)
-
-deleteTopicsResponse = _reflection.GeneratedProtocolMessageType('deleteTopicsResponse', (_message.Message,), {
-  'DESCRIPTOR' : _DELETETOPICSRESPONSE,
-  '__module__' : 'kafkaProducer_pb2'
-  # @@protoc_insertion_point(class_scope:producer.deleteTopicsResponse)
-  })
-_sym_db.RegisterMessage(deleteTopicsResponse)
+_sym_db.RegisterMessage(stopAllProducerProcessesResponse)
 
 _KAFKAPRODUCER = DESCRIPTOR.services_by_name['kafkaProducer']
 if _descriptor._USE_C_DESCRIPTORS == False:
@@ -104,24 +88,20 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _PRODUCERREQUEST._serialized_start=33
   _PRODUCERREQUEST._serialized_end=64
-  _STOPPRODUCEREQUEST._serialized_start=66
-  _STOPPRODUCEREQUEST._serialized_end=107
-  _GETPRODUCERTHREADSREQUEST._serialized_start=109
-  _GETPRODUCERTHREADSREQUEST._serialized_end=150
-  _STOPALLPRODUCERTHREADSREQUEST._serialized_start=152
-  _STOPALLPRODUCERTHREADSREQUEST._serialized_end=197
-  _DELETETOPICSREQUEST._serialized_start=199
-  _DELETETOPICSREQUEST._serialized_end=234
-  _PRODUCERRESPONSE._serialized_start=236
-  _PRODUCERRESPONSE._serialized_end=291
-  _STOPPRODUCERESPONSE._serialized_start=293
-  _STOPPRODUCERESPONSE._serialized_end=330
-  _GETPRODUCERTHREADSRESPONSE._serialized_start=332
-  _GETPRODUCERTHREADSRESPONSE._serialized_end=374
-  _STOPALLPRODUCERTHREADSRESPONSE._serialized_start=376
-  _STOPALLPRODUCERTHREADSRESPONSE._serialized_end=422
-  _DELETETOPICSRESPONSE._serialized_start=424
-  _DELETETOPICSRESPONSE._serialized_end=460
-  _KAFKAPRODUCER._serialized_start=463
-  _KAFKAPRODUCER._serialized_end=908
+  _GETALLPRODUCERPROCESSESREQUEST._serialized_start=66
+  _GETALLPRODUCERPROCESSESREQUEST._serialized_end=112
+  _STOPPRODUCERREQUEST._serialized_start=114
+  _STOPPRODUCERREQUEST._serialized_end=157
+  _STOPALLPRODUCERPROCESSESREQUEST._serialized_start=159
+  _STOPALLPRODUCERPROCESSESREQUEST._serialized_end=206
+  _PRODUCERRESPONSE._serialized_start=208
+  _PRODUCERRESPONSE._serialized_end=264
+  _GETALLPRODUCERPROCESSESRESPONSE._serialized_start=266
+  _GETALLPRODUCERPROCESSESRESPONSE._serialized_end=313
+  _STOPPRODUCERRESPONSE._serialized_start=315
+  _STOPPRODUCERRESPONSE._serialized_end=353
+  _STOPALLPRODUCERPROCESSESRESPONSE._serialized_start=355
+  _STOPALLPRODUCERPROCESSESRESPONSE._serialized_end=403
+  _KAFKAPRODUCER._serialized_start=406
+  _KAFKAPRODUCER._serialized_end=802
 # @@protoc_insertion_point(module_scope)

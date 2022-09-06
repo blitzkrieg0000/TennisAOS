@@ -4,44 +4,37 @@ package producer;
 // Service
 service kafkaProducer {
   rpc producer(producerRequest) returns (producerResponse) {}
-  rpc stopProduce(stopProduceRequest) returns (stopProduceResponse) {}
-  rpc getProducerThreads(getProducerThreadsRequest) returns (getProducerThreadsResponse) {}
-  rpc stopAllProducerThreads(getProducerThreadsRequest) returns (getProducerThreadsResponse) {}
-  rpc deleteTopics(deleteTopicsRequest) returns (deleteTopicsResponse) {}
+  rpc getAllProducerProcesses(getAllProducerProcessesRequest) returns (getAllProducerProcessesResponse) {}
+  rpc stopProducer(stopProducerRequest) returns (stopProducerResponse) {}
+  rpc stopAllProducerProcesses(stopAllProducerProcessesRequest) returns (stopAllProducerProcessesResponse) {}
 }
 
 // Request Name
 message producerRequest {
   string data=1;
 }
-message stopProduceRequest {
-  string thread_name=1;
-}
-message getProducerThreadsRequest{
+message getAllProducerProcessesRequest{
   string data=1;
 }
-message stopAllProducerThreadsRequest{
-  string data=1;
+message stopProducerRequest {
+  string process_name=1;
 }
-message deleteTopicsRequest{
-  bytes data=1;
+message stopAllProducerProcessesRequest{
+  string data=1;
 }
 
 
 // Response Array
 message producerResponse{
   string result=1;
-  string thread_name=2;
+  string process_name=2;
 }
-message stopProduceResponse {
-  string result=1;
-}
-message getProducerThreadsResponse{
-  bytes data=1;
-}
-message stopAllProducerThreadsResponse{
+message getAllProducerProcessesResponse{
   string data=1;
 }
-message deleteTopicsResponse{
+message stopProducerResponse {
+  string result=1;
+}
+message stopAllProducerProcessesResponse{
   string data=1;
 }
