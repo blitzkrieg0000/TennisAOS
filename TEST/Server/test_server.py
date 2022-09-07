@@ -1,4 +1,5 @@
 from concurrent import futures
+import logging
 import multiprocessing
 import threading
 import time
@@ -6,6 +7,24 @@ import time
 import grpc
 import testServer_pb2 as rc
 import testServer_pb2_grpc as rc_grpc
+logging.basicConfig(level=logging.NOTSET)
+
+class cGen():
+    def __init__(self) -> None:
+        self.counter = 0
+        self.stopFlag = False
+
+    def stopGen(self):
+        self.stopFlag = True
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.counter==10 or self.stopFlag==True:
+            raise StopIteration
+        self.counter = 1+self.counter
+        return self.counter
 
 class MainServer(rc_grpc.TestServerServicer):
     EXCEPT_PREFIX = ['']
@@ -13,39 +32,22 @@ class MainServer(rc_grpc.TestServerServicer):
         super().__init__()
         self.counter = 0
 
-    def info(self):
-        for x in range(100):
-            time.sleep(1)
-            print(x)
-
     def Process(self, request, context):
-        print(f"Başladı : {threading.get_ident()}")
-        context.add_callback(lambda : print(f"Uyarı, RPC sonlandırıldı : {threading.get_ident()}: {self.counter}"))
-        
-        p = multiprocessing.Process(target=self.info)
-        p.start()
 
-        print(f"Parent Process: {multiprocessing.current_process()}")
-        print(f"ChildProcesses: {multiprocessing.active_children()}")
+        for x in cGen():
 
-        time.sleep(3)
-
-        while p.is_alive():
             if not context.is_active():
-                if p.is_alive():
-                    p.terminate()
-                    p.join(time=1)
-                    if p.is_alive:
-                        p.kill()
-                p.close()
-                del p
-                # context.Cancel()
+                logging.warning("RPC Client Sonlandırıldığı için server-side sonlandırılıyor...")
                 context.set_code(grpc.StatusCode.CANCELLED)
-                context.set_details('RPC Client Tarafından Sonlandırıldı.')
+                context.set_details('RPC Client Sonlandırıldığı için server-side sonlandırıldı.')
                 return rc.responseData()
                 
-        return rc.responseData(data=f"Sonuçlandı.")
-        
+            logging.info(f"{x}")
+            yield rc.responseData(data=f"{x}")
+            time.sleep(1)
+
+        logging.info("Çıkış yapılıyor")
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=5))

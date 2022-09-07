@@ -19,5 +19,7 @@ class MainClient():
 
 if __name__ == "__main__":
     client = MainClient()
-    message = client.Process()
-    print(message.data)
+    gen = client.Process()
+    for item in gen:
+        message = item.data
+        print(message)

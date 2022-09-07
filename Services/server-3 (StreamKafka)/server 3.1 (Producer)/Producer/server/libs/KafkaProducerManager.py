@@ -4,10 +4,8 @@ import os
 import signal
 import sys
 from multiprocessing.process import BaseProcess
-import time
 
 import cv2
-from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from confluent_kafka import Producer
 from confluent_kafka.admin import AdminClient, NewTopic
 
@@ -135,14 +133,12 @@ class ProducerContextManager(object):
             else:
                 logging.warning(f"{self.topicName}: Streamden okunamıyor... Kaynak kullanımda olabilir: {self.streamUrl}. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
-            time.sleep(1)
+
         logging.info(f"Producer Sonlandı: {self.topicName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
 
 
 class KafkaProducerManager():
     def __init__(self):
-        self.adminC = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
-        self.kcm = KafkaConsumerManager()
         self.producer_process_statuses = {} # multiprocessing.Manager().dict()
         
     def __getAllProceses(self):
@@ -203,4 +199,6 @@ class KafkaProducerManager():
     def startProducer(self, data):
         with ProducerContextManager(data) as manager:
             manager.producer()
+
+
 

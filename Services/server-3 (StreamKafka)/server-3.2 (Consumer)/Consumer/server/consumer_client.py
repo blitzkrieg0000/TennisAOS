@@ -1,47 +1,34 @@
 from __future__ import print_function
+
 import logging
+import time
+
 import grpc
+
 import kafkaConsumer_pb2 as rc
 import kafkaConsumer_pb2_grpc as rc_grpc
-import numpy as np
-import cv2
+
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+
+
 class KafkaConsumerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('consumerservice:50032')
+        self.channel = grpc.insecure_channel('localhost:50032')
         self.stub = rc_grpc.kafkaConsumerStub(self.channel)
 
-    def bytes2frame(self, byte_img ):
-        nparr = np.frombuffer(byte_img, np.uint8)
-        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
-        return frame
-
-    def consumer(self, topicName, groupName, limit=-1, show=True):
+    def consumer(self, topicName, groupName, limit=-1):
         requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit)
-        CONSUMER_GENERATOR = self.stub.consumer(requestData)
-
-        for res in CONSUMER_GENERATOR:
-            if res.data is b"None":
-                return None
-
-            if show:
-                cv2.imshow(str(groupName), self.bytes2frame(res.data))
-                if cv2.waitKey(1) & 0xFF == ord("q"):
-                    break
-
-            logging.info("Consumer: ?")
-            yield res.data
-
-    def getRunningConsumers(self):
-        responseData = self.stub.getRunningConsumers(rc.getRunningConsumersRequest(data=""))
-        return responseData.data
-
-    def stopAllRunningConsumers(self):
-        message = self.stub.stopAllRunningConsumers(rc.stopAllRunningConsumersRequest(data=""))
-        return message.data
-
-    def stopRunningCosumer(self, consumer_topic_name):
-        message = self.stub.stopRunningCosumer(rc.stopRunningCosumerRequest(data=consumer_topic_name))
-        return message.data
+        return self.stub.consumer(requestData)
 
     def disconnect(self):
         self.channel.close()
+
+if "__main__" == __name__:
+
+    kcm  = KafkaConsumerManager()
+    gen = kcm.consumer(topicName="deneme", groupName="test-6", limit=-1)
+    for i,item in enumerate(gen):
+        byte_data = item.data
+        print(i,"-->",byte_data[:10])
+
+        time.sleep(1)

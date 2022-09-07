@@ -16,7 +16,7 @@ class ConsumerGen():
     def connectKafkaConsumer(self, consumerGroup, offsetMethod, topics):
         return Consumer({
                 'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS),
-                'group.id': f"{consumerGroup}-{topics}",
+                'group.id': consumerGroup,
                 'auto.offset.reset': offsetMethod
             })
 
@@ -41,6 +41,7 @@ class ConsumerGen():
             msg = self.consumer.poll(timeout=1.0)
 
             if msg is None:
+                logging.warning(f"ret limit {self.ret_limit}")
                 self.ret_limit +=1
                 continue
 
@@ -76,13 +77,5 @@ class KafkaConsumerManager():
     def consumer(self, topics=[], consumerGroup="consumergroup-1", offsetMethod="earliest", limit=-1):
         if not topics or len(topics)<0:
             raise ValueError("topic cannot be empty")
-        
-        self.consumerGenerators[topics[0]] = ConsumerGen(topics, consumerGroup, offsetMethod, limit)
 
-        for msg in self.consumerGenerators[topics[0]]:
-            yield msg.value()
-
-        logging.info(f"Consumer Durduruldu: {topics[0]}")
-        try: self.consumerGenerators.pop(topics[0])
-        except: pass
-        
+        return ConsumerGen(topics, consumerGroup, offsetMethod, limit)

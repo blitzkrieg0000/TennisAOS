@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10testServer.proto\x12\x04test\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2@\n\nTestServer\x12\x32\n\x07Process\x12\x11.test.requestData\x1a\x12.test.responseData\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10testServer.proto\x12\x04test\"\x1b\n\x0brequestData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"\x1c\n\x0cresponseData\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t2B\n\nTestServer\x12\x34\n\x07Process\x12\x11.test.requestData\x1a\x12.test.responseData\"\x00\x30\x01\x62\x06proto3')
 
 
 
@@ -43,5 +43,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _RESPONSEDATA._serialized_start=55
   _RESPONSEDATA._serialized_end=83
   _TESTSERVER._serialized_start=85
-  _TESTSERVER._serialized_end=149
+  _TESTSERVER._serialized_end=151
 # @@protoc_insertion_point(module_scope)
