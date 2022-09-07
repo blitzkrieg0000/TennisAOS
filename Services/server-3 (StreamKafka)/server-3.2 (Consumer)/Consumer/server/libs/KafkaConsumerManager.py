@@ -42,17 +42,16 @@ class ConsumerGen():
 
             if msg is None:
                 logging.warning(f"ret limit {self.ret_limit}")
-                self.ret_limit +=1
+                self.ret_limit = 1 + self.ret_limit
                 continue
 
             if msg.error():
                 logging.error(f"Consumer-error: {msg.error()}")
-                self.ret_limit +=1
+                self.ret_limit = 1 + self.ret_limit
                 continue
             
             self.ret_limit=0
-            if self.limit!=-1:
-                self.limit_count = 1 + self.limit_count
+            if self.limit!=-1: self.limit_count = 1 + self.limit_count
 
             return msg
 
@@ -62,8 +61,7 @@ class KafkaConsumerManager():
         self.consumerGenerators = {}
 
     def stopRunningCosumer(self, topicName):
-        try:
-            self.consumerGenerators[topicName].stopGen()
+        try: self.consumerGenerators[topicName].stopGen()
         except KeyError as e: print(e)
 
     def stopAllRunningConsumers(self):
@@ -75,7 +73,6 @@ class KafkaConsumerManager():
         return list(self.consumerGenerators.keys())
     
     def consumer(self, topics=[], consumerGroup="consumergroup-1", offsetMethod="earliest", limit=-1):
-        if not topics or len(topics)<0:
-            raise ValueError("topic cannot be empty")
-
+        if not topics or len(topics)<0: raise ValueError("topic cannot be empty")
         return ConsumerGen(topics, consumerGroup, offsetMethod, limit)
+        

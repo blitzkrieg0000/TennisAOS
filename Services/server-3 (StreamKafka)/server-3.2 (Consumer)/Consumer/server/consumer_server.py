@@ -4,6 +4,7 @@ import grpc
 import kafkaConsumer_pb2 as rc
 import kafkaConsumer_pb2_grpc as rc_grpc
 from libs.KafkaConsumerManager import KafkaConsumerManager
+from libs.helpers import EncodeManager
 import logging
 
 
@@ -11,24 +12,42 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
     def __init__(self):
         super().__init__()
         self.kafkaConsumerManager = KafkaConsumerManager()
+        self.consumers = {}
+    
+    def __removeConsumer(self, topicName):
+        if topicName in self.consumers.keys():
+            try: self.consumers.pop(topicName)
+            except: pass
+
+    def getAllConsumers(self, request, context):
+        return rc.getAllConsumersResponse(data=EncodeManager.serialize(list(self.consumers.keys())))
+
+    def stopConsumer(self, request, context):
+        self.consumer[request.data] = False
+
+    def stopAllConsumers(self, request, context):
+        for keys in self.consumers.keys(): self.consumers[keys] = False
 
     def consumer(self, request, context):
         topicName = request.topicName
         groupName = request.group
         limit = request.limit
 
+        if topicName is None or topicName != "": assert "Topic adı boş olamaz."
+
+        self.consumers[topicName] = False
         CONSUMER_GENERATOR = self.kafkaConsumerManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod="earliest", limit=limit)
-        for i, msg in enumerate(CONSUMER_GENERATOR):
-            logging.warning(i)
-            if not context.is_active():
+        for msg in CONSUMER_GENERATOR:
+            if not context.is_active() or not self.consumers[topicName]:
                 CONSUMER_GENERATOR.stopGen()
+                self.__removeConsumer(topicName)
                 context.set_code(grpc.StatusCode.CANCELLED)
                 context.set_details('RPC Client Sonlandırıldığı için server-side consumer sonlandırıldı.')
                 logging.warning("RPC Client Sonlandırıldığı için server-side sonlandırılıyor...")
                 return rc.ConsumerResponse()
             yield rc.ConsumerResponse(data=msg.value())
+        self.__removeConsumer(topicName)
         logging.info(f"{topicName} adlı topic için grup adı: {groupName} olan consumer tamamlandı.")
-
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

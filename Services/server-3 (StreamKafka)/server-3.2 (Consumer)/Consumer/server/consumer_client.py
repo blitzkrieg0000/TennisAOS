@@ -20,15 +20,26 @@ class KafkaConsumerManager():
         requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit)
         return self.stub.consumer(requestData)
 
+    def getAllConsumers(self):
+        responseData = self.stub.getAllConsumers(rc.getAllConsumersRequest(data=""))
+        return responseData.data
+
+    def stopConsumer(self, topic_name):
+        responseData = self.stub.stopConsumer(rc.stopConsumerRequest(data=topic_name))
+        return responseData.result
+
+    def stopAllConsumers(self):
+        responseData = self.stub.stopAllConsumers(rc.stopAllConsumersRequest(data=""))
+        return responseData.result
+
     def disconnect(self):
         self.channel.close()
 
 if "__main__" == __name__:
 
     kcm  = KafkaConsumerManager()
-    gen = kcm.consumer(topicName="deneme", groupName="test-6", limit=-1)
+    gen = kcm.consumer(topicName="deneme", groupName="test-7", limit=-1)
     for i,item in enumerate(gen):
         byte_data = item.data
         print(i,"-->",byte_data[:10])
-
         time.sleep(1)

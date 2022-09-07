@@ -14,18 +14,45 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaConsumer.proto\x12\x08\x63onsumer\"B\n\x0f\x43onsumerRequest\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\r\n\x05group\x18\x02 \x01(\t\x12\r\n\x05limit\x18\x03 \x01(\x03\" \n\x10\x43onsumerResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\x32V\n\rkafkaConsumer\x12\x45\n\x08\x63onsumer\x12\x19.consumer.ConsumerRequest\x1a\x1a.consumer.ConsumerResponse\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaConsumer.proto\x12\x08\x63onsumer\"B\n\x0f\x43onsumerRequest\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\r\n\x05group\x18\x02 \x01(\t\x12\r\n\x05limit\x18\x03 \x01(\x03\"&\n\x16getAllConsumersRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"#\n\x13stopConsumerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"\'\n\x17stopAllConsumersRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\" \n\x10\x43onsumerResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\'\n\x17getAllConsumersResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"&\n\x14stopConsumerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"*\n\x18stopAllConsumersResponse\x12\x0e\n\x06result\x18\x01 \x01(\t2\xde\x02\n\rkafkaConsumer\x12\x45\n\x08\x63onsumer\x12\x19.consumer.ConsumerRequest\x1a\x1a.consumer.ConsumerResponse\"\x00\x30\x01\x12X\n\x0fgetAllConsumers\x12 .consumer.getAllConsumersRequest\x1a!.consumer.getAllConsumersResponse\"\x00\x12O\n\x0cstopConsumer\x12\x1d.consumer.stopConsumerRequest\x1a\x1e.consumer.stopConsumerResponse\"\x00\x12[\n\x10stopAllConsumers\x12!.consumer.stopAllConsumersRequest\x1a\".consumer.stopAllConsumersResponse\"\x00\x62\x06proto3')
 
 
 
 _CONSUMERREQUEST = DESCRIPTOR.message_types_by_name['ConsumerRequest']
+_GETALLCONSUMERSREQUEST = DESCRIPTOR.message_types_by_name['getAllConsumersRequest']
+_STOPCONSUMERREQUEST = DESCRIPTOR.message_types_by_name['stopConsumerRequest']
+_STOPALLCONSUMERSREQUEST = DESCRIPTOR.message_types_by_name['stopAllConsumersRequest']
 _CONSUMERRESPONSE = DESCRIPTOR.message_types_by_name['ConsumerResponse']
+_GETALLCONSUMERSRESPONSE = DESCRIPTOR.message_types_by_name['getAllConsumersResponse']
+_STOPCONSUMERRESPONSE = DESCRIPTOR.message_types_by_name['stopConsumerResponse']
+_STOPALLCONSUMERSRESPONSE = DESCRIPTOR.message_types_by_name['stopAllConsumersResponse']
 ConsumerRequest = _reflection.GeneratedProtocolMessageType('ConsumerRequest', (_message.Message,), {
   'DESCRIPTOR' : _CONSUMERREQUEST,
   '__module__' : 'kafkaConsumer_pb2'
   # @@protoc_insertion_point(class_scope:consumer.ConsumerRequest)
   })
 _sym_db.RegisterMessage(ConsumerRequest)
+
+getAllConsumersRequest = _reflection.GeneratedProtocolMessageType('getAllConsumersRequest', (_message.Message,), {
+  'DESCRIPTOR' : _GETALLCONSUMERSREQUEST,
+  '__module__' : 'kafkaConsumer_pb2'
+  # @@protoc_insertion_point(class_scope:consumer.getAllConsumersRequest)
+  })
+_sym_db.RegisterMessage(getAllConsumersRequest)
+
+stopConsumerRequest = _reflection.GeneratedProtocolMessageType('stopConsumerRequest', (_message.Message,), {
+  'DESCRIPTOR' : _STOPCONSUMERREQUEST,
+  '__module__' : 'kafkaConsumer_pb2'
+  # @@protoc_insertion_point(class_scope:consumer.stopConsumerRequest)
+  })
+_sym_db.RegisterMessage(stopConsumerRequest)
+
+stopAllConsumersRequest = _reflection.GeneratedProtocolMessageType('stopAllConsumersRequest', (_message.Message,), {
+  'DESCRIPTOR' : _STOPALLCONSUMERSREQUEST,
+  '__module__' : 'kafkaConsumer_pb2'
+  # @@protoc_insertion_point(class_scope:consumer.stopAllConsumersRequest)
+  })
+_sym_db.RegisterMessage(stopAllConsumersRequest)
 
 ConsumerResponse = _reflection.GeneratedProtocolMessageType('ConsumerResponse', (_message.Message,), {
   'DESCRIPTOR' : _CONSUMERRESPONSE,
@@ -34,14 +61,47 @@ ConsumerResponse = _reflection.GeneratedProtocolMessageType('ConsumerResponse', 
   })
 _sym_db.RegisterMessage(ConsumerResponse)
 
+getAllConsumersResponse = _reflection.GeneratedProtocolMessageType('getAllConsumersResponse', (_message.Message,), {
+  'DESCRIPTOR' : _GETALLCONSUMERSRESPONSE,
+  '__module__' : 'kafkaConsumer_pb2'
+  # @@protoc_insertion_point(class_scope:consumer.getAllConsumersResponse)
+  })
+_sym_db.RegisterMessage(getAllConsumersResponse)
+
+stopConsumerResponse = _reflection.GeneratedProtocolMessageType('stopConsumerResponse', (_message.Message,), {
+  'DESCRIPTOR' : _STOPCONSUMERRESPONSE,
+  '__module__' : 'kafkaConsumer_pb2'
+  # @@protoc_insertion_point(class_scope:consumer.stopConsumerResponse)
+  })
+_sym_db.RegisterMessage(stopConsumerResponse)
+
+stopAllConsumersResponse = _reflection.GeneratedProtocolMessageType('stopAllConsumersResponse', (_message.Message,), {
+  'DESCRIPTOR' : _STOPALLCONSUMERSRESPONSE,
+  '__module__' : 'kafkaConsumer_pb2'
+  # @@protoc_insertion_point(class_scope:consumer.stopAllConsumersResponse)
+  })
+_sym_db.RegisterMessage(stopAllConsumersResponse)
+
 _KAFKACONSUMER = DESCRIPTOR.services_by_name['kafkaConsumer']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _CONSUMERREQUEST._serialized_start=33
   _CONSUMERREQUEST._serialized_end=99
-  _CONSUMERRESPONSE._serialized_start=101
-  _CONSUMERRESPONSE._serialized_end=133
-  _KAFKACONSUMER._serialized_start=135
-  _KAFKACONSUMER._serialized_end=221
+  _GETALLCONSUMERSREQUEST._serialized_start=101
+  _GETALLCONSUMERSREQUEST._serialized_end=139
+  _STOPCONSUMERREQUEST._serialized_start=141
+  _STOPCONSUMERREQUEST._serialized_end=176
+  _STOPALLCONSUMERSREQUEST._serialized_start=178
+  _STOPALLCONSUMERSREQUEST._serialized_end=217
+  _CONSUMERRESPONSE._serialized_start=219
+  _CONSUMERRESPONSE._serialized_end=251
+  _GETALLCONSUMERSRESPONSE._serialized_start=253
+  _GETALLCONSUMERSRESPONSE._serialized_end=292
+  _STOPCONSUMERRESPONSE._serialized_start=294
+  _STOPCONSUMERRESPONSE._serialized_end=332
+  _STOPALLCONSUMERSRESPONSE._serialized_start=334
+  _STOPALLCONSUMERSRESPONSE._serialized_end=376
+  _KAFKACONSUMER._serialized_start=379
+  _KAFKACONSUMER._serialized_end=729
 # @@protoc_insertion_point(module_scope)
