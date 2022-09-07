@@ -1,39 +1,35 @@
 from concurrent import futures
-import pickle
 
 import grpc
 import kafkaConsumer_pb2 as rc
 import kafkaConsumer_pb2_grpc as rc_grpc
-from libs.kafka_manager import KafkaManager
+from libs.KafkaConsumerManager import KafkaConsumerManager
+from libs.helpers import Converters
 import logging
 
 class CKConsumer(rc_grpc.kafkaConsumerServicer):
     def __init__(self):
         super().__init__()
-        self.kafkaManager = KafkaManager()
+        self.kafkaConsumerManager = KafkaConsumerManager()
 
-    def obj2bytes(self, obj):
-        return pickle.dumps(obj)
-        
     def consumer(self, request, context):
         topicName = request.topicName
         groupName = request.group
         limit = request.limit
 
-        CONSUMER_GENERATOR = self.kafkaManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod="earliest", limit=limit)
+        CONSUMER_GENERATOR = self.kafkaConsumerManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod="earliest", limit=limit)
         for data in CONSUMER_GENERATOR:
             yield rc.ConsumerResponse(data=data)
-        
 
     def getRunningConsumers(self, request, context):
-        return rc.getRunningConsumersResponse(data=self.obj2bytes(self.kafkaManager.getRunningConsumers()))
+        return rc.getRunningConsumersResponse(data=Converters.obj2bytes(self.kafkaConsumerManager.getRunningConsumers()))
 
     def stopAllRunningConsumers(self):
-        self.kafkaManager.stopAllRunningConsumers()
+        self.kafkaConsumerManager.stopAllRunningConsumers()
         return rc.stopAllRunningConsumersResponse(data="TRYING...")
 
     def stopRunningCosumer(self, request, context): #TopicName
-        self.kafkaManager.stopRunningCosumer(request.data)
+        self.kafkaConsumerManager.stopRunningCosumer(request.data)
         return rc.stopAllRunningConsumersResponse(data="TRYING...")
 
 def serve():

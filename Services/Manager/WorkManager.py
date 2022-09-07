@@ -51,6 +51,11 @@ class WorkManager():
     # Algorithms--------------------------------------------------------------- 
     def StartGameObservationController(self, data):
         resultData = {}
+        all_points = []
+        processAOSRequestData = {}
+        canvas = None
+        first_frame = None
+        courtLines = None
 
         if len(data)>0:
             newTopicName = Tools.generateTopicName(data["stream_name"], 0)
@@ -62,12 +67,6 @@ class WorkManager():
             
             #! 2-KAFKA_CONSUMER:
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
-
-            all_points = []
-            processAOSRequestData = {}
-            canvas = None
-            first_frame = None
-            courtLines = None
 
             #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
             bytes_frame = next(BYTE_FRAMES_GENERATOR)

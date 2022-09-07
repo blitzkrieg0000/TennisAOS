@@ -17,7 +17,7 @@ class KafkaConsumerManager():
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
         return frame
 
-    def consumer(self, topicName, groupName, limit=-1, show=False):
+    def consumer(self, topicName, groupName, limit=-1):
         requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit)
         return self.stub.consumer(requestData)
 

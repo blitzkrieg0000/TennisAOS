@@ -1,11 +1,9 @@
 import logging
 from libs.consts import *
 from confluent_kafka import Consumer
-import numpy as np
-import cv2
 
 class ConsumerGen():
-    def __init__(self, consumerGroup, offsetMethod, topics, limit):
+    def __init__(self, topics, consumerGroup, offsetMethod, limit):
         self.consumer = self.connectKafkaConsumer(consumerGroup, offsetMethod, topics)
         self.consumer.subscribe(topics)
         
@@ -47,7 +45,7 @@ class ConsumerGen():
                 continue
 
             if msg.error():
-                logging.info(f"Consumer-error: {msg.error()}")
+                logging.error(f"Consumer-error: {msg.error()}")
                 self.ret_limit +=1
                 continue
             
@@ -57,15 +55,10 @@ class ConsumerGen():
 
             return msg
 
-class KafkaManager():
-    
+
+class KafkaConsumerManager():
     def __init__(self):
         self.consumerGenerators = {}
-
-    def bytes2Frame(self, img):
-        nparr = np.frombuffer(img, np.uint8)
-        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        return frame
 
     def stopRunningCosumer(self, topicName):
         try:
@@ -81,10 +74,10 @@ class KafkaManager():
         return list(self.consumerGenerators.keys())
     
     def consumer(self, topics=[], consumerGroup="consumergroup-1", offsetMethod="earliest", limit=-1):
-        if not topics:
+        if not topics or len(topics)<0:
             raise ValueError("topic cannot be empty")
         
-        self.consumerGenerators[topics[0]] = ConsumerGen(consumerGroup, offsetMethod, topics, limit)
+        self.consumerGenerators[topics[0]] = ConsumerGen(topics, consumerGroup, offsetMethod, limit)
 
         for msg in self.consumerGenerators[topics[0]]:
             yield msg.value()
