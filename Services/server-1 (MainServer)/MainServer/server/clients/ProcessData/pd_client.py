@@ -9,7 +9,7 @@ import numpy as np
 
 class PDClient():
     def __init__(self):
-        self.channel = grpc.insecure_channel('processdataservice:50024')
+        self.channel = grpc.insecure_channel('localhost:50024') #processdataservice
         self.stub = rc_grpc.ProcessDataStub(self.channel)
     
     def bytes2img(self, image):
@@ -31,9 +31,7 @@ class PDClient():
     def processAOS(self, image, data):
         requestData = rc.processAOSRequest(frame=image, data=self.obj2bytes(data))
         responseData = self.stub.processAOS(requestData)
-        frame = responseData.frame
-        resData = responseData.data
-        return frame, resData
+        return responseData.frame, responseData.data
 
     def disconnect(self):
         self.channel.close()

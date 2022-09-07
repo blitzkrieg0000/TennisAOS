@@ -5,7 +5,7 @@ import clients.TrackBall.trackBall_pb2_grpc as rc_grpc
 
 class TBClient():
     def __init__(self):
-        self.channel = grpc.insecure_channel('trackballservice:50022')
+        self.channel = grpc.insecure_channel('localhost:50022') #trackballservice
         self.stub = rc_grpc.trackBallStub(self.channel)
     
     def findTennisBallPosition(self, data, name):

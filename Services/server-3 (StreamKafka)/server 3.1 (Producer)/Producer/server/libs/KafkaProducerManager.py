@@ -17,7 +17,7 @@ class ProducerContextManager(object):
     def __init__(self, data):
         logging.info(data)
         self.topicName = data["topicName"]
-        self.streamUrl = data["streamUrl"]
+        self.streamUrl = data["source"]
         self.is_video =  data["is_video"]
         self.limit = data["limit"]
         self.adminConfluent = None
@@ -131,10 +131,10 @@ class ProducerContextManager(object):
                     logging.info(f"frame2bytes convertion failed:{self.streamUrl}")
                     ret_limit_count+=1
             else:
-                logging.warning(f"{self.topicName}: Streamden okunamıyor... Kaynak kullanımda olabilir: {self.streamUrl}. RET_LIMIT: {ret_limit_count}")
+                logging.warning(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.streamUrl}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
 
-        logging.info(f"Producer Sonlandı: {self.topicName} - RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
+        logging.info(f"Producer Sonlandı: <{self.topicName}>. RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
 
 
 class KafkaProducerManager():
@@ -181,18 +181,17 @@ class KafkaProducerManager():
 
     def producer(func):
         def wrapper(self, *args, **kwargs):
-            data = args[0]
-            
-            if data["topicName"] is None or data["topicName"] == "":
+
+            if args[0]["topicName"] is None or args[0]["topicName"] == "":
                 raise ValueError("topicName cannot be empty.")
             
-            if data["limit"] is None or data["limit"] == "":
-                data["limit"] = -1
+            if args[0]["limit"] is None or args[0]["limit"] == "":
+                args[0]["limit"] = -1
 
-            t = multiprocessing.Process(name=data["topicName"], target=func, args=(self, *args), kwargs=kwargs)
+            t = multiprocessing.Process(name=args[0]["topicName"], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
 
-            return f"Producer Started For: {data['topicName'] }"
+            return f"Producer Started For: {args[0]['topicName'] }"
         return wrapper
 
     @producer

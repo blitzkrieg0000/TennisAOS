@@ -20,6 +20,21 @@ class kafkaConsumerStub(object):
                 request_serializer=kafkaConsumer__pb2.ConsumerRequest.SerializeToString,
                 response_deserializer=kafkaConsumer__pb2.ConsumerResponse.FromString,
                 )
+        self.getAllConsumers = channel.unary_unary(
+                '/consumer.kafkaConsumer/getAllConsumers',
+                request_serializer=kafkaConsumer__pb2.getAllConsumersRequest.SerializeToString,
+                response_deserializer=kafkaConsumer__pb2.getAllConsumersResponse.FromString,
+                )
+        self.stopConsumer = channel.unary_unary(
+                '/consumer.kafkaConsumer/stopConsumer',
+                request_serializer=kafkaConsumer__pb2.stopConsumerRequest.SerializeToString,
+                response_deserializer=kafkaConsumer__pb2.stopConsumerResponse.FromString,
+                )
+        self.stopAllConsumers = channel.unary_unary(
+                '/consumer.kafkaConsumer/stopAllConsumers',
+                request_serializer=kafkaConsumer__pb2.stopAllConsumersRequest.SerializeToString,
+                response_deserializer=kafkaConsumer__pb2.stopAllConsumersResponse.FromString,
+                )
 
 
 class kafkaConsumerServicer(object):
@@ -32,6 +47,24 @@ class kafkaConsumerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def getAllConsumers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def stopConsumer(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def stopAllConsumers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_kafkaConsumerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -39,6 +72,21 @@ def add_kafkaConsumerServicer_to_server(servicer, server):
                     servicer.consumer,
                     request_deserializer=kafkaConsumer__pb2.ConsumerRequest.FromString,
                     response_serializer=kafkaConsumer__pb2.ConsumerResponse.SerializeToString,
+            ),
+            'getAllConsumers': grpc.unary_unary_rpc_method_handler(
+                    servicer.getAllConsumers,
+                    request_deserializer=kafkaConsumer__pb2.getAllConsumersRequest.FromString,
+                    response_serializer=kafkaConsumer__pb2.getAllConsumersResponse.SerializeToString,
+            ),
+            'stopConsumer': grpc.unary_unary_rpc_method_handler(
+                    servicer.stopConsumer,
+                    request_deserializer=kafkaConsumer__pb2.stopConsumerRequest.FromString,
+                    response_serializer=kafkaConsumer__pb2.stopConsumerResponse.SerializeToString,
+            ),
+            'stopAllConsumers': grpc.unary_unary_rpc_method_handler(
+                    servicer.stopAllConsumers,
+                    request_deserializer=kafkaConsumer__pb2.stopAllConsumersRequest.FromString,
+                    response_serializer=kafkaConsumer__pb2.stopAllConsumersResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -65,5 +113,56 @@ class kafkaConsumer(object):
         return grpc.experimental.unary_stream(request, target, '/consumer.kafkaConsumer/consumer',
             kafkaConsumer__pb2.ConsumerRequest.SerializeToString,
             kafkaConsumer__pb2.ConsumerResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def getAllConsumers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/consumer.kafkaConsumer/getAllConsumers',
+            kafkaConsumer__pb2.getAllConsumersRequest.SerializeToString,
+            kafkaConsumer__pb2.getAllConsumersResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def stopConsumer(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/consumer.kafkaConsumer/stopConsumer',
+            kafkaConsumer__pb2.stopConsumerRequest.SerializeToString,
+            kafkaConsumer__pb2.stopConsumerResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def stopAllConsumers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/consumer.kafkaConsumer/stopAllConsumers',
+            kafkaConsumer__pb2.stopAllConsumersRequest.SerializeToString,
+            kafkaConsumer__pb2.stopAllConsumersResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

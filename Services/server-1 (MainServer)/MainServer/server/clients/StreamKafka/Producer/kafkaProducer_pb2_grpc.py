@@ -20,25 +20,20 @@ class kafkaProducerStub(object):
                 request_serializer=kafkaProducer__pb2.producerRequest.SerializeToString,
                 response_deserializer=kafkaProducer__pb2.producerResponse.FromString,
                 )
-        self.stopProduce = channel.unary_unary(
-                '/producer.kafkaProducer/stopProduce',
-                request_serializer=kafkaProducer__pb2.stopProduceRequest.SerializeToString,
-                response_deserializer=kafkaProducer__pb2.stopProduceResponse.FromString,
+        self.getAllProducerProcesses = channel.unary_unary(
+                '/producer.kafkaProducer/getAllProducerProcesses',
+                request_serializer=kafkaProducer__pb2.getAllProducerProcessesRequest.SerializeToString,
+                response_deserializer=kafkaProducer__pb2.getAllProducerProcessesResponse.FromString,
                 )
-        self.getProducerThreads = channel.unary_unary(
-                '/producer.kafkaProducer/getProducerThreads',
-                request_serializer=kafkaProducer__pb2.getProducerThreadsRequest.SerializeToString,
-                response_deserializer=kafkaProducer__pb2.getProducerThreadsResponse.FromString,
+        self.stopProducer = channel.unary_unary(
+                '/producer.kafkaProducer/stopProducer',
+                request_serializer=kafkaProducer__pb2.stopProducerRequest.SerializeToString,
+                response_deserializer=kafkaProducer__pb2.stopProducerResponse.FromString,
                 )
-        self.stopAllProducerThreads = channel.unary_unary(
-                '/producer.kafkaProducer/stopAllProducerThreads',
-                request_serializer=kafkaProducer__pb2.getProducerThreadsRequest.SerializeToString,
-                response_deserializer=kafkaProducer__pb2.getProducerThreadsResponse.FromString,
-                )
-        self.deleteTopics = channel.unary_unary(
-                '/producer.kafkaProducer/deleteTopics',
-                request_serializer=kafkaProducer__pb2.deleteTopicsRequest.SerializeToString,
-                response_deserializer=kafkaProducer__pb2.deleteTopicsResponse.FromString,
+        self.stopAllProducerProcesses = channel.unary_unary(
+                '/producer.kafkaProducer/stopAllProducerProcesses',
+                request_serializer=kafkaProducer__pb2.stopAllProducerProcessesRequest.SerializeToString,
+                response_deserializer=kafkaProducer__pb2.stopAllProducerProcessesResponse.FromString,
                 )
 
 
@@ -52,25 +47,19 @@ class kafkaProducerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def stopProduce(self, request, context):
+    def getAllProducerProcesses(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def getProducerThreads(self, request, context):
+    def stopProducer(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def stopAllProducerThreads(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def deleteTopics(self, request, context):
+    def stopAllProducerProcesses(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -84,25 +73,20 @@ def add_kafkaProducerServicer_to_server(servicer, server):
                     request_deserializer=kafkaProducer__pb2.producerRequest.FromString,
                     response_serializer=kafkaProducer__pb2.producerResponse.SerializeToString,
             ),
-            'stopProduce': grpc.unary_unary_rpc_method_handler(
-                    servicer.stopProduce,
-                    request_deserializer=kafkaProducer__pb2.stopProduceRequest.FromString,
-                    response_serializer=kafkaProducer__pb2.stopProduceResponse.SerializeToString,
+            'getAllProducerProcesses': grpc.unary_unary_rpc_method_handler(
+                    servicer.getAllProducerProcesses,
+                    request_deserializer=kafkaProducer__pb2.getAllProducerProcessesRequest.FromString,
+                    response_serializer=kafkaProducer__pb2.getAllProducerProcessesResponse.SerializeToString,
             ),
-            'getProducerThreads': grpc.unary_unary_rpc_method_handler(
-                    servicer.getProducerThreads,
-                    request_deserializer=kafkaProducer__pb2.getProducerThreadsRequest.FromString,
-                    response_serializer=kafkaProducer__pb2.getProducerThreadsResponse.SerializeToString,
+            'stopProducer': grpc.unary_unary_rpc_method_handler(
+                    servicer.stopProducer,
+                    request_deserializer=kafkaProducer__pb2.stopProducerRequest.FromString,
+                    response_serializer=kafkaProducer__pb2.stopProducerResponse.SerializeToString,
             ),
-            'stopAllProducerThreads': grpc.unary_unary_rpc_method_handler(
-                    servicer.stopAllProducerThreads,
-                    request_deserializer=kafkaProducer__pb2.getProducerThreadsRequest.FromString,
-                    response_serializer=kafkaProducer__pb2.getProducerThreadsResponse.SerializeToString,
-            ),
-            'deleteTopics': grpc.unary_unary_rpc_method_handler(
-                    servicer.deleteTopics,
-                    request_deserializer=kafkaProducer__pb2.deleteTopicsRequest.FromString,
-                    response_serializer=kafkaProducer__pb2.deleteTopicsResponse.SerializeToString,
+            'stopAllProducerProcesses': grpc.unary_unary_rpc_method_handler(
+                    servicer.stopAllProducerProcesses,
+                    request_deserializer=kafkaProducer__pb2.stopAllProducerProcessesRequest.FromString,
+                    response_serializer=kafkaProducer__pb2.stopAllProducerProcessesResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -133,7 +117,7 @@ class kafkaProducer(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def stopProduce(request,
+    def getAllProducerProcesses(request,
             target,
             options=(),
             channel_credentials=None,
@@ -143,14 +127,14 @@ class kafkaProducer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/stopProduce',
-            kafkaProducer__pb2.stopProduceRequest.SerializeToString,
-            kafkaProducer__pb2.stopProduceResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/getAllProducerProcesses',
+            kafkaProducer__pb2.getAllProducerProcessesRequest.SerializeToString,
+            kafkaProducer__pb2.getAllProducerProcessesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def getProducerThreads(request,
+    def stopProducer(request,
             target,
             options=(),
             channel_credentials=None,
@@ -160,14 +144,14 @@ class kafkaProducer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/getProducerThreads',
-            kafkaProducer__pb2.getProducerThreadsRequest.SerializeToString,
-            kafkaProducer__pb2.getProducerThreadsResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/stopProducer',
+            kafkaProducer__pb2.stopProducerRequest.SerializeToString,
+            kafkaProducer__pb2.stopProducerResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def stopAllProducerThreads(request,
+    def stopAllProducerProcesses(request,
             target,
             options=(),
             channel_credentials=None,
@@ -177,25 +161,8 @@ class kafkaProducer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/stopAllProducerThreads',
-            kafkaProducer__pb2.getProducerThreadsRequest.SerializeToString,
-            kafkaProducer__pb2.getProducerThreadsResponse.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def deleteTopics(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/deleteTopics',
-            kafkaProducer__pb2.deleteTopicsRequest.SerializeToString,
-            kafkaProducer__pb2.deleteTopicsResponse.FromString,
+        return grpc.experimental.unary_unary(request, target, '/producer.kafkaProducer/stopAllProducerProcesses',
+            kafkaProducer__pb2.stopAllProducerProcessesRequest.SerializeToString,
+            kafkaProducer__pb2.stopAllProducerProcessesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

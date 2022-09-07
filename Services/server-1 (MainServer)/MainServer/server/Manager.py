@@ -4,10 +4,10 @@ import concurrent.futures
 import logging
 from typing import Any
 
-from Services.Manager.WorkManager import WorkManager
 from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
 from StatusChecker import StatusChecker
+from WorkManager import WorkManager
 
 
 class ProcessManager(AbstractHandler):

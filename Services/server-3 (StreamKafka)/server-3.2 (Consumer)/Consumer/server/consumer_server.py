@@ -35,7 +35,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
 
         if topicName is None or topicName != "": assert "Topic adı boş olamaz."
 
-        self.consumers[topicName] = False
+        self.consumers[topicName] = True
         CONSUMER_GENERATOR = self.kafkaConsumerManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod="earliest", limit=limit)
         for msg in CONSUMER_GENERATOR:
             if not context.is_active() or not self.consumers[topicName]:

@@ -1,3 +1,4 @@
+import time
 import numpy as np
 
 import mainRouterServer_pb2 as rc
@@ -36,16 +37,15 @@ class WorkManager():
         return self.kpm.stopAllProducerProcesses()
 
     # Manage Consumer----------------------------------------------------------
-    #? CONSUMER DÜZENLENİYOR...
-    def getRunningConsumers(self, request, context):
-        return rc.responseData(data=self.kcm.getRunningConsumers()) 
+    def getAllConsumers(self, request, context):
+        return rc.responseData(data=self.kcm.getAllConsumers()) 
 
-    def stopRunningConsumer(self, request, context):
-        msg = self.kcm.stopRunningCosumer(request.data)
+    def stopConsumer(self, request, context):
+        msg = self.kcm.stopConsumer(request.data)
         return rc.responseData(data=b"TRYING STOP CONSUMER...")
 
-    def stopAllRunningConsumers(self, request, context):
-        msg = self.kcm.stopAllRunningConsumers()
+    def stopAllConsumers(self, request, context):
+        msg = self.kcm.stopAllConsumers()
         return rc.responseData(data=b"TRYING STOP CONSUMERS...")
 
     # Algorithms--------------------------------------------------------------- 
@@ -62,11 +62,11 @@ class WorkManager():
             res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName)
 
             #! 1-KAFKA_PRODUCER:
-            data["newTopicName"] = newTopicName
+            data["topicName"] = newTopicName
             threadName = self.kpm.producer(EncodeManager.serialize(data))
-            
+            time.sleep(3)
             #! 2-KAFKA_CONSUMER:
-            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
+            BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1)
 
             #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
             bytes_frame = next(BYTE_FRAMES_GENERATOR)

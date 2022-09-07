@@ -16,9 +16,6 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
     def __init__(self):
         super().__init__()
         self.kafkaProducerManager = KafkaProducerManager()
-        
-    def bytes2obj(self, bytes):
-        return pickle.loads(bytes)
 
     def producer(self, request, context):
         requestData = EncodeManager.deserialize(request.data)
