@@ -108,7 +108,7 @@ services:
   mainservice:
     image: mainservice
     build:
-      context: "../gRPC/server-1 (MainServer)/"
+      context: "../Services/server-1 (MainServer)/"
       dockerfile: dockerfile
     hostname: mainservice
     container_name: mainservice
@@ -120,7 +120,7 @@ services:
   detectcourtlinesservice:
     image: detectcourtlinesservice
     build:
-      context: "../gRPC/server-2 (Algorithms)/DCL/"
+      context: "../Services/server-2 (Algorithms)/DCL/"
       dockerfile: dockerfile
     hostname: detectcourtlinesservice
     container_name: detectcourtlinesservice
@@ -132,7 +132,7 @@ services:
   predictfallpositionservice:
     image: predictfallpositionservice
     build:
-      context: "../gRPC/server-2 (Algorithms)/PFP/"
+      context: "../Services/server-2 (Algorithms)/PFP/"
       dockerfile: dockerfile
     hostname: predictfallpositionservice
     container_name: predictfallpositionservice
@@ -144,7 +144,7 @@ services:
   processdataservice:
     image: processdataservice
     build:
-      context: "../gRPC/server-2 (Algorithms)/PD/"
+      context: "../Services/server-2 (Algorithms)/PD/"
       dockerfile: dockerfile
     hostname: processdataservice
     container_name: processdataservice
@@ -156,7 +156,7 @@ services:
   trackballservice:
     image: trackballservice
     build:
-      context: "../gRPC/server-2 (Algorithms)/TB/"
+      context: "../Services/server-2 (Algorithms)/TB/"
       dockerfile: dockerfile
     hostname: trackballservice
     container_name: trackballservice
@@ -177,7 +177,7 @@ services:
   producerservice:
     image: producerservice
     build:
-      context: "../gRPC/server-3 (StreamKafka)/server 3.1 (Producer)/"
+      context: "../Services/server-3 (StreamKafka)/server 3.1 (Producer)/"
       dockerfile: dockerfile
 
     hostname: producerservice
@@ -192,7 +192,7 @@ services:
   consumerservice:
     image: consumerservice
     build:
-      context: "../gRPC/server-3 (StreamKafka)/server-3.2 (Consumer)/"
+      context: "../Services/server-3 (StreamKafka)/server-3.2 (Consumer)/"
       dockerfile: dockerfile
     hostname: consumerservice
     container_name: consumerservice
@@ -206,7 +206,7 @@ services:
   postgresservice:
     image: postgresservice
     build:
-      context: "../gRPC/server-4 (Postgresql)/"
+      context: "../Services/server-4 (Postgresql)/"
       dockerfile: dockerfile
     hostname: postgresservice
     container_name: postgresservice
@@ -218,7 +218,7 @@ services:
   redisservice:
     image: redisservice
     build:
-      context: "../gRPC/server-5 (Redis)/"
+      context: "../Services/server-5 (Redis)/"
       dockerfile: dockerfile
     hostname: redisservice
     container_name: redisservice

@@ -43,12 +43,21 @@ def streamProducer():
         manager.producer()
 
 
-p = multiprocessing.Process(target=streamProducer)
-p.start()  
+p = multiprocessing.Process(name="test", target=streamProducer)
+p.start()
 
-time.sleep(5)
-p.terminate()
-time.sleep(5)
+p2 = multiprocessing.Process(name="test", target=streamProducer)
+p2.start()  
+
+time.sleep(3)
+
+processes = multiprocessing.active_children()
+print(processes)
+
+p.join()
+p2.join()
+
+
 active_process = multiprocessing.active_children()
 print(active_process)
 print(p.is_alive())

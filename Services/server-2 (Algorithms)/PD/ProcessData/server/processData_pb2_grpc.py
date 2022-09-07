@@ -2,10 +2,10 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import testServer_pb2 as testServer__pb2
+import processData_pb2 as processData__pb2
 
 
-class TestServerStub(object):
+class ProcessDataStub(object):
     """Service
     """
 
@@ -15,44 +15,44 @@ class TestServerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.Process = channel.unary_unary(
-                '/test.TestServer/Process',
-                request_serializer=testServer__pb2.requestData.SerializeToString,
-                response_deserializer=testServer__pb2.responseData.FromString,
+        self.processAOS = channel.unary_unary(
+                '/cache.ProcessData/processAOS',
+                request_serializer=processData__pb2.processAOSRequest.SerializeToString,
+                response_deserializer=processData__pb2.processAOSResponse.FromString,
                 )
 
 
-class TestServerServicer(object):
+class ProcessDataServicer(object):
     """Service
     """
 
-    def Process(self, request, context):
+    def processAOS(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_TestServerServicer_to_server(servicer, server):
+def add_ProcessDataServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'Process': grpc.unary_unary_rpc_method_handler(
-                    servicer.Process,
-                    request_deserializer=testServer__pb2.requestData.FromString,
-                    response_serializer=testServer__pb2.responseData.SerializeToString,
+            'processAOS': grpc.unary_unary_rpc_method_handler(
+                    servicer.processAOS,
+                    request_deserializer=processData__pb2.processAOSRequest.FromString,
+                    response_serializer=processData__pb2.processAOSResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'test.TestServer', rpc_method_handlers)
+            'cache.ProcessData', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class TestServer(object):
+class ProcessData(object):
     """Service
     """
 
     @staticmethod
-    def Process(request,
+    def processAOS(request,
             target,
             options=(),
             channel_credentials=None,
@@ -62,8 +62,8 @@ class TestServer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/test.TestServer/Process',
-            testServer__pb2.requestData.SerializeToString,
-            testServer__pb2.responseData.FromString,
+        return grpc.experimental.unary_unary(request, target, '/cache.ProcessData/processAOS',
+            processData__pb2.processAOSRequest.SerializeToString,
+            processData__pb2.processAOSResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
