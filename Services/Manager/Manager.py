@@ -4,7 +4,7 @@ import concurrent.futures
 import logging
 from typing import Any
 
-from AlgorithmManager import AlgorithmManager
+from Services.Manager.WorkManager import WorkManager
 from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
 from StatusChecker import StatusChecker
@@ -14,7 +14,7 @@ class ProcessManager(AbstractHandler):
     def __init__(self):
         MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
-        self.algorithmManager = AlgorithmManager()
+        self.algorithmManager = WorkManager()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self.processList = []
         self.futureIterators = []

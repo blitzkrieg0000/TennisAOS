@@ -1,3 +1,5 @@
+import numpy as np
+
 import mainRouterServer_pb2 as rc
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
@@ -9,10 +11,8 @@ from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
 
-import numpy as np
 
-
-class AlgorithmManager():
+class WorkManager():
     def __init__(self):
         super().__init__()
         self.kpm  = KafkaProducerManager()
@@ -26,19 +26,17 @@ class AlgorithmManager():
 
     #! Main Server
     # Manage Producer----------------------------------------------------------
-    def getProducerThreads(self, request, context):
-        return rc.responseData(data=self.kpm.getProducerThreads())
+    def getAllProducerProcesses(self):
+        return self.kpm.getAllProducerProcesses()
 
-    def stopProduce(self, request, context):
-        #Bu topic producer çalışıyorsa durdur.
-        self.kpm.stopProduce(f'streaming_thread_{request.data}')
-        return rc.responseData(data=b"TRYING STOP PRODUCER...")
+    def stopProducer(self, process_name):
+        return self.kpm.stopProducer(process_name)
 
-    def stopAllProducerThreads(self, request, context):
-        msg = self.kpm.stopAllProducerThreads()
-        return rc.responseData(data=b"TRYING STOP PRODUCERS...")
+    def stopAllProducerProcesses(self):
+        return self.kpm.stopAllProducerProcesses()
 
     # Manage Consumer----------------------------------------------------------
+    #? CONSUMER DÜZENLENİYOR...
     def getRunningConsumers(self, request, context):
         return rc.responseData(data=self.kcm.getRunningConsumers()) 
 
@@ -60,7 +58,7 @@ class AlgorithmManager():
 
             #! 1-KAFKA_PRODUCER:
             data["newTopicName"] = newTopicName
-            threadName = self.kpm.startProduce(EncodeManager.serialize(data))
+            threadName = self.kpm.producer(EncodeManager.serialize(data))
             
             #! 2-KAFKA_CONSUMER:
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1, False)
