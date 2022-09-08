@@ -64,7 +64,9 @@ class WorkManager():
             #! 1-KAFKA_PRODUCER:
             data["topicName"] = newTopicName
             threadName = self.kpm.producer(EncodeManager.serialize(data))
-            time.sleep(3)
+            time.sleep(1)
+
+            # TODO İLGİLİ TOPİC BAŞLAMADAN CONSUMER BAŞLAMASIN (CONSUMER IN İÇERİNDE BU KONTROLÜ YAP)
             #! 2-KAFKA_CONSUMER:
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1)
 
@@ -96,6 +98,8 @@ class WorkManager():
             for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
                 # TODO Diğer algoritmalar için concurency.future ile aynı frame kullanılarak işlem yapılacak 
                 balldata = self.tbc.findTennisBallPosition(bytes_frame.data, newTopicName) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
+                # TODO SAHA ÇİZGİ TAKİBİ
+                # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
                 all_points.append(np.array(Converters.bytes2obj(balldata)))
                 
             #! 5-PREDICT_BALL_POSITION

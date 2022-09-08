@@ -9,6 +9,11 @@ from libs.base import AbstractHandler
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
 
+def logo():
+    f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
+    logo = f.read()
+    f.close()
+    print(logo, "\n")
 
 class ProcessManager(AbstractHandler):
     def __init__(self):
@@ -47,5 +52,11 @@ class ProcessManager(AbstractHandler):
 
 
 if __name__ == "__main__":
-    sc = StatusChecker()
-    results = sc.set_next(ProcessManager()).set_next(sc).handle([])
+    logo()
+    statusChecker = StatusChecker()
+    processManager = ProcessManager()
+
+    statusChecker.set_next(processManager)
+    processManager.set_next(statusChecker)
+
+    statusChecker.handle([])
