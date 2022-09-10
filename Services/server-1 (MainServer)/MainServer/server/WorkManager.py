@@ -54,6 +54,7 @@ class WorkManager():
         all_points = []
         processAOSRequestData = {}
         canvas = None
+        canvasBytes = None
         first_frame = None
         courtLines = None
 
@@ -91,8 +92,8 @@ class WorkManager():
                         data["court_line_array"] = SerializedCourtPoints
                         Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
                 
-                frame = Tools.drawLines(frame, courtLines)
-                canvas = Converters.frame2bytes(frame)
+                canvas = Tools.drawLines(frame, courtLines)
+                canvasBytes = Converters.frame2bytes(canvas)
             
             #! 4-TRACKBALL (DETECTION)
             for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
@@ -103,21 +104,27 @@ class WorkManager():
                 all_points.append(np.array(Converters.bytes2obj(balldata)))
                 
             #! 5-PREDICT_BALL_POSITION
-            ball_fall_array = self.pfpc.predictFallPosition(all_points)
-            
+            ball_fall_array_bytes = self.pfpc.predictFallPosition(all_points)
+            ball_fall_array = Converters.bytes2obj(ball_fall_array_bytes)
+
+        
             #! 6-PROCESS_AOS_DATA
             court_point_area_data = Repositories.getCourtPointAreaId(self.rcm, data["aos_type_id"])[0]
             processAOSRequestData["court_lines"] = courtLines
-            processAOSRequestData["fall_point"] = Converters.bytes2obj(ball_fall_array)
+            processAOSRequestData["fall_point"] = ball_fall_array
             processAOSRequestData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
-            canvasBytes, processedAOSData = self.processDataClient.processAOS(image=canvas, data=processAOSRequestData)
+            canvasBytes, processedAOSData = self.processDataClient.processAOS(image=canvasBytes, data=processAOSRequestData)
             processedAOSData = Converters.bytes2obj(processedAOSData)
+            
+            #Draw Fall Point
+            canvas = Converters.bytes2frame(canvasBytes)
+            canvas = Tools.drawCircles(canvas, ball_fall_array)
 
             #! 7-SAVE_PROCESSED_DATA
             resultData["ball_position_array"] = EncodeManager.serialize(np.array(all_points))
             resultData["player_position_array"] = EncodeManager.serialize([])
             resultData["ball_fall_array"] = EncodeManager.serialize(Converters.bytes2obj(ball_fall_array))
-            resultData["canvas"] = Converters.frame2base64(Converters.bytes2frame(canvasBytes)) 
+            resultData["canvas"] = Converters.frame2base64(canvas) 
             resultData["score"] = processedAOSData["score"]
             resultData["process_id"] = data["process_id"]
             resultData["court_line_array"] = data["court_line_array"]
@@ -127,7 +134,6 @@ class WorkManager():
             resultData["court_id"] = data["court_id"]
             resultData["description"] = "Bilgi Verilmedi."
             
-
             Repositories.saveProcessData(self.rcm, resultData)
             Repositories.savePlayingData(self.rcm, resultData)
             
