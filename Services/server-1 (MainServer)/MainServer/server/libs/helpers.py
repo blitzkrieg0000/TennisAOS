@@ -89,13 +89,11 @@ class Tools():
         return cimage
 
     @staticmethod
-    def drawCircles(cimage, fall_points, limit=1):
-        for i, point in enumerate(fall_points):
-            if len(point)>0:
-                cimage = cv2.circle(cimage, (point[0],point[1]), 5, (0,0,255), 1)
-                cimage = cv2.circle(cimage, (point[0],point[1]), 3, (255,255,255), 1)
-            if i>=limit-1:
-                break
+    def drawCircles(cimage, point):
+        print(point)
+        if len(point)>0:
+            cimage = cv2.circle(cimage, (point[0],point[1]), 5, (0,0,255), 1)
+            cimage = cv2.circle(cimage, (point[0],point[1]), 3, (255,255,255), 1)
         return cimage
 
 @for_all_methods(checkNull)

@@ -116,14 +116,14 @@ class WorkManager():
             canvasBytes, processedAOSData = self.processDataClient.processAOS(image=canvasBytes, data=processAOSRequestData)
             processedAOSData = Converters.bytes2obj(processedAOSData)
             
-            #Draw Fall Point
+            # Draw Fall Points
             canvas = Converters.bytes2frame(canvasBytes)
             canvas = Tools.drawCircles(canvas, ball_fall_array)
-
+                
             #! 7-SAVE_PROCESSED_DATA
             resultData["ball_position_array"] = EncodeManager.serialize(np.array(all_points))
             resultData["player_position_array"] = EncodeManager.serialize([])
-            resultData["ball_fall_array"] = EncodeManager.serialize(Converters.bytes2obj(ball_fall_array))
+            resultData["ball_fall_array"] = EncodeManager.serialize(ball_fall_array)
             resultData["canvas"] = Converters.frame2base64(canvas) 
             resultData["score"] = processedAOSData["score"]
             resultData["process_id"] = data["process_id"]
