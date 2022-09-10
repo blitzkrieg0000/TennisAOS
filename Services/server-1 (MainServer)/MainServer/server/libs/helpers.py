@@ -74,6 +74,7 @@ class Tools():
         prefix = prefix.replace("-","_")
         prefix = prefix.replace(" ","_")
         prefix = prefix.replace(".","_")
+        prefix = prefix.encode('ascii', 'ignore').decode("utf-8")
         if prefix in Tools.EXCEPT_PREFIX:
             return prefix
         return f"{prefix}__{id}__{Tools.getUID()}"
