@@ -2,6 +2,7 @@ import base64
 import hashlib
 import json
 import pickle
+import re
 import time
 from json import JSONEncoder
 
@@ -71,9 +72,7 @@ class Tools():
     @staticmethod
     def generateTopicName(prefix:str, id):
         prefix = prefix.strip()
-        prefix = prefix.replace("-","_")
-        prefix = prefix.replace(" ","_")
-        prefix = prefix.replace(".","_")
+        prefix = re.sub(r'\W+', '', prefix)
         prefix = prefix.encode('ascii', 'ignore').decode("utf-8")
         if prefix in Tools.EXCEPT_PREFIX:
             return prefix

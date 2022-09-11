@@ -1,0 +1,8 @@
+import re
+
+name = "burakhan_Şamlıüğğğ^^'!^412424445656867978089*894552(/)=()=&%/+&^+-:;,.?*+$#`"
+name = name.encode('ascii', 'ignore').decode("utf-8")
+filteredName = re.sub(r'\W+', '', name)
+
+print(name)
+print(filteredName+"son")
