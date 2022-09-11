@@ -9,6 +9,7 @@ from libs.base import AbstractHandler
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
 
+
 def logo():
     f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
     logo = f.read()

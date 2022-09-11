@@ -107,7 +107,6 @@ class WorkManager():
             ball_fall_array_bytes = self.pfpc.predictFallPosition(all_points)
             ball_fall_array = Converters.bytes2obj(ball_fall_array_bytes)
 
-        
             #! 6-PROCESS_AOS_DATA
             court_point_area_data = Repositories.getCourtPointAreaId(self.rcm, data["aos_type_id"])[0]
             processAOSRequestData["court_lines"] = courtLines
