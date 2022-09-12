@@ -57,14 +57,13 @@ class MainServer(rc_grpc.MainServerServicer):
         ProcessName = self.algorithmManager.currentProcess.get(request.ProcessId, None)
         if ProcessName is not None:
             response = self.algorithmManager.stopProducer(ProcessName)
-            return rc.StopProcessResponseData(message=response)
-        return rc.StopProcessResponseData(message="İşlem başarısız.")
+            return rc.StopProcessResponseData(message=response, flag = True)
+        return rc.StopProcessResponseData(message="İşlem Bulunamadı.", flag = False)
 
     def StartProcess(self, request, context):
         data = self.getStreamProcess(request.ProcessId)
         if len(data) > 0:
             #self.processes[request.ProcessId] = data['kafka_topic_name']
-            
             results = self.algorithmManager.StartGameObservationController(data)
             return rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]")
         return rc.StartProcessResponseData(Message=f"{request.ProcessId} için process bulunmadı.", Data="[]")

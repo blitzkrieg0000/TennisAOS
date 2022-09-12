@@ -22,5 +22,5 @@ message StartProcessResponseData{
 }
 message StopProcessResponseData{
   string Message=1;
-
+  bool flag=2;
 }

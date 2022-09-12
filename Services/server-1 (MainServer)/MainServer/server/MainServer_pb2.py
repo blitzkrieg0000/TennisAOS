@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10MainServer.proto\x12\x04main\",\n\x17StartProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"+\n\x16StopProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"9\n\x18StartProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x44\x61ta\x18\x02 \x01(\t\"*\n\x17StopProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t2\xab\x01\n\nMainServer\x12O\n\x0cStartProcess\x12\x1d.main.StartProcessRequestData\x1a\x1e.main.StartProcessResponseData\"\x00\x12L\n\x0bStopProcess\x12\x1c.main.StopProcessRequestData\x1a\x1d.main.StopProcessResponseData\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10MainServer.proto\x12\x04main\",\n\x17StartProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"+\n\x16StopProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"9\n\x18StartProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x44\x61ta\x18\x02 \x01(\t\"8\n\x17StopProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x66lag\x18\x02 \x01(\x08\x32\xab\x01\n\nMainServer\x12O\n\x0cStartProcess\x12\x1d.main.StartProcessRequestData\x1a\x1e.main.StartProcessResponseData\"\x00\x12L\n\x0bStopProcess\x12\x1c.main.StopProcessRequestData\x1a\x1d.main.StopProcessResponseData\"\x00\x62\x06proto3')
 
 
 
@@ -61,7 +61,7 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _STARTPROCESSRESPONSEDATA._serialized_start=117
   _STARTPROCESSRESPONSEDATA._serialized_end=174
   _STOPPROCESSRESPONSEDATA._serialized_start=176
-  _STOPPROCESSRESPONSEDATA._serialized_end=218
-  _MAINSERVER._serialized_start=221
-  _MAINSERVER._serialized_end=392
+  _STOPPROCESSRESPONSEDATA._serialized_end=232
+  _MAINSERVER._serialized_start=235
+  _MAINSERVER._serialized_end=406
 # @@protoc_insertion_point(module_scope)
