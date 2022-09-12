@@ -9,7 +9,7 @@ import grpc
 import MainServer_pb2 as rc
 import MainServer_pb2_grpc as rc_grpc
 from clients.Redis.redis_client import RedisCacheManager
-from libs.helpers import Converters
+from libs.helpers import Converters, Repositories
 from ProcessManager import ProcessManager
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
@@ -65,6 +65,8 @@ class MainServer(rc_grpc.MainServerServicer):
         if len(data) > 0:
             #self.processes[request.ProcessId] = data['kafka_topic_name']
             results = self.algorithmManager.StartGameObservationController(data[0])
+            Repositories.markAsCompleted(self.rcm, data["process_id"])
+
             return rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]")
         return rc.StartProcessResponseData(Message=f"{request.ProcessId} için process bulunmadı.", Data="[]")
 

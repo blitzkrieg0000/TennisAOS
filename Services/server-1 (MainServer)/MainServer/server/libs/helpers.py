@@ -145,6 +145,11 @@ class Repositories():
         data["stream_id"],data["score"],data["ball_position_array"],
         data["player_position_array"],data["ball_fall_array"]])
 
+    @staticmethod
+    def markAsCompleted(manager, processId):
+        manager.Write(f'UPDATE public."Process" SET is_completed=%s WHERE id={processId};', [True,])
+
+
 
 class NumpyArrayEncoder(JSONEncoder):
     def default(self, obj):

@@ -8,7 +8,7 @@ from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
-
+from libs.helpers import Repositories
 
 class ProcessManager(AbstractHandler):
     def __init__(self):
@@ -18,9 +18,6 @@ class ProcessManager(AbstractHandler):
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self.processList = []
         self.futureIterators = []
-
-    def markAsCompleted(self, process):
-        self.rcm.Write(f'UPDATE public."Process" SET is_completed=%s WHERE id={process["process_id"]};', [True,])
 
     def process(self, processData):
         for process in processData:
@@ -35,7 +32,7 @@ class ProcessManager(AbstractHandler):
             for future in futureIterator:
                 if future.done():
                     process = threadSubmits[future]
-                    self.markAsCompleted(process)
+                    Repositories.markAsCompleted(self.rcm, process["process_id"])
                     self.processList.remove(process)
                     data = future.result()
         return processData
