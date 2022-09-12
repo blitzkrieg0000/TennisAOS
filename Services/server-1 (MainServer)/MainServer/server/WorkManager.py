@@ -1,7 +1,8 @@
+import collections
 import time
 import numpy as np
 
-import mainRouterServer_pb2 as rc
+import MainServer_pb2 as rc
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
@@ -24,6 +25,7 @@ class WorkManager():
         self.tbc = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
+        self.currentProcess = collections.defaultdict(list)
 
     #! Main Server
     # Manage Producer----------------------------------------------------------
@@ -38,15 +40,14 @@ class WorkManager():
 
     # Manage Consumer----------------------------------------------------------
     def getAllConsumers(self, request, context):
-        return rc.responseData(data=self.kcm.getAllConsumers()) 
+        return self.kcm.getAllConsumers()
 
     def stopConsumer(self, request, context):
-        msg = self.kcm.stopConsumer(request.data)
-        return rc.responseData(data=b"TRYING STOP CONSUMER...")
+        return self.kcm.stopConsumer(request.data)
 
     def stopAllConsumers(self, request, context):
-        msg = self.kcm.stopAllConsumers()
-        return rc.responseData(data=b"TRYING STOP CONSUMERS...")
+        return self.kcm.stopAllConsumers()
+
 
     # Algorithms--------------------------------------------------------------- 
     def StartGameObservationController(self, data):
@@ -65,9 +66,10 @@ class WorkManager():
             #! 1-KAFKA_PRODUCER:
             data["topicName"] = newTopicName
             threadName = self.kpm.producer(EncodeManager.serialize(data))
+            self.currentProcess[data['process_id']] = threadName
             time.sleep(1)
 
-            # TODO İLGİLİ TOPİC BAŞLAMADAN CONSUMER BAŞLAMASIN (CONSUMER IN İÇERİNDE BU KONTROLÜ YAP)
+            # TODO İLGİLİ TOPIC BAŞLAMADAN CONSUMER BAŞLAMASIN (CONSUMER IN İÇERİNDE BU KONTROLÜ YAP)
             #! 2-KAFKA_CONSUMER:
             BYTE_FRAMES_GENERATOR = self.kcm.consumer(newTopicName, "consumergroup-balltracker-0", -1)
 

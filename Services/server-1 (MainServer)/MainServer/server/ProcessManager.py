@@ -10,12 +10,6 @@ from StatusChecker import StatusChecker
 from WorkManager import WorkManager
 
 
-def logo():
-    f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
-    logo = f.read()
-    f.close()
-    print(logo, "\n")
-
 class ProcessManager(AbstractHandler):
     def __init__(self):
         MAX_WORKERS:int = 5
@@ -49,15 +43,5 @@ class ProcessManager(AbstractHandler):
     def handle(self, data: Any):
         if data is not None:
             data = self.process(data)
+        return data
         return super().handle(data)
-
-
-if __name__ == "__main__":
-    logo()
-    statusChecker = StatusChecker()
-    processManager = ProcessManager()
-
-    statusChecker.set_next(processManager)
-    processManager.set_next(statusChecker)
-
-    statusChecker.handle([])
