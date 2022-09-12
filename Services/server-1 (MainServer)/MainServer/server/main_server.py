@@ -64,7 +64,7 @@ class MainServer(rc_grpc.MainServerServicer):
         data = self.getStreamProcess(request.ProcessId)
         if len(data) > 0:
             #self.processes[request.ProcessId] = data['kafka_topic_name']
-            results = self.algorithmManager.StartGameObservationController(data)
+            results = self.algorithmManager.StartGameObservationController(data[0])
             return rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]")
         return rc.StartProcessResponseData(Message=f"{request.ProcessId} için process bulunmadı.", Data="[]")
 
