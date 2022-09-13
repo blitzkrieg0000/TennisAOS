@@ -123,8 +123,49 @@ class Repositories():
         return None
     
     @staticmethod
-    def saveTopicName(manager, stream_id, newTopicName):
-        return manager.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newTopicName,])
+    def getAllProcessRelated(manager):
+        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force","stream_name", "source", "court_line_array", "kafka_topic_name", "is_video"]
+        QUERY = f'SELECT p.id as process_id, p.name as process_name, sp.id as session_id, st.id, sp.aos_type_id, sp.player_id, sp.court_id,sp."limit", sp."force", st."name", st."source", st.court_line_array, pr.kafka_topic_name, st.is_video\
+        FROM public."Process" as p\
+        INNER JOIN public."SessionParameter" as sp\
+        ON sp.id = p.session_id\
+        INNER JOIN public."ProcessParameters" as pp\
+        ON pp.id = p.id\
+        INNER JOIN public."ProcessResponse" as pr\
+        ON pr.id = p.id\
+        INNER JOIN public."Stream" as st\
+        ON (CASE WHEN pp.stream_id IS NULL THEN st.id = sp.stream_id ELSE st.id = pp.stream_id END)\
+        WHERE p.is_completed=false AND st.is_video=true'
+        processData = manager.Read(query=QUERY, force=True)
+        processes = Converters.bytes2obj(processData)
+        if processes is not None:
+            return [dict(zip(query_keys, process)) for process in processes]
+        return []
+
+    @staticmethod
+    def getProcessRelatedById(manager, id):
+        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force","stream_name", "source", "court_line_array", "kafka_topic_name", "is_video"]
+        QUERY = f'SELECT p.id as process_id, p.name as process_name, sp.id as session_id, st.id, sp.aos_type_id, sp.player_id, sp.court_id,sp."limit", sp."force", st."name", st."source", st.court_line_array, pr.kafka_topic_name, st.is_video\
+        FROM public."Process" as p\
+        INNER JOIN public."SessionParameter" as sp\
+        ON sp.id = p.session_id\
+        INNER JOIN public."ProcessParameters" as pp\
+        ON pp.id = p.id\
+        INNER JOIN public."ProcessResponse" as pr\
+        ON pr.id = p.id\
+        INNER JOIN public."Stream" as st\
+        ON (CASE WHEN pp.stream_id IS NULL THEN st.id = sp.stream_id ELSE st.id = pp.stream_id END)\
+        WHERE p.is_completed=true AND p.id={id}'
+        processData = manager.Read(query=QUERY, force=True)
+        processes = Converters.bytes2obj(processData)
+        if processes is not None:
+            return [dict(zip(query_keys, process)) for process in processes]
+        return []
+
+
+    @staticmethod
+    def saveTopicName(manager, process_id, newTopicName):
+        return manager.Write(f'UPDATE public."ProcessResponse" SET kafka_topic_name=%s WHERE id={process_id};', [newTopicName,])
 
     @staticmethod
     def saveCourtLinePoints(manager, stream_id, courtPoints):

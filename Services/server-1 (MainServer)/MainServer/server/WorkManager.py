@@ -63,7 +63,7 @@ class WorkManager():
             newTopicName = Tools.generateTopicName(data["stream_name"], 0)
 
             #TODO PROCESS RESPONSE A KAYDET
-            res = Repositories.saveTopicName(self.rcm, data["stream_id"], newTopicName) 
+            res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName) 
 
             #! 1-KAFKA_PRODUCER:
             data["topicName"] = newTopicName
