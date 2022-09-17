@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaConsumer.proto\x12\x08\x63onsumer\"B\n\x0f\x43onsumerRequest\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\r\n\x05group\x18\x02 \x01(\t\x12\r\n\x05limit\x18\x03 \x01(\x03\"&\n\x16getAllConsumersRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"#\n\x13stopConsumerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"\'\n\x17stopAllConsumersRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\" \n\x10\x43onsumerResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\'\n\x17getAllConsumersResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"&\n\x14stopConsumerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"*\n\x18stopAllConsumersResponse\x12\x0e\n\x06result\x18\x01 \x01(\t2\xde\x02\n\rkafkaConsumer\x12\x45\n\x08\x63onsumer\x12\x19.consumer.ConsumerRequest\x1a\x1a.consumer.ConsumerResponse\"\x00\x30\x01\x12X\n\x0fgetAllConsumers\x12 .consumer.getAllConsumersRequest\x1a!.consumer.getAllConsumersResponse\"\x00\x12O\n\x0cstopConsumer\x12\x1d.consumer.stopConsumerRequest\x1a\x1e.consumer.stopConsumerResponse\"\x00\x12[\n\x10stopAllConsumers\x12!.consumer.stopAllConsumersRequest\x1a\".consumer.stopAllConsumersResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaConsumer.proto\x12\x08\x63onsumer\"X\n\x0f\x43onsumerRequest\x12\x11\n\ttopicName\x18\x01 \x01(\t\x12\r\n\x05group\x18\x02 \x01(\t\x12\r\n\x05limit\x18\x03 \x01(\x03\x12\x14\n\x0coffsetMethod\x18\x04 \x01(\t\"&\n\x16getAllConsumersRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"#\n\x13stopConsumerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"\'\n\x17stopAllConsumersRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\" \n\x10\x43onsumerResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\x0c\"\'\n\x17getAllConsumersResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"&\n\x14stopConsumerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"*\n\x18stopAllConsumersResponse\x12\x0e\n\x06result\x18\x01 \x01(\t2\xde\x02\n\rkafkaConsumer\x12\x45\n\x08\x63onsumer\x12\x19.consumer.ConsumerRequest\x1a\x1a.consumer.ConsumerResponse\"\x00\x30\x01\x12X\n\x0fgetAllConsumers\x12 .consumer.getAllConsumersRequest\x1a!.consumer.getAllConsumersResponse\"\x00\x12O\n\x0cstopConsumer\x12\x1d.consumer.stopConsumerRequest\x1a\x1e.consumer.stopConsumerResponse\"\x00\x12[\n\x10stopAllConsumers\x12!.consumer.stopAllConsumersRequest\x1a\".consumer.stopAllConsumersResponse\"\x00\x62\x06proto3')
 
 
 
@@ -87,21 +87,21 @@ if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
   _CONSUMERREQUEST._serialized_start=33
-  _CONSUMERREQUEST._serialized_end=99
-  _GETALLCONSUMERSREQUEST._serialized_start=101
-  _GETALLCONSUMERSREQUEST._serialized_end=139
-  _STOPCONSUMERREQUEST._serialized_start=141
-  _STOPCONSUMERREQUEST._serialized_end=176
-  _STOPALLCONSUMERSREQUEST._serialized_start=178
-  _STOPALLCONSUMERSREQUEST._serialized_end=217
-  _CONSUMERRESPONSE._serialized_start=219
-  _CONSUMERRESPONSE._serialized_end=251
-  _GETALLCONSUMERSRESPONSE._serialized_start=253
-  _GETALLCONSUMERSRESPONSE._serialized_end=292
-  _STOPCONSUMERRESPONSE._serialized_start=294
-  _STOPCONSUMERRESPONSE._serialized_end=332
-  _STOPALLCONSUMERSRESPONSE._serialized_start=334
-  _STOPALLCONSUMERSRESPONSE._serialized_end=376
-  _KAFKACONSUMER._serialized_start=379
-  _KAFKACONSUMER._serialized_end=729
+  _CONSUMERREQUEST._serialized_end=121
+  _GETALLCONSUMERSREQUEST._serialized_start=123
+  _GETALLCONSUMERSREQUEST._serialized_end=161
+  _STOPCONSUMERREQUEST._serialized_start=163
+  _STOPCONSUMERREQUEST._serialized_end=198
+  _STOPALLCONSUMERSREQUEST._serialized_start=200
+  _STOPALLCONSUMERSREQUEST._serialized_end=239
+  _CONSUMERRESPONSE._serialized_start=241
+  _CONSUMERRESPONSE._serialized_end=273
+  _GETALLCONSUMERSRESPONSE._serialized_start=275
+  _GETALLCONSUMERSRESPONSE._serialized_end=314
+  _STOPCONSUMERRESPONSE._serialized_start=316
+  _STOPCONSUMERRESPONSE._serialized_end=354
+  _STOPALLCONSUMERSRESPONSE._serialized_start=356
+  _STOPALLCONSUMERSRESPONSE._serialized_end=398
+  _KAFKACONSUMER._serialized_start=401
+  _KAFKACONSUMER._serialized_end=751
 # @@protoc_insertion_point(module_scope)

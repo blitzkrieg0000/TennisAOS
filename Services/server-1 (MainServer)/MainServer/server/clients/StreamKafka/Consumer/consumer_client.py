@@ -13,11 +13,11 @@ logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:
 
 class KafkaConsumerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('localhost:50032') #consumerservice
+        self.channel = grpc.insecure_channel('localhost:50032')
         self.stub = rc_grpc.kafkaConsumerStub(self.channel)
 
-    def consumer(self, topicName, groupName, limit=-1):
-        requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit)
+    def consumer(self, topicName, groupName, limit=-1, offsetMethod="earliest"):
+        requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit, offsetMethod=offsetMethod)
         return self.stub.consumer(requestData)
 
     def getAllConsumers(self):
@@ -34,3 +34,12 @@ class KafkaConsumerManager():
 
     def disconnect(self):
         self.channel.close()
+
+if "__main__" == __name__:
+
+    kcm  = KafkaConsumerManager()
+    gen = kcm.consumer(topicName="deneme", groupName="test-7", limit=-1)
+    for i,item in enumerate(gen):
+        byte_data = item.data
+        print(i,"-->",byte_data[:10])
+        time.sleep(1)

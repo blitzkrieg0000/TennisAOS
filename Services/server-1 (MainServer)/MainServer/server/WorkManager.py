@@ -69,7 +69,7 @@ class WorkManager():
             data["topicName"] = newTopicName
             processName = self.kpm.producer(EncodeManager.serialize(data))
             self.currentProcess[data['process_id']] = processName
-            time.sleep(1)
+            time.sleep(2)
 
             # TODO İLGİLİ TOPIC BAŞLAMADAN CONSUMER BAŞLAMASIN (CONSUMER IN İÇERİNDE BU KONTROLÜ YAP)
             #! 2-KAFKA_CONSUMER:

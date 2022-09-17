@@ -46,15 +46,15 @@ class MainServer(rc_grpc.MainServerServicer):
     def GetStreamingFrame(self, request, context):
         print(request.ProcessId)
         print(self.workManager.currentProcess)
-        threadName = self.workManager.currentProcess[request.ProcessId] 
-        print(threadName)
+        
+        threadName = self.workManager.currentProcess[request.ProcessId]
+    
         if isinstance(threadName, str):
-            gen = self.consumer.consumer(threadName, "UI", -1)
+            gen = self.consumer.consumer(threadName, f"Process_{request.ProcessId}_UI", -1, "latest")
             for frame_byte in gen:
                 frame_base64 = Converters.frame2base64(Converters.bytes2frame(frame_byte.data))
-                #TODO Frame Arayüz tarafından tutularak son kullanıcıya gösterilecek.
                 yield rc.GetStreamingFrameResponseData(Frame=frame_base64)
-        return rc.GetStreamingFrameResponseData(Frame=b"Frame Yok")
+        return rc.GetStreamingFrameResponseData()
 
     def StartProcess(self, request, context):
         data = self.getStreamProcess(request.ProcessId)
@@ -63,7 +63,7 @@ class MainServer(rc_grpc.MainServerServicer):
             def callback(future):
                 Repositories.markAsCompleted(self.rcm, data[0]["process_id"])
             
-            threadSubmit = self.executor.submit(self.workManager.StartGameObservationController,data[0])
+            threadSubmit = self.executor.submit(self.workManager.StartGameObservationController, data[0])
             futureIterator = futures.as_completed(threadSubmit)
             
             threadSubmit.add_done_callback(callback)

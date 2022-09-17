@@ -33,7 +33,8 @@ class MainServer(rc_grpc.TestServerServicer):
         self.counter = 0
 
     def Process(self, request, context):
-
+        print(type(request),type(context))
+        
         for x in cGen():
 
             if not context.is_active():

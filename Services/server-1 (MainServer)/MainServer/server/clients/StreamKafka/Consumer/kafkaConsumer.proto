@@ -14,6 +14,7 @@ message ConsumerRequest {
   string topicName=1;
   string group=2;
   int64 limit=3;
+  string offsetMethod=4;
 }
 message getAllConsumersRequest {
   string data=1;

@@ -16,8 +16,8 @@ class KafkaConsumerManager():
         self.channel = grpc.insecure_channel('localhost:50032')
         self.stub = rc_grpc.kafkaConsumerStub(self.channel)
 
-    def consumer(self, topicName, groupName, limit=-1):
-        requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit)
+    def consumer(self, topicName, groupName, limit=-1, offsetMethod="earliest"):
+        requestData = rc.ConsumerRequest(topicName=topicName, group=groupName, limit=limit, offsetMethod=offsetMethod)
         return self.stub.consumer(requestData)
 
     def getAllConsumers(self):
