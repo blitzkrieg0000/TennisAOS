@@ -91,7 +91,7 @@ class ProducerContextManager(object):
         self.cam.release()
         self.producerClient.flush()
 
-    def producer(self):
+    def producer(self, context):
         logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
         
         # Stream Settings
@@ -113,7 +113,7 @@ class ProducerContextManager(object):
 
         ret_limit_count=0
         limit_count=0
-        while self.stop_flag:
+        while self.stop_flag or context.is_active():
             if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count==RET_COUNT-1:
                 break
 
@@ -189,11 +189,12 @@ class KafkaProducerManager():
 
             t = multiprocessing.Process(name=args[0]["topicName"], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
-
+            t.join()
+            
             return Response(ResponseCodes.SUCCESS, f"Producer Started For: {args[0]['topicName'] }")
         return wrapper
 
     @ProducerMultiProcess
-    def startProducer(self, data) -> Response:
+    def startProducer(self, data, context) -> Response:
         with ProducerContextManager(data) as manager:
-            manager.producer()
+            manager.producer(context)

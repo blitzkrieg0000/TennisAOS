@@ -39,7 +39,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
         self.consumers[topicName] = True
         CONSUMER_GENERATOR = self.kafkaConsumerManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod=offsetMethod, limit=limit)
         for msg in CONSUMER_GENERATOR:
-            if not context.is_active() or not self.consumers[topicName]:
+            if not context.is_active() or not self.consumers.get(topicName, None):
                 CONSUMER_GENERATOR.stopGen()
                 self.__removeConsumer(topicName)
                 context.set_code(grpc.StatusCode.CANCELLED)
@@ -54,6 +54,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
         
         self.__removeConsumer(topicName)
         logging.info(f"{topicName} adlı topic için grup adı: {groupName} olan consumer tamamlandı.")
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

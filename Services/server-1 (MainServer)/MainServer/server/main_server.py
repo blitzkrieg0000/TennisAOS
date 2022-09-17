@@ -1,3 +1,4 @@
+import collections
 from concurrent.futures import thread
 import multiprocessing
 import pickle
@@ -13,6 +14,7 @@ from libs.helpers import Converters, Repositories
 from ProcessManager import ProcessManager
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
+
 MAX_WORKERS = 5
 
 def logo():
@@ -31,6 +33,7 @@ class MainServer(rc_grpc.MainServerServicer):
         self.workManager = WorkManager()
         self.executor = futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self.consumer = KafkaConsumerManager()
+        self.currentProcesses = collections.defaultdict(list)
         # self.mainProcess = multiprocessing.Process(name="MAIN_SERVER_PROCESS", target=self.MainProcess)
         # self.mainProcess.start()
         
@@ -59,12 +62,21 @@ class MainServer(rc_grpc.MainServerServicer):
     def StartProcess(self, request, context):
         data = self.getStreamProcess(request.ProcessId)
         if len(data) > 0:
+            # #! NewThread
+            # threadSubmit = self.executor.submit(self.workManager.StartGameObservationController, data[0])
+            # futureIterator = futures.as_completed(threadSubmit)
+            # threadSubmit.add_done_callback(lambda future : Repositories.markAsCompleted(self.rcm, data[0]["process_id"]))
+            
+            #? NEW
+            workManager = WorkManager()
 
-            #! NewThread
-            threadSubmit = self.executor.submit(self.workManager.StartGameObservationController, data[0])
-            futureIterator = futures.as_completed(threadSubmit)
-            threadSubmit.add_done_callback(lambda future : Repositories.markAsCompleted(self.rcm, data[0]["process_id"]))
-
+            if len(data[0])>0:
+                modified_data = workManager.Prepare(data[0])
+    
+                p = multiprocessing.Process(name=data["topicName"], target=workManager.ProducerController, args=[modified_data,])
+                p.start()
+                self.currentProcesses[request.ProcessId] = p
+            
             return rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame="")
         
         return rc.StartProcessResponseData(Message=f"{request.ProcessId} için process bulunmadı.", Data="[]")
