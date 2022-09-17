@@ -11,7 +11,7 @@ from confluent_kafka.admin import AdminClient, NewTopic
 
 from libs.consts import *
 from libs.helpers import Converters
-
+from libs.Response import Response, ResponseCodes
 
 class ProducerContextManager(object):
     def __init__(self, data):
@@ -58,7 +58,7 @@ class ProducerContextManager(object):
                         x = f.result()
                         logging.info(f"Topic {topic} created")
                     except Exception as e:
-                        logging.warning(f"Failed to create topic {topic}: {e}")
+                        logging.error(f"Failed to create topic {topic}: {e}")
 
     def __updateTopics(self, topicName):
         topics = set(self.__getTopicList())
@@ -114,7 +114,7 @@ class ProducerContextManager(object):
         ret_limit_count=0
         limit_count=0
         while self.stop_flag:
-            if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count<=RET_COUNT:
+            if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count==RET_COUNT-1:
                 break
 
             ret_val, img = self.cam.read()
@@ -128,14 +128,13 @@ class ProducerContextManager(object):
                     if self.limit > 0:
                         limit_count+=1
                 else:
-                    logging.info(f"frame2bytes convertion failed:{self.streamUrl}")
+                    logging.warning(f"Frame to Byte convertion failed:{self.streamUrl}")
                     ret_limit_count+=1
             else:
                 logging.warning(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.streamUrl}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
 
-        logging.info(f"Producer Sonlandı: <{self.topicName}>. RET_LIMIT: {ret_limit_count}/{RET_COUNT}")
-
+        logging.info(f"Producer Sonlandı: <{self.topicName}>. RET_LIMIT: {ret_limit_count}/{RET_COUNT-1}")
 
 class KafkaProducerManager():
     def __init__(self):
@@ -162,7 +161,7 @@ class KafkaProducerManager():
             logging.warning(e)
 
     def getAllProducerProcesses(self):
-        return [process.name for process in self.__getAllProceses() if process.is_alive]
+        return Response(ResponseCodes.INFO, "", [process.name for process in self.__getAllProceses() if process.is_alive])
 
     def stopProducerProcess(self, processName):
         logging.info(f"{processName} isimli process varsa durdurulmaya çalışılacak.")
@@ -170,20 +169,20 @@ class KafkaProducerManager():
         if process is not None:
             self.__stopProcess(process)
         else:
-            return "Durdurulacak böyle bir process bulunamadı."
-        return f"{processName} adlı process başarıyla durduruldu." if self.__getProcessByName(processName) is None else f"{processName} durdurulmaya çalışılıyor."
+            return Response(ResponseCodes.NOT_FOUND, "Durdurulacak böyle bir process bulunamadı.")
+        return Response(ResponseCodes.SUCCESS, f"{processName} adlı process başarıyla durduruldu." if self.__getProcessByName(processName) is None else f"{processName} durdurulmaya çalışılıyor.")
 
-    def stopAllProducerProcesses(self):
-        allProcesses = self.getAllProducerProcesses()
+    def stopAllProducerProcesses(self) -> Response:
+        allProcesses = self.__getAllProceses()
         for process in allProcesses:
             self.__stopProcess(process)
-        return f"Çalışan tüm processler durdurulacak... Çalışan process sayısı: {len(allProcesses)}"
+        return Response(ResponseCodes.INFO, f"Çalışan tüm processler durdurulacak... Çalışan process sayısı: {len(allProcesses)}")
 
-    def producer(func):
+    def ProducerMultiProcess(func):
         def wrapper(self, *args, **kwargs):
 
             if args[0]["topicName"] is None or args[0]["topicName"] == "":
-                raise ValueError("topicName cannot be empty.")
+                return Response(ResponseCodes.REQUIRED, "Topic adı boş bırakılamaz.")
             
             if args[0]["limit"] is None or args[0]["limit"] == "":
                 args[0]["limit"] = -1
@@ -191,13 +190,10 @@ class KafkaProducerManager():
             t = multiprocessing.Process(name=args[0]["topicName"], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
 
-            return f"Producer Started For: {args[0]['topicName'] }"
+            return Response(ResponseCodes.SUCCESS, f"Producer Started For: {args[0]['topicName'] }")
         return wrapper
 
-    @producer
-    def startProducer(self, data):
+    @ProducerMultiProcess
+    def startProducer(self, data) -> Response:
         with ProducerContextManager(data) as manager:
             manager.producer()
-
-
-

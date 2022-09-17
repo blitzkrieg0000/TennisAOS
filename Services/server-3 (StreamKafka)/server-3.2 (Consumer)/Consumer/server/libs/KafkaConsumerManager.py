@@ -1,17 +1,30 @@
 import logging
+from re import T
 from libs.consts import *
 from confluent_kafka import Consumer
-
+import time
 class ConsumerGen():
     def __init__(self, topics, consumerGroup, offsetMethod, limit):
         self.consumer = self.connectKafkaConsumer(consumerGroup, offsetMethod, topics)
-        self.consumer.subscribe(topics)
+        self.subscribe(topics)
         
         #FLAG && COUNTERS
         self.stopFlag = False
         self.limit = limit
         self.limit_count = 0
         self.ret_limit = 0
+    
+    def subscribe(self, topics, try_count = 10):
+        counter=0
+        while True:
+            try:
+                self.consumer.subscribe(topics)
+                break
+            except: 
+                time.sleep(1)
+                counter += 1
+                if counter > try_count:
+                    assert "Topic'e bağlanılamıyor."
 
     def connectKafkaConsumer(self, consumerGroup, offsetMethod, topics):
         return Consumer({
@@ -34,11 +47,11 @@ class ConsumerGen():
 
     def __next__(self):
         while True:
-            if (self.limit!=-1 and self.limit_count==self.limit) or (self.ret_limit>10) or self.stopFlag:
+            if (self.limit!=-1 and self.limit_count==self.limit) or (self.ret_limit>5) or self.stopFlag:
                 self.closeConnection()
                 raise StopIteration
 
-            msg = self.consumer.poll(timeout=1.0)
+            msg = self.consumer.poll(timeout=5.0)
 
             if msg is None:
                 logging.warning(f"ret limit {self.ret_limit}")

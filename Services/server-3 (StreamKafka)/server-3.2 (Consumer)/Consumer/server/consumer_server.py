@@ -47,6 +47,11 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
                 logging.warning("RPC Client Sonlandırıldığı için server-side sonlandırılıyor...")
                 return rc.ConsumerResponse()
             yield rc.ConsumerResponse(data=msg.value())
+        
+        try:
+            CONSUMER_GENERATOR.consumer.close()
+        except: pass
+        
         self.__removeConsumer(topicName)
         logging.info(f"{topicName} adlı topic için grup adı: {groupName} olan consumer tamamlandı.")
 

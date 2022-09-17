@@ -59,14 +59,12 @@ class MainServer(rc_grpc.MainServerServicer):
     def StartProcess(self, request, context):
         data = self.getStreamProcess(request.ProcessId)
         if len(data) > 0:
-            
-            def callback(future):
-                Repositories.markAsCompleted(self.rcm, data[0]["process_id"])
-            
+
+            #! NewThread
             threadSubmit = self.executor.submit(self.workManager.StartGameObservationController, data[0])
             futureIterator = futures.as_completed(threadSubmit)
-            
-            threadSubmit.add_done_callback(callback)
+            threadSubmit.add_done_callback(lambda future : Repositories.markAsCompleted(self.rcm, data[0]["process_id"]))
+
             return rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame="")
         
         return rc.StartProcessResponseData(Message=f"{request.ProcessId} için process bulunmadı.", Data="[]")
