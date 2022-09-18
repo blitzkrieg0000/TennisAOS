@@ -19,8 +19,8 @@ class KafkaProducerManager():
 
     def producer(self, data):
         requestData = rc.producerRequest(data=EncodeManager.serialize(data))
-        response = self.stub.producer(requestData)
-        return response.process_name
+        responseIterator = self.stub.producer(requestData)
+        return responseIterator
 
     def getAllProducerProcesses(self):
         requestData = rc.getAllProducerProcessesRequest(data="")

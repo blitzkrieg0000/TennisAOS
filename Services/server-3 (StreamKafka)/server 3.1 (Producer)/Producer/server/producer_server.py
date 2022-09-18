@@ -1,4 +1,5 @@
 import logging
+import multiprocessing
 import pickle
 from concurrent import futures
 
@@ -20,15 +21,13 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
 
     def producer(self, request, context):
         requestData = EncodeManager.deserialize(request.data)
-        response = self.kafkaProducerManager.startProducer(requestData)
+        qq = multiprocessing.Queue()
+        response = self.kafkaProducerManager.startProducer(requestData, qq)
 
-        if(response.code==ResponseCodes.SUCCESS):
-            responseData = rc.producerResponse(result=response.data, process_name=requestData["topicName"])
-        else:
-            context.set_code(grpc.StatusCode.CANCELLED)
-            context.set_details('Başarısız.')
-            return rc.producerResponse()
-        return responseData
+        while context.is_active():
+            frame = qq.get(block=True)
+            yield rc.producerResponse(result=response.data, process_name=requestData["topicName"], frame=frame)
+
 
     def getAllProducerProcesses(self, request, context):
         response = self.kafkaProducerManager.getAllProducerProcesses()

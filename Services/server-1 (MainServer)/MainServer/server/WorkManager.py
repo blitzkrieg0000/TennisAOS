@@ -57,9 +57,9 @@ class WorkManager():
         data["topicName"] = newTopicName
 
         #! 1-KAFKA_PRODUCER:
-        response = self.kpm.producer(EncodeManager.serialize(data))
+        responseIterator = self.kpm.producer(data)
 
-        return data
+        return data, responseIterator
 
     def ProducerController(self, data):
         resultData = {}

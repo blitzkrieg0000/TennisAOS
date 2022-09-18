@@ -3,6 +3,7 @@ import pickle
 import grpc
 import clients.StreamKafka.Producer.kafkaProducer_pb2 as rc
 import clients.StreamKafka.Producer.kafkaProducer_pb2_grpc as rc_grpc
+from libs.helpers import EncodeManager
 
 
 class KafkaProducerManager():
@@ -17,9 +18,9 @@ class KafkaProducerManager():
         return pickle.loads(bytes)
 
     def producer(self, data):
-        requestData = rc.producerRequest(data=data)
-        response = self.stub.producer(requestData)
-        return response.process_name
+        requestData = rc.producerRequest(data=EncodeManager.serialize(data))
+        responseIterator = self.stub.producer(requestData)
+        return responseIterator
 
     def getAllProducerProcesses(self):
         requestData = rc.getAllProducerProcessesRequest(data="")
@@ -38,3 +39,14 @@ class KafkaProducerManager():
     
     def disconnect(self):
         self.channel.close()
+
+
+if "__main__" == __name__:
+    client = KafkaProducerManager()
+    data = {}
+    data["topicName"] = "deneme"
+    data["streamUrl"] = "/assets/en_yeni.mp4"
+    data["is_video"] = True
+    data["limit"] = -1
+
+    client.producer(data)

@@ -46,21 +46,20 @@ class MainServer(rc_grpc.MainServerServicer):
         raw = self.getStreamProcess(request.ProcessId)
         if len(raw) > 0:
             data = raw[0]
-            data = self.workManager.Prepare(data)
-
+            data, responseIterator = self.workManager.Prepare(data)
+            
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
             t.start()
             
             topicName = data["topicName"]
             self.currentThreads[request.ProcessId] = topicName
 
-            if isinstance(topicName, str):
-                gen = self.consumer.consumer(topicName, f"Process_{request.ProcessId}_UI", -1, "latest")
-                for frame_byte in gen:
-                    if not context.is_active():
-                        break
-                    frame_base64 = Converters.frame2base64(Converters.bytes2frame(frame_byte.data))
-                    yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+            for response in responseIterator:
+                if not context.is_active():
+                    break
+                frame_base64 = Converters.frame2base64(Converters.bytes2frame(response.frame))
+                yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+                print(frame_base64[:10])
 
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])

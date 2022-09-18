@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaProducer.proto\x12\x08producer\"\x1f\n\x0fproducerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\".\n\x1egetAllProducerProcessesRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"+\n\x13stopProducerRequest\x12\x14\n\x0cprocess_name\x18\x01 \x01(\t\"/\n\x1fstopAllProducerProcessesRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"8\n\x10producerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\x12\x14\n\x0cprocess_name\x18\x02 \x01(\t\"/\n\x1fgetAllProducerProcessesResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"&\n\x14stopProducerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"2\n stopAllProducerProcessesResponse\x12\x0e\n\x06result\x18\x01 \x01(\t2\x8c\x03\n\rkafkaProducer\x12\x43\n\x08producer\x12\x19.producer.producerRequest\x1a\x1a.producer.producerResponse\"\x00\x12p\n\x17getAllProducerProcesses\x12(.producer.getAllProducerProcessesRequest\x1a).producer.getAllProducerProcessesResponse\"\x00\x12O\n\x0cstopProducer\x12\x1d.producer.stopProducerRequest\x1a\x1e.producer.stopProducerResponse\"\x00\x12s\n\x18stopAllProducerProcesses\x12).producer.stopAllProducerProcessesRequest\x1a*.producer.stopAllProducerProcessesResponse\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13kafkaProducer.proto\x12\x08producer\"\x1f\n\x0fproducerRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\".\n\x1egetAllProducerProcessesRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"+\n\x13stopProducerRequest\x12\x14\n\x0cprocess_name\x18\x01 \x01(\t\"/\n\x1fstopAllProducerProcessesRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"G\n\x10producerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\x12\x14\n\x0cprocess_name\x18\x02 \x01(\t\x12\r\n\x05\x66rame\x18\x03 \x01(\x0c\"/\n\x1fgetAllProducerProcessesResponse\x12\x0c\n\x04\x64\x61ta\x18\x01 \x01(\t\"&\n\x14stopProducerResponse\x12\x0e\n\x06result\x18\x01 \x01(\t\"2\n stopAllProducerProcessesResponse\x12\x0e\n\x06result\x18\x01 \x01(\t2\x8e\x03\n\rkafkaProducer\x12\x45\n\x08producer\x12\x19.producer.producerRequest\x1a\x1a.producer.producerResponse\"\x00\x30\x01\x12p\n\x17getAllProducerProcesses\x12(.producer.getAllProducerProcessesRequest\x1a).producer.getAllProducerProcessesResponse\"\x00\x12O\n\x0cstopProducer\x12\x1d.producer.stopProducerRequest\x1a\x1e.producer.stopProducerResponse\"\x00\x12s\n\x18stopAllProducerProcesses\x12).producer.stopAllProducerProcessesRequest\x1a*.producer.stopAllProducerProcessesResponse\"\x00\x62\x06proto3')
 
 
 
@@ -95,13 +95,13 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _STOPALLPRODUCERPROCESSESREQUEST._serialized_start=159
   _STOPALLPRODUCERPROCESSESREQUEST._serialized_end=206
   _PRODUCERRESPONSE._serialized_start=208
-  _PRODUCERRESPONSE._serialized_end=264
-  _GETALLPRODUCERPROCESSESRESPONSE._serialized_start=266
-  _GETALLPRODUCERPROCESSESRESPONSE._serialized_end=313
-  _STOPPRODUCERRESPONSE._serialized_start=315
-  _STOPPRODUCERRESPONSE._serialized_end=353
-  _STOPALLPRODUCERPROCESSESRESPONSE._serialized_start=355
-  _STOPALLPRODUCERPROCESSESRESPONSE._serialized_end=405
-  _KAFKAPRODUCER._serialized_start=408
-  _KAFKAPRODUCER._serialized_end=804
+  _PRODUCERRESPONSE._serialized_end=279
+  _GETALLPRODUCERPROCESSESRESPONSE._serialized_start=281
+  _GETALLPRODUCERPROCESSESRESPONSE._serialized_end=328
+  _STOPPRODUCERRESPONSE._serialized_start=330
+  _STOPPRODUCERRESPONSE._serialized_end=368
+  _STOPALLPRODUCERPROCESSESRESPONSE._serialized_start=370
+  _STOPALLPRODUCERPROCESSESRESPONSE._serialized_end=420
+  _KAFKAPRODUCER._serialized_start=423
+  _KAFKAPRODUCER._serialized_end=821
 # @@protoc_insertion_point(module_scope)

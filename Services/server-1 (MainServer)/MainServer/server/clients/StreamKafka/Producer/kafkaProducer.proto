@@ -4,7 +4,7 @@ package producer;
 
 // Service
 service kafkaProducer {
-  rpc producer(producerRequest) returns (producerResponse) {}
+  rpc producer(producerRequest) returns (stream producerResponse) {}
   rpc getAllProducerProcesses(getAllProducerProcessesRequest) returns (getAllProducerProcessesResponse) {}
   rpc stopProducer(stopProducerRequest) returns (stopProducerResponse) {}
   rpc stopAllProducerProcesses(stopAllProducerProcessesRequest) returns (stopAllProducerProcessesResponse) {}
@@ -30,6 +30,7 @@ message stopAllProducerProcessesRequest{
 message producerResponse{
   string result=1;
   string process_name=2;
+  bytes frame=3;
 }
 message getAllProducerProcessesResponse{
   string data=1;
