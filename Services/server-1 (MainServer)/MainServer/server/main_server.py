@@ -3,6 +3,7 @@ from concurrent.futures import thread
 import multiprocessing
 import pickle
 from concurrent import futures
+import threading
 
 import grpc
 
@@ -29,7 +30,7 @@ class MainServer(rc_grpc.MainServerServicer):
         self.rcm = RedisCacheManager()
         self.workManager = WorkManager()
         self.consumer = KafkaConsumerManager()
-        self.currentProcesses = collections.defaultdict(list)
+        self.currentThreads = collections.defaultdict(list)
 
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
@@ -42,33 +43,35 @@ class MainServer(rc_grpc.MainServerServicer):
 
     def StartProcess(self, request, context):
         print("Başladı")
-        data = self.getStreamProcess(request.ProcessId)
-        if len(data) > 0:
+        raw = self.getStreamProcess(request.ProcessId)
+        if len(raw) > 0:
+            data = raw[0]
+            data = self.workManager.Prepare(data)
 
-            if len(data[0])>0:
-                modified_data = self.workManager.Prepare(data[0])
-                # p = multiprocessing.Process(name=modified_data["topicName"], target=self.workManager.ProducerController, args=[modified_data,])
-                # p.start()
-                # self.currentProcesses[request.ProcessId] = p
+            t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
+            t.start()
+            
+            topicName = data["topicName"]
+            self.currentThreads[request.ProcessId] = topicName
 
-                topicName = modified_data["topicName"]
-                if isinstance(topicName, str):
-                    gen = self.consumer.consumer(topicName, f"Process_{request.ProcessId}_UI", -1, "earliest")
-                    for frame_byte in gen:
-                        if not context.is_active():
-                            break
-                        frame_base64 = Converters.frame2base64(Converters.bytes2frame(frame_byte.data))
-                        yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+            if isinstance(topicName, str):
+                gen = self.consumer.consumer(topicName, f"Process_{request.ProcessId}_UI", -1, "latest")
+                for frame_byte in gen:
+                    if not context.is_active():
+                        break
+                    frame_base64 = Converters.frame2base64(Converters.bytes2frame(frame_byte.data))
+                    yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
 
-            # p.join()
-        print("BİTTİ")
+            t.join()
+            Repositories.markAsCompleted(self.rcm, data["process_id"])
+            
+        print(f"BİTTİ {data['process_id']}")
     
     def StopProcess(self, request, context):
-        ProcessName = self.workManager.currentProcess.get(request.ProcessId, None)
+        ProcessName = self.currentThreads.get(request.ProcessId, None)
         if ProcessName is not None:
             response = self.workManager.stopProducer(ProcessName)
             return rc.StopProcessResponseData(Message=response, flag = True)
-        
         return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
 
     def MainProcess(self):

@@ -23,7 +23,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
         return rc.getAllConsumersResponse(data=EncodeManager.serialize(list(self.consumers.keys())))
 
     def stopConsumer(self, request, context):
-        self.consumer[request.data] = False
+        self.consumers[request.data] = False
 
     def stopAllConsumers(self, request, context):
         for keys in self.consumers.keys(): self.consumers[keys] = False
@@ -36,10 +36,10 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
 
         if topicName is None or topicName != "": assert "Topic adı boş olamaz."
 
-        self.consumers[topicName] = True
+        self.consumers[topicName+groupName] = True
         CONSUMER_GENERATOR = self.kafkaConsumerManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod=offsetMethod, limit=limit)
         for msg in CONSUMER_GENERATOR:
-            if not context.is_active() or not self.consumers.get(topicName, None):
+            if not self.consumers.get(topicName+groupName, None): #not context.is_active() or 
                 CONSUMER_GENERATOR.stopGen()
                 self.__removeConsumer(topicName)
                 context.set_code(grpc.StatusCode.CANCELLED)
@@ -47,7 +47,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
                 logging.warning("RPC Client Sonlandırıldığı için server-side sonlandırılıyor...")
                 return rc.ConsumerResponse()
             yield rc.ConsumerResponse(data=msg.value())
-        
+
         try:
             CONSUMER_GENERATOR.consumer.close()
         except: pass

@@ -54,9 +54,9 @@ class WorkManager():
     def Prepare(self, data):
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
         res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName) 
+        data["topicName"] = newTopicName
 
         #! 1-KAFKA_PRODUCER:
-        data["topicName"] = newTopicName
         response = self.kpm.producer(EncodeManager.serialize(data))
 
         return data
@@ -138,7 +138,7 @@ class WorkManager():
         Repositories.saveProcessData(self.rcm, resultData)
         Repositories.savePlayingData(self.rcm, resultData)
 
-        Repositories.markAsCompleted(self.rcm, data["process_id"])
+        
 
         # CreateResponse
         return resultData
