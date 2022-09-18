@@ -1,5 +1,6 @@
 import collections
 from concurrent import futures
+import threading
 import time
 import numpy as np
 
@@ -26,8 +27,6 @@ class WorkManager():
         self.tbc = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
-        
-        
         
     #! Main Server
     # Manage Producer----------------------------------------------------------
@@ -58,9 +57,7 @@ class WorkManager():
 
         #! 1-KAFKA_PRODUCER:
         data["topicName"] = newTopicName
-        executor = futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
-        threadSubmit = executor.submit(self.kpm.producer, EncodeManager.serialize(data))
-        futureIterator = futures.as_completed(threadSubmit)
+        response = self.kpm.producer(EncodeManager.serialize(data))
 
         return data
 

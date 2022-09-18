@@ -15,8 +15,6 @@ from ProcessManager import ProcessManager
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
 
-MAX_WORKERS = 5
-
 def logo():
     f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
     logo = f.read()
@@ -29,14 +27,10 @@ class MainServer(rc_grpc.MainServerServicer):
     def __init__(self):
         super().__init__()
         self.rcm = RedisCacheManager()
-        self.processes = multiprocessing.Manager().dict() #SHARED MEMORY OBJECT0
         self.workManager = WorkManager()
-        self.executor = futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self.consumer = KafkaConsumerManager()
         self.currentProcesses = collections.defaultdict(list)
-        # self.mainProcess = multiprocessing.Process(name="MAIN_SERVER_PROCESS", target=self.MainProcess)
-        # self.mainProcess.start()
-        
+
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
 
@@ -46,40 +40,28 @@ class MainServer(rc_grpc.MainServerServicer):
     def getStreamProcess(self, id):
         return Repositories.getProcessRelatedById(self.rcm, id)
 
-    def GetStreamingFrame(self, request, context):
-        print(request.ProcessId)
-        print(self.workManager.currentProcess)
-        
-        threadName = self.workManager.currentProcess[request.ProcessId]
-    
-        if isinstance(threadName, str):
-            gen = self.consumer.consumer(threadName, f"Process_{request.ProcessId}_UI", -1, "latest")
-            for frame_byte in gen:
-                frame_base64 = Converters.frame2base64(Converters.bytes2frame(frame_byte.data))
-                yield rc.GetStreamingFrameResponseData(Frame=frame_base64)
-        return rc.GetStreamingFrameResponseData()
-
     def StartProcess(self, request, context):
+        print("Başladı")
         data = self.getStreamProcess(request.ProcessId)
         if len(data) > 0:
-            # #! NewThread
-            # threadSubmit = self.executor.submit(self.workManager.StartGameObservationController, data[0])
-            # futureIterator = futures.as_completed(threadSubmit)
-            # threadSubmit.add_done_callback(lambda future : Repositories.markAsCompleted(self.rcm, data[0]["process_id"]))
-            
-            #? NEW
-            workManager = WorkManager()
 
             if len(data[0])>0:
-                modified_data = workManager.Prepare(data[0])
-    
-                p = multiprocessing.Process(name=data["topicName"], target=workManager.ProducerController, args=[modified_data,])
-                p.start()
-                self.currentProcesses[request.ProcessId] = p
-            
-            return rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame="")
-        
-        return rc.StartProcessResponseData(Message=f"{request.ProcessId} için process bulunmadı.", Data="[]")
+                modified_data = self.workManager.Prepare(data[0])
+                # p = multiprocessing.Process(name=modified_data["topicName"], target=self.workManager.ProducerController, args=[modified_data,])
+                # p.start()
+                # self.currentProcesses[request.ProcessId] = p
+
+                topicName = modified_data["topicName"]
+                if isinstance(topicName, str):
+                    gen = self.consumer.consumer(topicName, f"Process_{request.ProcessId}_UI", -1, "earliest")
+                    for frame_byte in gen:
+                        if not context.is_active():
+                            break
+                        frame_base64 = Converters.frame2base64(Converters.bytes2frame(frame_byte.data))
+                        yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+
+            # p.join()
+        print("BİTTİ")
     
     def StopProcess(self, request, context):
         ProcessName = self.workManager.currentProcess.get(request.ProcessId, None)

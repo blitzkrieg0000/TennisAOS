@@ -1,8 +1,11 @@
 import logging
-from re import T
-from libs.consts import *
-from confluent_kafka import Consumer
 import time
+
+from confluent_kafka import Consumer
+
+from libs.consts import *
+
+
 class ConsumerGen():
     def __init__(self, topics, consumerGroup, offsetMethod, limit):
         self.consumer = self.connectKafkaConsumer(consumerGroup, offsetMethod, topics)
@@ -14,7 +17,7 @@ class ConsumerGen():
         self.limit_count = 0
         self.ret_limit = 0
     
-    def subscribe(self, topics, try_count = 10):
+    def subscribe(self, topics, try_count = 5):
         counter=0
         while True:
             try:

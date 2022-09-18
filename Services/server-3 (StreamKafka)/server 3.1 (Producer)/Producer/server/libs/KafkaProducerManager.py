@@ -35,6 +35,19 @@ class ProducerContextManager(object):
         #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
             pass
 
+    def __deleteAllTopics(self):
+        topic_list = self.__getTopicList()
+        delete_topic_list = []
+        [delete_topic_list.append(item) for item in topic_list if item != "__consumer_offsets"]
+        if len(delete_topic_list)>0:
+            fs = self.adminConfluent.delete_topics(delete_topic_list)
+            for topic, f in fs.items():
+                try:
+                    f.result()
+                    print("Topic {} deleted".format(topic))
+                except Exception as e:
+                    print("Failed to delete topic {}: {}".format(topic, e))
+
     def __getTopicList(self):
         topicList = []
         try: topicList = self.adminConfluent.list_topics().topics.keys()
@@ -91,11 +104,10 @@ class ProducerContextManager(object):
         self.cam.release()
         self.producerClient.flush()
 
-    def producer(self, context):
+    def producer(self):
         logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
         
         # Stream Settings
-        logging.warning(os.access(self.streamUrl, mode=0))
         if self.is_video and not os.access(self.streamUrl, mode=0):
             raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
 
@@ -109,12 +121,14 @@ class ProducerContextManager(object):
         self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
         
         # Create Topic if not exist
+        self.__deleteAllTopics()
+
         self.__updateTopics(self.topicName)
 
         ret_limit_count=0
         limit_count=0
-        while self.stop_flag or context.is_active():
-            if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count==RET_COUNT-1:
+        while self.stop_flag:
+            if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count<=RET_COUNT-1:
                 break
 
             ret_val, img = self.cam.read()
@@ -195,6 +209,6 @@ class KafkaProducerManager():
         return wrapper
 
     @ProducerMultiProcess
-    def startProducer(self, data, context) -> Response:
+    def startProducer(self, data) -> Response:
         with ProducerContextManager(data) as manager:
-            manager.producer(context)
+            manager.producer()

@@ -15,7 +15,7 @@ class MainServerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.StartProcess = channel.unary_unary(
+        self.StartProcess = channel.unary_stream(
                 '/main.MainServer/StartProcess',
                 request_serializer=MainServer__pb2.StartProcessRequestData.SerializeToString,
                 response_deserializer=MainServer__pb2.StartProcessResponseData.FromString,
@@ -24,11 +24,6 @@ class MainServerStub(object):
                 '/main.MainServer/StopProcess',
                 request_serializer=MainServer__pb2.StopProcessRequestData.SerializeToString,
                 response_deserializer=MainServer__pb2.StopProcessResponseData.FromString,
-                )
-        self.GetStreamingFrame = channel.unary_stream(
-                '/main.MainServer/GetStreamingFrame',
-                request_serializer=MainServer__pb2.GetStreamingFrameRequestData.SerializeToString,
-                response_deserializer=MainServer__pb2.GetStreamingFrameResponseData.FromString,
                 )
 
 
@@ -48,16 +43,10 @@ class MainServerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetStreamingFrame(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
 
 def add_MainServerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'StartProcess': grpc.unary_unary_rpc_method_handler(
+            'StartProcess': grpc.unary_stream_rpc_method_handler(
                     servicer.StartProcess,
                     request_deserializer=MainServer__pb2.StartProcessRequestData.FromString,
                     response_serializer=MainServer__pb2.StartProcessResponseData.SerializeToString,
@@ -66,11 +55,6 @@ def add_MainServerServicer_to_server(servicer, server):
                     servicer.StopProcess,
                     request_deserializer=MainServer__pb2.StopProcessRequestData.FromString,
                     response_serializer=MainServer__pb2.StopProcessResponseData.SerializeToString,
-            ),
-            'GetStreamingFrame': grpc.unary_stream_rpc_method_handler(
-                    servicer.GetStreamingFrame,
-                    request_deserializer=MainServer__pb2.GetStreamingFrameRequestData.FromString,
-                    response_serializer=MainServer__pb2.GetStreamingFrameResponseData.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -94,7 +78,7 @@ class MainServer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/main.MainServer/StartProcess',
+        return grpc.experimental.unary_stream(request, target, '/main.MainServer/StartProcess',
             MainServer__pb2.StartProcessRequestData.SerializeToString,
             MainServer__pb2.StartProcessResponseData.FromString,
             options, channel_credentials,
@@ -114,22 +98,5 @@ class MainServer(object):
         return grpc.experimental.unary_unary(request, target, '/main.MainServer/StopProcess',
             MainServer__pb2.StopProcessRequestData.SerializeToString,
             MainServer__pb2.StopProcessResponseData.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetStreamingFrame(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/main.MainServer/GetStreamingFrame',
-            MainServer__pb2.GetStreamingFrameRequestData.SerializeToString,
-            MainServer__pb2.GetStreamingFrameResponseData.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

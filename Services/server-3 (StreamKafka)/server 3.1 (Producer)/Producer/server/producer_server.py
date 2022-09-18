@@ -20,7 +20,8 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
 
     def producer(self, request, context):
         requestData = EncodeManager.deserialize(request.data)
-        response = self.kafkaProducerManager.startProducer(requestData, context)
+        response = self.kafkaProducerManager.startProducer(requestData)
+
         if(response.code==ResponseCodes.SUCCESS):
             responseData = rc.producerResponse(result=response.data, process_name=requestData["topicName"])
         else:

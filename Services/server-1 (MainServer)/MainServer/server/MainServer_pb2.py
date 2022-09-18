@@ -14,16 +14,14 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10MainServer.proto\x12\x04main\",\n\x17StartProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"+\n\x16StopProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"1\n\x1cGetStreamingFrameRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"H\n\x18StartProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x44\x61ta\x18\x02 \x01(\t\x12\r\n\x05\x46rame\x18\x03 \x01(\t\"8\n\x17StopProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x66lag\x18\x02 \x01(\x08\".\n\x1dGetStreamingFrameResponseData\x12\r\n\x05\x46rame\x18\x01 \x01(\t2\x8d\x02\n\nMainServer\x12O\n\x0cStartProcess\x12\x1d.main.StartProcessRequestData\x1a\x1e.main.StartProcessResponseData\"\x00\x12L\n\x0bStopProcess\x12\x1c.main.StopProcessRequestData\x1a\x1d.main.StopProcessResponseData\"\x00\x12`\n\x11GetStreamingFrame\x12\".main.GetStreamingFrameRequestData\x1a#.main.GetStreamingFrameResponseData\"\x00\x30\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10MainServer.proto\x12\x04main\",\n\x17StartProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"+\n\x16StopProcessRequestData\x12\x11\n\tProcessId\x18\x01 \x01(\x01\"H\n\x18StartProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x44\x61ta\x18\x02 \x01(\t\x12\r\n\x05\x46rame\x18\x03 \x01(\t\"8\n\x17StopProcessResponseData\x12\x0f\n\x07Message\x18\x01 \x01(\t\x12\x0c\n\x04\x66lag\x18\x02 \x01(\x08\x32\xad\x01\n\nMainServer\x12Q\n\x0cStartProcess\x12\x1d.main.StartProcessRequestData\x1a\x1e.main.StartProcessResponseData\"\x00\x30\x01\x12L\n\x0bStopProcess\x12\x1c.main.StopProcessRequestData\x1a\x1d.main.StopProcessResponseData\"\x00\x62\x06proto3')
 
 
 
 _STARTPROCESSREQUESTDATA = DESCRIPTOR.message_types_by_name['StartProcessRequestData']
 _STOPPROCESSREQUESTDATA = DESCRIPTOR.message_types_by_name['StopProcessRequestData']
-_GETSTREAMINGFRAMEREQUESTDATA = DESCRIPTOR.message_types_by_name['GetStreamingFrameRequestData']
 _STARTPROCESSRESPONSEDATA = DESCRIPTOR.message_types_by_name['StartProcessResponseData']
 _STOPPROCESSRESPONSEDATA = DESCRIPTOR.message_types_by_name['StopProcessResponseData']
-_GETSTREAMINGFRAMERESPONSEDATA = DESCRIPTOR.message_types_by_name['GetStreamingFrameResponseData']
 StartProcessRequestData = _reflection.GeneratedProtocolMessageType('StartProcessRequestData', (_message.Message,), {
   'DESCRIPTOR' : _STARTPROCESSREQUESTDATA,
   '__module__' : 'MainServer_pb2'
@@ -37,13 +35,6 @@ StopProcessRequestData = _reflection.GeneratedProtocolMessageType('StopProcessRe
   # @@protoc_insertion_point(class_scope:main.StopProcessRequestData)
   })
 _sym_db.RegisterMessage(StopProcessRequestData)
-
-GetStreamingFrameRequestData = _reflection.GeneratedProtocolMessageType('GetStreamingFrameRequestData', (_message.Message,), {
-  'DESCRIPTOR' : _GETSTREAMINGFRAMEREQUESTDATA,
-  '__module__' : 'MainServer_pb2'
-  # @@protoc_insertion_point(class_scope:main.GetStreamingFrameRequestData)
-  })
-_sym_db.RegisterMessage(GetStreamingFrameRequestData)
 
 StartProcessResponseData = _reflection.GeneratedProtocolMessageType('StartProcessResponseData', (_message.Message,), {
   'DESCRIPTOR' : _STARTPROCESSRESPONSEDATA,
@@ -59,13 +50,6 @@ StopProcessResponseData = _reflection.GeneratedProtocolMessageType('StopProcessR
   })
 _sym_db.RegisterMessage(StopProcessResponseData)
 
-GetStreamingFrameResponseData = _reflection.GeneratedProtocolMessageType('GetStreamingFrameResponseData', (_message.Message,), {
-  'DESCRIPTOR' : _GETSTREAMINGFRAMERESPONSEDATA,
-  '__module__' : 'MainServer_pb2'
-  # @@protoc_insertion_point(class_scope:main.GetStreamingFrameResponseData)
-  })
-_sym_db.RegisterMessage(GetStreamingFrameResponseData)
-
 _MAINSERVER = DESCRIPTOR.services_by_name['MainServer']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
@@ -74,14 +58,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _STARTPROCESSREQUESTDATA._serialized_end=70
   _STOPPROCESSREQUESTDATA._serialized_start=72
   _STOPPROCESSREQUESTDATA._serialized_end=115
-  _GETSTREAMINGFRAMEREQUESTDATA._serialized_start=117
-  _GETSTREAMINGFRAMEREQUESTDATA._serialized_end=166
-  _STARTPROCESSRESPONSEDATA._serialized_start=168
-  _STARTPROCESSRESPONSEDATA._serialized_end=240
-  _STOPPROCESSRESPONSEDATA._serialized_start=242
-  _STOPPROCESSRESPONSEDATA._serialized_end=298
-  _GETSTREAMINGFRAMERESPONSEDATA._serialized_start=300
-  _GETSTREAMINGFRAMERESPONSEDATA._serialized_end=346
-  _MAINSERVER._serialized_start=349
-  _MAINSERVER._serialized_end=618
+  _STARTPROCESSRESPONSEDATA._serialized_start=117
+  _STARTPROCESSRESPONSEDATA._serialized_end=189
+  _STOPPROCESSRESPONSEDATA._serialized_start=191
+  _STOPPROCESSRESPONSEDATA._serialized_end=247
+  _MAINSERVER._serialized_start=250
+  _MAINSERVER._serialized_end=423
 # @@protoc_insertion_point(module_scope)
