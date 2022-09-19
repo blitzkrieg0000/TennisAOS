@@ -13,6 +13,7 @@ from libs.consts import *
 from libs.helpers import Converters
 from libs.Response import Response, ResponseCodes
 
+
 class ProducerContextManager(object):
     def __init__(self, data):
         logging.info(data)
@@ -136,7 +137,8 @@ class ProducerContextManager(object):
                 encodedImg = []
                 encodedImg = Converters.frame2bytes(img)
                 if encodedImg is not None:
-                    qq.put(encodedImg)
+                    qq.put(encodedImg, block=True, timeout=120.0)
+                    logging.error("Yeni block eklendi! ")
                     self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
                     self.producerClient.poll(0)
                     ret_limit_count=0

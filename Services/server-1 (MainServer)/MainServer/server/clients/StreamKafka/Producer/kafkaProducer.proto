@@ -4,7 +4,7 @@ package producer;
 
 // Service
 service kafkaProducer {
-  rpc producer(producerRequest) returns (stream producerResponse) {}
+  rpc producer(stream producerRequest) returns (stream producerResponse) {}
   rpc getAllProducerProcesses(getAllProducerProcessesRequest) returns (getAllProducerProcessesResponse) {}
   rpc stopProducer(stopProducerRequest) returns (stopProducerResponse) {}
   rpc stopAllProducerProcesses(stopAllProducerProcessesRequest) returns (stopAllProducerProcessesResponse) {}

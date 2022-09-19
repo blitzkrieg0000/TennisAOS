@@ -1,5 +1,6 @@
 from __future__ import print_function
 import pickle
+import queue
 import grpc
 import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
@@ -18,9 +19,14 @@ class KafkaProducerManager():
         return pickle.loads(bytes)
 
     def producer(self, data):
+
         requestData = rc.producerRequest(data=EncodeManager.serialize(data))
+        send_queue = queue.SimpleQueue()
+        responseIterator = self.stub.producer(iter(send_queue.get, None))
         responseIterator = self.stub.producer(requestData)
-        return responseIterator
+        send_queue.put(requestData)
+        emptyRequest = rc.producerRequest(data="")
+        return send_queue, emptyRequest, responseIterator
 
     def getAllProducerProcesses(self):
         requestData = rc.getAllProducerProcessesRequest(data="")

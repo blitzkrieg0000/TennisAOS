@@ -1,6 +1,4 @@
 import collections
-from concurrent.futures import thread
-import multiprocessing
 import pickle
 from concurrent import futures
 import threading
@@ -15,6 +13,7 @@ from libs.helpers import Converters, Repositories
 from ProcessManager import ProcessManager
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
+
 
 def logo():
     f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
@@ -46,21 +45,28 @@ class MainServer(rc_grpc.MainServerServicer):
         raw = self.getStreamProcess(request.ProcessId)
         if len(raw) > 0:
             data = raw[0]
-            data, responseIterator = self.workManager.Prepare(data)
-            
+            data, send_queue, emptyRequest, responseIterator = self.workManager.Prepare(data)
+
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
             t.start()
             
             topicName = data["topicName"]
             self.currentThreads[request.ProcessId] = topicName
 
-            for response in responseIterator:
-                if not context.is_active():
-                    break
-                frame_base64 = Converters.frame2base64(Converters.bytes2frame(response.frame))
-                yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
-                print(frame_base64[:10])
+            try:
+                for response in responseIterator:
+                    if not context.is_active():
+                        break
+                    frame_base64 = Converters.frame2base64(Converters.bytes2frame(response.frame))
+                    
+                    yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+                    send_queue.put(emptyRequest)
+                    
+                    print(frame_base64[:10])
+            except:
+                print("iterator dan çıktı.")
 
+            print("Ana işlemin bitmesi bekleniyor...")
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])
             

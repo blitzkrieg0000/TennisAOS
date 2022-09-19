@@ -1,10 +1,6 @@
-import collections
-from concurrent import futures
-import threading
-import time
+import queue
 import numpy as np
 
-import MainServer_pb2 as rc
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
@@ -57,9 +53,9 @@ class WorkManager():
         data["topicName"] = newTopicName
 
         #! 1-KAFKA_PRODUCER:
-        responseIterator = self.kpm.producer(data)
+        send_queue, emptyRequest, responseIterator = self.kpm.producer(data)
 
-        return data, responseIterator
+        return data, send_queue, emptyRequest, responseIterator
 
     def ProducerController(self, data):
         resultData = {}

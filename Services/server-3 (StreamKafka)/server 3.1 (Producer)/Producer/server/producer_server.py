@@ -1,6 +1,5 @@
 import logging
 import multiprocessing
-import pickle
 from concurrent import futures
 
 import grpc
@@ -9,7 +8,7 @@ import kafkaProducer_pb2 as rc
 import kafkaProducer_pb2_grpc as rc_grpc
 from libs.helpers import EncodeManager
 from libs.KafkaProducerManager import KafkaProducerManager
-from libs.Response import Response, ResponseCodes
+from libs.Response import ResponseCodes
 
 logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
@@ -19,13 +18,16 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
         super().__init__()
         self.kafkaProducerManager = KafkaProducerManager()
 
-    def producer(self, request, context):
+    def producer(self, requestIter, context):
+        request = next(requestIter)
         requestData = EncodeManager.deserialize(request.data)
-        qq = multiprocessing.Queue()
+        qq = multiprocessing.Queue(maxsize=1)
         response = self.kafkaProducerManager.startProducer(requestData, qq)
 
         while context.is_active():
-            frame = qq.get(block=True)
+            request = next(requestIter)
+            frame = qq.get(block=True, timeout=120.0)
+            logging.error("Yeni block okundu.")
             yield rc.producerResponse(result=response.data, process_name=requestData["topicName"], frame=frame)
 
 

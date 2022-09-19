@@ -15,7 +15,7 @@ class kafkaProducerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.producer = channel.unary_stream(
+        self.producer = channel.stream_stream(
                 '/producer.kafkaProducer/producer',
                 request_serializer=kafkaProducer__pb2.producerRequest.SerializeToString,
                 response_deserializer=kafkaProducer__pb2.producerResponse.FromString,
@@ -41,7 +41,7 @@ class kafkaProducerServicer(object):
     """Service
     """
 
-    def producer(self, request, context):
+    def producer(self, request_iterator, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -68,7 +68,7 @@ class kafkaProducerServicer(object):
 
 def add_kafkaProducerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'producer': grpc.unary_stream_rpc_method_handler(
+            'producer': grpc.stream_stream_rpc_method_handler(
                     servicer.producer,
                     request_deserializer=kafkaProducer__pb2.producerRequest.FromString,
                     response_serializer=kafkaProducer__pb2.producerResponse.SerializeToString,
@@ -100,7 +100,7 @@ class kafkaProducer(object):
     """
 
     @staticmethod
-    def producer(request,
+    def producer(request_iterator,
             target,
             options=(),
             channel_credentials=None,
@@ -110,7 +110,7 @@ class kafkaProducer(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/producer.kafkaProducer/producer',
+        return grpc.experimental.stream_stream(request_iterator, target, '/producer.kafkaProducer/producer',
             kafkaProducer__pb2.producerRequest.SerializeToString,
             kafkaProducer__pb2.producerResponse.FromString,
             options, channel_credentials,

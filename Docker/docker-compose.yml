@@ -104,6 +104,7 @@ services:
               count: 1
               capabilities: [ gpu ]
 
+
   #! SERVICES
   # mainservice:
   #   image: mainservice
@@ -231,6 +232,7 @@ services:
     depends_on:
       - postgresservice
 
+
 #! VOLUMES
 volumes:
   broker0:
@@ -263,6 +265,7 @@ volumes:
       type: "nfs"
       o: "addr=192.168.1.100,nolock,soft,rw"
       device: ":/srv/nfs/mydata/docker-tennis/assets"
+
 
 #! NETWORK
 networks:
