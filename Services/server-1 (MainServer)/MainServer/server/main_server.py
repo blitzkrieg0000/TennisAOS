@@ -2,6 +2,7 @@ import collections
 import pickle
 from concurrent import futures
 import threading
+import time
 
 import grpc
 
@@ -51,14 +52,20 @@ class MainServer(rc_grpc.MainServerServicer):
             t.start()
             
             topicName = data["topicName"]
-            self.currentThreads[request.ProcessId] = topicName
+            self.currentThreads[request.ProcessId] = [topicName, True]
 
             try:
                 for response in responseIterator:
+                    
+                    flag = self.currentThreads.get(request.ProcessId, None)
+                    if not flag:
+                        if not flag[1]:
+                            break
+    
                     if not context.is_active():
                         break
                     frame_base64 = Converters.frame2base64(Converters.bytes2frame(response.frame))
-                    
+                    time.sleep(3)
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
                     send_queue.put(emptyRequest)
                     
@@ -73,10 +80,14 @@ class MainServer(rc_grpc.MainServerServicer):
         print(f"BİTTİ {data['process_id']}")
     
     def StopProcess(self, request, context):
-        ProcessName = self.currentThreads.get(request.ProcessId, None)
-        if ProcessName is not None:
-            response = self.workManager.stopProducer(ProcessName)
-            return rc.StopProcessResponseData(Message=response, flag = True)
+        process = self.currentThreads.get(request.ProcessId, None)
+        if process is not None:
+            try:
+                self.currentThreads[request.ProcessId][1] = False
+                response = self.workManager.stopProducer(process[0])
+                return rc.StopProcessResponseData(Message=response, flag = True)
+            except: pass
+
         return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
 
     def MainProcess(self):
