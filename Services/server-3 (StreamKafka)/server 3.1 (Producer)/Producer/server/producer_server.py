@@ -25,10 +25,10 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
         response = self.kafkaProducerManager.startProducer(requestData, qq)
 
         while context.is_active():
-            request = next(requestIter)
             frame = qq.get(block=True, timeout=120.0)
             logging.error("Yeni block okundu.")
             yield rc.producerResponse(result=response.data, process_name=requestData["topicName"], frame=frame)
+            request = next(requestIter)
 
 
     def getAllProducerProcesses(self, request, context):

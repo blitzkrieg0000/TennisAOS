@@ -11,6 +11,7 @@ from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
 
+
 MAX_WORKERS = 5
 class WorkManager():
     def __init__(self):
@@ -23,7 +24,8 @@ class WorkManager():
         self.tbc = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
-        
+    
+
     #! Main Server
     # Manage Producer----------------------------------------------------------
     def getAllProducerProcesses(self):
