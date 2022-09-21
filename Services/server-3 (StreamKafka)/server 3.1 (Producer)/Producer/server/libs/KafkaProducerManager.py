@@ -122,7 +122,7 @@ class ProducerContextManager(object):
         self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
         
         # Create Topic if not exist
-        self.__deleteAllTopics()
+        #self.__deleteAllTopics()
         self.__updateTopics(self.topicName)
 
         ret_limit_count=0
