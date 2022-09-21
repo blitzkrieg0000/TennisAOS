@@ -123,7 +123,6 @@ class ProducerContextManager(object):
         
         # Create Topic if not exist
         self.__deleteAllTopics()
-
         self.__updateTopics(self.topicName)
 
         ret_limit_count=0
