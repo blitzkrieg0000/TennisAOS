@@ -47,7 +47,7 @@ class MainServer(rc_grpc.MainServerServicer):
         raw = self.getStreamProcess(request.ProcessId)
         if len(raw) > 0:
             data = raw[0]
-
+            
             data, send_queue, emptyRequest, responseIterator = self.workManager.Prepare(data)
 
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
@@ -78,7 +78,7 @@ class MainServer(rc_grpc.MainServerServicer):
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])
             
-        print(f"BİTTİ {data['process_id']}")
+        print(f"BİTTİ")
     
     def StopProcess(self, request, context):
         process = self.currentThreads.get(request.ProcessId, None)

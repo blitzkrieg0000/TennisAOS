@@ -155,7 +155,7 @@ class Repositories():
         ON pr.id = p.id\
         INNER JOIN public."Stream" as st\
         ON (CASE WHEN pp.stream_id IS NULL THEN st.id = sp.stream_id ELSE st.id = pp.stream_id END)\
-        WHERE p.is_completed=true AND p.id={id}'
+        WHERE p.is_completed=false AND p.id={id}'
         processData = manager.Read(query=QUERY, force=True)
         processes = Converters.bytes2obj(processData)
         if processes is not None:
