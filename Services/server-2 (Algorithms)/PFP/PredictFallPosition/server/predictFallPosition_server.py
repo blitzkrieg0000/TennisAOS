@@ -1,11 +1,14 @@
-from concurrent import futures
+import logging
 import pickle
+from concurrent import futures
 
 import grpc
+
 import predictFallPosition_pb2 as rc
 import predictFallPosition_pb2_grpc as rc_grpc
-
 from libs.statusPredicter import StatusPredicter
+
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 class PFPServer(rc_grpc.predictFallPositionServicer):
 

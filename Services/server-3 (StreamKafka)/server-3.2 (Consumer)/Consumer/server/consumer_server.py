@@ -1,12 +1,14 @@
+import logging
 from concurrent import futures
 
 import grpc
+
 import kafkaConsumer_pb2 as rc
 import kafkaConsumer_pb2_grpc as rc_grpc
-from libs.KafkaConsumerManager import KafkaConsumerManager
 from libs.helpers import EncodeManager
-import logging
+from libs.KafkaConsumerManager import KafkaConsumerManager
 
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 class CKConsumer(rc_grpc.kafkaConsumerServicer):
     def __init__(self):

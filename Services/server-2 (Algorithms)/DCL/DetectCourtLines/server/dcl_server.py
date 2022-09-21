@@ -10,6 +10,8 @@ from libs.point_tools import CourtDetector
 import cv2
 import numpy as np
 
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+
 class DCLServer(rc_grpc.detectCourtLineServicer):
 
     def __init__(self):

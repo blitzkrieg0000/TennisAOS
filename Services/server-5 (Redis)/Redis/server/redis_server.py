@@ -1,12 +1,16 @@
 import hashlib
-from concurrent import futures
+import logging
 import pickle
+from concurrent import futures
 
 import grpc
+
 import redisCache_pb2 as rc
 import redisCache_pb2_grpc as rc_grpc
 from clients.Postgres.postgres_client import PostgresDatabaseClient
 from libs.redisManager import RedisManager
+
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 #*SERVER
 class redisCache(rc_grpc.redisCacheServicer):

@@ -1,20 +1,21 @@
 import collections
+import logging
 import pickle
-from concurrent import futures
 import threading
-import time
+from concurrent import futures
 
 import grpc
 
 import MainServer_pb2 as rc
 import MainServer_pb2_grpc as rc_grpc
-from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.Redis.redis_client import RedisCacheManager
+from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.helpers import Converters, Repositories
 from ProcessManager import ProcessManager
 from StatusChecker import StatusChecker
 from WorkManager import WorkManager
 
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 def logo():
     f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
@@ -42,10 +43,11 @@ class MainServer(rc_grpc.MainServerServicer):
         return Repositories.getProcessRelatedById(self.rcm, id)
 
     def StartProcess(self, request, context):
-        print("Başladı")
+        logging.info(f"Process:{request.ProcessId}  Başladı")
         raw = self.getStreamProcess(request.ProcessId)
         if len(raw) > 0:
             data = raw[0]
+
             data, send_queue, emptyRequest, responseIterator = self.workManager.Prepare(data)
 
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
@@ -65,7 +67,6 @@ class MainServer(rc_grpc.MainServerServicer):
                     if not context.is_active():
                         break
                     frame_base64 = Converters.frame2base64(Converters.bytes2frame(response.frame))
-                    time.sleep(3)
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
                     send_queue.put(emptyRequest)
                     
@@ -86,7 +87,8 @@ class MainServer(rc_grpc.MainServerServicer):
                 self.currentThreads[request.ProcessId][1] = False
                 response = self.workManager.stopProducer(process[0])
                 return rc.StopProcessResponseData(Message=response, flag = True)
-            except: pass
+            except Exception as e:
+                print(e)
 
         return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
 

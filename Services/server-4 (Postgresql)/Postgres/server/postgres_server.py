@@ -1,10 +1,14 @@
 import logging
-from concurrent import futures
 import pickle
+from concurrent import futures
+
 import grpc
+
 import postgresql_pb2 as rc
 import postgresql_pb2_grpc as rc_grpc
 from libs.postgresManager import PostgresManager
+
+logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
 class postgresServer(rc_grpc.postgresqlServicer):
     def __init__(self):
