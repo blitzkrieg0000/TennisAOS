@@ -1,13 +1,12 @@
 from __future__ import annotations
 
+import logging
 import time
 from typing import Any
 
 from clients.Redis.redis_client import RedisCacheManager
-from libs.helpers import Converters, Repositories
 from libs.base import AbstractHandler
-import logging
-
+from libs.helpers import Repositories
 
 INTERVAL = 3 # Second(s)
 

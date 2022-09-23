@@ -6,9 +6,9 @@ from typing import Any
 
 from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
-from StatusChecker import StatusChecker
-from WorkManager import WorkManager
 from libs.helpers import Repositories
+from WorkManager import WorkManager
+
 
 class ProcessManager(AbstractHandler):
     def __init__(self):
@@ -41,4 +41,4 @@ class ProcessManager(AbstractHandler):
         if data is not None:
             data = self.process(data)
         return data
-        return super().handle(data)
+        # return super().handle(data)
