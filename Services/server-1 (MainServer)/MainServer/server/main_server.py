@@ -53,7 +53,7 @@ class MainServer(rc_grpc.MainServerServicer):
         raw = self.getStreamProcess(request.ProcessId)
         if len(raw) > 0:
             data = raw[0]
-            data, responseIterator = self.workManager.Prepare(data)
+            data, send_queue, empty_message, responseIterator = self.workManager.Prepare(data)
 
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
             t.start()
@@ -67,6 +67,7 @@ class MainServer(rc_grpc.MainServerServicer):
                     flag = self.currentThreads.get(request.ProcessId, None)
                     if not flag:
                         if not flag[1]:
+                            send_queue.put(None)
                             break
     
                     if not context.is_active():
@@ -76,14 +77,19 @@ class MainServer(rc_grpc.MainServerServicer):
                     if response.frame != b"":
                         bframe = Converters.bytes2frame(response.frame)
                         frame_base64 = Converters.frame2base64(bframe)
-
+                    print(frame_base64[:10])
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+                    send_queue.put(empty_message)
+
             except:
                 print("iterator dan çıktı.")
 
+            send_queue.put(None)
+            
             print("Ana işlemin bitmesi bekleniyor...")
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])
+            del send_queue
             
         print(f"BİTTİ")
     
