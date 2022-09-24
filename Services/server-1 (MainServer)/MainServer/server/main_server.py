@@ -89,7 +89,7 @@ class MainServer(rc_grpc.MainServerServicer):
             print("Ana işlemin bitmesi bekleniyor...")
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])
-            del send_queue
+            #? del send_queue
             
         print(f"BİTTİ")
     

@@ -136,7 +136,4 @@ class WorkManager():
         Repositories.saveProcessData(self.rcm, resultData)
         Repositories.savePlayingData(self.rcm, resultData)
 
-        
-
-        # CreateResponse
         return resultData
