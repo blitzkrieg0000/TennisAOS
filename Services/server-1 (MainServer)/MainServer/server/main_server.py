@@ -1,5 +1,6 @@
 import collections
 import logging
+from multiprocessing import Semaphore
 import pickle
 import threading
 from concurrent import futures
@@ -52,7 +53,7 @@ class MainServer(rc_grpc.MainServerServicer):
         raw = self.getStreamProcess(request.ProcessId)
         if len(raw) > 0:
             data = raw[0]
-            data, send_queue, emptyRequest, responseIterator = self.workManager.Prepare(data)
+            data, responseIterator = self.workManager.Prepare(data)
 
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
             t.start()
@@ -76,9 +77,7 @@ class MainServer(rc_grpc.MainServerServicer):
                         bframe = Converters.bytes2frame(response.frame)
                         frame_base64 = Converters.frame2base64(bframe)
 
-
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
-                    send_queue.put(emptyRequest)
             except:
                 print("iterator dan çıktı.")
 

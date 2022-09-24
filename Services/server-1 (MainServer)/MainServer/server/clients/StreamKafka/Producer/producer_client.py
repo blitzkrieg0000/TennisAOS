@@ -19,14 +19,12 @@ class KafkaProducerManager():
         return pickle.loads(bytes)
 
     def producer(self, data):
+        def gen():
+            while True:
+                yield rc.producerRequest(data=EncodeManager.serialize(data))
+        responseIterator = self.stub.producer(gen()) #iter(send_queue.get, None)
 
-        requestData = rc.producerRequest(data=EncodeManager.serialize(data))
-        send_queue = queue.SimpleQueue()
-        responseIterator = self.stub.producer(iter(send_queue.get, None))
-        # responseIterator = self.stub.producer(requestData)
-        send_queue.put(requestData)
-        emptyRequest = rc.producerRequest(data="")
-        return send_queue, emptyRequest, responseIterator
+        return responseIterator
 
     def getAllProducerProcesses(self):
         requestData = rc.getAllProducerProcessesRequest(data="")
