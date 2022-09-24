@@ -3,6 +3,7 @@ import logging
 import pickle
 import threading
 from concurrent import futures
+import time
 
 import grpc
 
@@ -33,14 +34,18 @@ class MainServer(rc_grpc.MainServerServicer):
         self.consumer = KafkaConsumerManager()
         self.currentThreads = collections.defaultdict(list)
 
+
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
+
 
     def obj2bytes(self, obj):
         return pickle.dumps(obj)
 
+
     def getStreamProcess(self, id):
         return Repositories.getProcessRelatedById(self.rcm, id)
+
 
     def StartProcess(self, request, context):
         logging.info(f"Process:{request.ProcessId}  Başladı")
@@ -65,11 +70,15 @@ class MainServer(rc_grpc.MainServerServicer):
     
                     if not context.is_active():
                         break
-                    frame_base64 = Converters.frame2base64(Converters.bytes2frame(response.frame))
+
+                    frame_base64 = ""
+                    if response.frame != b"":
+                        bframe = Converters.bytes2frame(response.frame)
+                        frame_base64 = Converters.frame2base64(bframe)
+
+
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
                     send_queue.put(emptyRequest)
-                    
-                    print(frame_base64[:10])
             except:
                 print("iterator dan çıktı.")
 
@@ -79,6 +88,7 @@ class MainServer(rc_grpc.MainServerServicer):
             
         print(f"BİTTİ")
     
+
     def StopProcess(self, request, context):
         process = self.currentThreads.get(request.ProcessId, None)
         if process is not None:
@@ -90,6 +100,7 @@ class MainServer(rc_grpc.MainServerServicer):
                 print(e)
 
         return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
+
 
     def MainProcess(self):
         while True:

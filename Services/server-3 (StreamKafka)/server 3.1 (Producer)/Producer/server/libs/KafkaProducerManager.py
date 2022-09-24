@@ -4,6 +4,7 @@ import os
 import signal
 import sys
 from multiprocessing.process import BaseProcess
+import time
 
 import cv2
 from confluent_kafka import Producer
@@ -105,7 +106,7 @@ class ProducerContextManager(object):
         self.cam.release()
         self.producerClient.flush()
 
-    def producer(self, qq:multiprocessing.Queue):
+    def producer(self, qq, lock):
         logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
         
         # Stream Settings
@@ -136,8 +137,13 @@ class ProducerContextManager(object):
                 encodedImg = []
                 encodedImg = Converters.frame2bytes(img)
                 if encodedImg is not None:
-                    qq.put(encodedImg, block=True, timeout=120.0)
-                    logging.error("Yeni block eklendi! ")
+                    lock.acquire(block=True)
+                    
+                    qq["frame"] = encodedImg
+                    #qq.put(encodedImg, block=True, timeout=120.0)
+
+                    lock.release()
+
                     self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
                     self.producerClient.poll(0)
                     ret_limit_count=0
@@ -210,6 +216,6 @@ class KafkaProducerManager():
         return wrapper
 
     @ProducerMultiProcess
-    def startProducer(self, data, qq) -> Response:
+    def startProducer(self, data, qq, lock) -> Response:
         with ProducerContextManager(data) as manager:
-            manager.producer(qq)
+            manager.producer(qq, lock)

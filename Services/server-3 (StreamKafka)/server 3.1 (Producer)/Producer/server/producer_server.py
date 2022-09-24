@@ -1,6 +1,8 @@
+import ctypes
 import logging
 import multiprocessing
 from concurrent import futures
+import time
 
 import grpc
 
@@ -21,12 +23,22 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
     def producer(self, requestIter, context):
         request = next(requestIter)
         requestData = EncodeManager.deserialize(request.data)
-        qq = multiprocessing.Queue(maxsize=1)
-        response = self.kafkaProducerManager.startProducer(requestData, qq)
+        #qq = multiprocessing.Manager().Queue(maxsize=1)
 
+        lock = multiprocessing.Lock()
+        qq = multiprocessing.Manager().dict()
+        qq["frame"] = b""
+        response = self.kafkaProducerManager.startProducer(requestData, qq, lock)
+        
         while context.is_active():
-            frame = qq.get(block=True, timeout=120.0)
-            logging.error("Yeni block okundu.")
+            # frame = qq.get(block=True, timeout=120.0)
+
+            lock.acquire(block=True)
+
+            frame = qq["frame"]
+
+            lock.release()
+
             yield rc.producerResponse(result=response.data, process_name=requestData["topicName"], frame=frame)
             request = next(requestIter)
 
