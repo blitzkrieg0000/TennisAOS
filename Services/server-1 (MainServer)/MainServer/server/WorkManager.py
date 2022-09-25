@@ -1,4 +1,3 @@
-import queue
 import numpy as np
 
 from clients.DetectCourtLines.dcl_client import DCLClient
@@ -46,7 +45,7 @@ class WorkManager():
 
     def stopAllConsumers(self, request, context):
         return self.kcm.stopAllConsumers()
-
+        
 
     # Algorithms--------------------------------------------------------------- 
     def Prepare(self, data):
@@ -79,7 +78,7 @@ class WorkManager():
             
             if frame is None:
                 assert "İlk kare doğru alınamadı."
-
+                
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
             else:
@@ -135,5 +134,5 @@ class WorkManager():
         
         Repositories.saveProcessData(self.rcm, resultData)
         Repositories.savePlayingData(self.rcm, resultData)
-
+        
         return resultData

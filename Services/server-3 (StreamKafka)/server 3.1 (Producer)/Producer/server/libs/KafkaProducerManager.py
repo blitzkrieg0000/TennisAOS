@@ -90,7 +90,11 @@ class ProducerContextManager(object):
         self._sigint = signal.signal(signal.SIGINT, self.__handler)
         self._sigterm = signal.signal(signal.SIGTERM, self.__handler)
         self.adminConfluent = AdminClient({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
-        try: self.producerClient = Producer({'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS)})
+        try: 
+            self.producerClient = Producer({
+                'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS),
+                "message.max.bytes": 20971520
+            })
         except Exception as e: logging.warning(e)
         if self.producerClient is None: assert "Producera bağlanamıyor..."
         return self
@@ -135,7 +139,9 @@ class ProducerContextManager(object):
             ret_val, img = self.cam.read()
             if ret_val:
                 encodedImg = []
+
                 encodedImg = Converters.frame2bytes(img)
+
                 if encodedImg is not None:
 
                     qq.put(encodedImg, block=True, timeout=120.0)
