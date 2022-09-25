@@ -14,9 +14,11 @@ logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:
 
 
 class CKProducer(rc_grpc.kafkaProducerServicer):
-    def __init__(self):
+    
+    def __init__(self): 
         super().__init__()
         self.kafkaProducerManager = KafkaProducerManager()
+
 
     def producer(self, requestIter, context):
         request = next(requestIter)
@@ -30,12 +32,12 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
             request = next(requestIter)
             
 
-
     def getAllProducerProcesses(self, request, context):
         response = self.kafkaProducerManager.getAllProducerProcesses()
         if(response.code==ResponseCodes.SUCCESS):
             return rc.getAllProducerProcessesResponse(data=EncodeManager.serialize(response.data))
         return rc.getAllProducerProcessesResponse()
+
 
     def stopProducer(self, request, context):
         response = self.kafkaProducerManager.stopProducerProcess(request.process_name)
@@ -45,6 +47,7 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
             responseData = rc.stopProducerResponse()
 
         return responseData
+
 
     def stopAllProducerProcesses(self, request, context):
         response = self.kafkaProducerManager.stopAllProducerProcesses()

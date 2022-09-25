@@ -1,10 +1,8 @@
 import collections
 import logging
-from multiprocessing import Semaphore
 import pickle
 import threading
 from concurrent import futures
-import time
 
 import grpc
 
@@ -63,7 +61,6 @@ class MainServer(rc_grpc.MainServerServicer):
 
             try:
                 for response in responseIterator:
-                    
                     flag = self.currentThreads.get(request.ProcessId, None)
                     if not flag:
                         if not flag[1]:
