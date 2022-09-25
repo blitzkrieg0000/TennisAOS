@@ -4,7 +4,6 @@ import os
 import signal
 import sys
 from multiprocessing.process import BaseProcess
-import time
 
 import cv2
 from confluent_kafka import Producer
@@ -139,11 +138,9 @@ class ProducerContextManager(object):
             ret_val, img = self.cam.read()
             if ret_val:
                 encodedImg = []
-
                 encodedImg = Converters.frame2bytes(img)
 
                 if encodedImg is not None:
-
                     qq.put(encodedImg, block=True, timeout=120.0)
                     
                     self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)

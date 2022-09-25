@@ -17,7 +17,7 @@ class ConsumerGen():
         self.limit_count = 0
         self.ret_limit = 0
     
-    def subscribe(self, topics, try_count = 5):
+    def subscribe(self, topics, try_count=5):
         counter=0
         while True:
             try:
@@ -30,6 +30,7 @@ class ConsumerGen():
                     assert "Topic'e bağlanılamıyor."
 
     def connectKafkaConsumer(self, consumerGroup, offsetMethod, topics):
+        # fetch.message.max.bytes : ""
         return Consumer({
                 'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS),
                 'group.id': consumerGroup,
