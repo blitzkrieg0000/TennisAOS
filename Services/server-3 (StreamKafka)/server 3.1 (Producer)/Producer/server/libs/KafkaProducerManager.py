@@ -28,6 +28,7 @@ class ProducerContextManager(object):
         self.cam = None
         self.producerClient = None
 
+
     def __delivery_report(self, err, msg):
         # Called once for each message produced to indicate delivery result. Triggered by poll() or flush(). 
         if err is not None:
@@ -35,6 +36,7 @@ class ProducerContextManager(object):
         else:
         #   logging.info('Message delivered to {} [{}]'.format(msg.topic(), msg.partition()))
             pass
+
 
     def __deleteAllTopics(self):
         topic_list = self.__getTopicList()
@@ -49,11 +51,13 @@ class ProducerContextManager(object):
                 except Exception as e:
                     print("Failed to delete topic {}: {}".format(topic, e))
 
+
     def __getTopicList(self):
         topicList = []
         try: topicList = self.adminConfluent.list_topics().topics.keys()
         except Exception as e: logging.warning(e)
         return topicList
+
 
     def __createTopics(self, topic_list):
         create_topic_recipies = []
@@ -74,16 +78,19 @@ class ProducerContextManager(object):
                     except Exception as e:
                         logging.error(f"Failed to create topic {topic}: {e}")
 
+
     def __updateTopics(self, topicName):
         topics = set(self.__getTopicList())
         existTopics = topics - TOPICS_IGNORE_SET
         newTopicName = set([topicName])
         self.__createTopics((newTopicName - existTopics))
 
+
     def __handler(self, signum, frame):
         logging.warning("Received SIGINT or SIGTERM! Closing Connections, then exiting Producer.")
         self.__closeConnections()
         sys.exit(0)
+
 
     def __enter__(self):
         self._sigint = signal.signal(signal.SIGINT, self.__handler)
@@ -94,43 +101,48 @@ class ProducerContextManager(object):
                 'bootstrap.servers': ",".join(KAFKA_BOOTSTRAP_SERVERS),
                 "message.max.bytes": 20971520
             })
-        except Exception as e: logging.warning(e)
-        if self.producerClient is None: assert "Producera bağlanamıyor..."
+        except Exception as e: 
+            logging.error(e)
+
+        assert not self.producerClient is None, "Producera bağlanamıyor..."
+
         return self
+
 
     def __exit__(self, exc_type, exc_value, exc_traceback):
         signal.signal(signal.SIGINT, self._sigint)
         signal.signal(signal.SIGTERM, self._sigterm)
         self.__closeConnections()
-        logging.warning('Normal Exiting Producer')
+        logging.warning(f'Normal Exiting Producer: {exc_type}')
+
 
     def __closeConnections(self):
         self.stop_flag = False
         self.cam.release()
         self.producerClient.flush()
 
-    def producer(self, qq):
-        logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
-        
-        # Stream Settings
-        if self.is_video and not os.access(self.streamUrl, mode=0):
-            raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
 
+    def producer(self, qq: multiprocessing.Queue):
+        logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
+        assert not (self.is_video and not os.access(self.streamUrl, mode=0)), "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
+       
+        # Stream Settings
         self.cam = cv2.VideoCapture(self.streamUrl)
         fps = int(self.cam.get(5))
-
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, int(self.cam.get(3)))
         self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, int(self.cam.get(4)))
         self.cam.set(cv2.CAP_PROP_EXPOSURE, 0.1)
         self.cam.set(cv2.CAP_PROP_FPS, fps if fps>0 else 30)
         self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
         
-        # Create Topic if not exist
         #self.__deleteAllTopics()
+
+        # Create Topic if not exist
         self.__updateTopics(self.topicName)
 
-        ret_limit_count=0
-        limit_count=0
+        ret_limit_count = 0
+        limit_count = 0
+        read_frame = 0
         while self.stop_flag:
             if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count<=RET_COUNT-1:
                 break
@@ -141,21 +153,28 @@ class ProducerContextManager(object):
                 encodedImg = Converters.frame2bytes(img)
 
                 if encodedImg is not None:
+
                     qq.put(encodedImg, block=True, timeout=120.0)
                     
-                    self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
-                    self.producerClient.poll(0)
+                    try:
+                        self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
+                        self.producerClient.poll(0)
+                    except BufferError as bfer:
+                        logging.error(bfer)
+                        self.producerClient.poll(0.1) # Message Queue dolmuşsa 0.1 saniye bekle tekrar dene
+                    read_frame += 1
                     ret_limit_count=0
                     if self.limit > 0:
                         limit_count+=1
                 else:
-                    logging.warning(f"Frame to Byte convertion failed:{self.streamUrl}")
+                    logging.error(f"Frame to Byte convertion failed:{self.streamUrl}")
                     ret_limit_count+=1
             else:
                 logging.warning(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.streamUrl}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
 
-        logging.info(f"Producer Sonlandı: <{self.topicName}>. RET_LIMIT: {ret_limit_count}/{RET_COUNT-1}")
+        logging.warning(f"Producer Sonlandı: <{self.topicName}>. Okunan Frame Sayısı: <{read_frame}>. RET_LIMIT: <{ret_limit_count}/{RET_COUNT-1}>")
+
 
 class KafkaProducerManager():
     def __init__(self):
