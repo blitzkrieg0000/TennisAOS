@@ -16,19 +16,24 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
         self.kafkaConsumerManager = KafkaConsumerManager()
         self.consumers = {}
     
+
     def __removeConsumer(self, topicName):
         if topicName in self.consumers.keys():
             try: self.consumers.pop(topicName)
             except: pass
 
+
     def getAllConsumers(self, request, context):
         return rc.getAllConsumersResponse(data=EncodeManager.serialize(list(self.consumers.keys())))
+
 
     def stopConsumer(self, request, context):
         self.consumers[request.data] = False
 
+
     def stopAllConsumers(self, request, context):
         for keys in self.consumers.keys(): self.consumers[keys] = False
+
 
     def consumer(self, request, context):
         topicName = request.topicName
@@ -36,23 +41,25 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
         limit = request.limit
         offsetMethod = request.offsetMethod
 
-        if topicName is None or topicName != "": assert "Topic adı boş olamaz."
+        if topicName is None or topicName == "":
+            raise AssertionError("Topic adı boş olamaz.")
 
         self.consumers[topicName+groupName] = True
         CONSUMER_GENERATOR = self.kafkaConsumerManager.consumer(topics=[topicName], consumerGroup=groupName, offsetMethod=offsetMethod, limit=limit)
         for msg in CONSUMER_GENERATOR:
-            if not self.consumers.get(topicName+groupName, None): #not context.is_active() or 
+            
+            if not context.is_active() or not self.consumers.get(topicName+groupName, None):
                 CONSUMER_GENERATOR.stopGen()
                 self.__removeConsumer(topicName)
                 context.set_code(grpc.StatusCode.CANCELLED)
                 context.set_details('RPC Client Sonlandırıldığı için server-side consumer sonlandırıldı.')
                 logging.warning("RPC Client Sonlandırıldığı için server-side sonlandırılıyor...")
                 return rc.ConsumerResponse()
-            yield rc.ConsumerResponse(data=msg.value())
 
-        try:
-            CONSUMER_GENERATOR.consumer.close()
-        except: pass
+            if msg is not None:
+                yield rc.ConsumerResponse(data=msg.value())
+
+        CONSUMER_GENERATOR.consumer.close()
         
         self.__removeConsumer(topicName)
         logging.info(f"{topicName} adlı topic için grup adı: {groupName} olan consumer tamamlandı.")

@@ -25,13 +25,10 @@ class KafkaProducerManager():
         send_queue = queue.SimpleQueue()
         def gen(send_queue):
             while True:
-                try:
-                    item = send_queue.get(block=True)
-                    if item is None: 
-                        raise queue.Empty
-                    yield item
-                except queue.Empty as e:
-                    raise StopIteration
+                item = send_queue.get(block=True)
+                if item is None:
+                    break
+                yield item
 
         responseIterator = self.stub.producer(gen(send_queue))
         send_queue.put(rc.producerRequest(data=EncodeManager.serialize(data)))

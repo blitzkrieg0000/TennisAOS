@@ -16,7 +16,6 @@ from libs.Response import Response, ResponseCodes
 
 class ProducerContextManager(object):
     def __init__(self, data):
-        logging.info(data)
         self.topicName = data["topicName"]
         self.streamUrl = data["source"]
         self.is_video =  data["is_video"]
@@ -135,7 +134,7 @@ class ProducerContextManager(object):
         self.cam.set(cv2.CAP_PROP_FPS, fps if fps>0 else 30)
         self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
         
-        #self.__deleteAllTopics()
+        self.__deleteAllTopics()
 
         # Create Topic if not exist
         self.__updateTopics(self.topicName)
@@ -192,7 +191,7 @@ class KafkaProducerManager():
         try:
             if process.is_alive():
                 process.terminate()
-                process.join(time=1)
+                process.join(timeout=1)
                 if process.is_alive():
                     process.kill()
             process.close()

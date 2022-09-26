@@ -71,7 +71,9 @@ class WorkManager():
         BYTE_FRAMES_GENERATOR = self.kcm.consumer(data["topicName"], "consumergroup-balltracker-0", -1)
 
         #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
+        
         bytes_frame = next(BYTE_FRAMES_GENERATOR)
+
         if bytes_frame is not None:
             first_frame = bytes_frame.data
             frame = Converters.bytes2frame(first_frame)

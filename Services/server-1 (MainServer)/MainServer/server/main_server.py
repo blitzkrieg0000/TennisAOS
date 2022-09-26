@@ -57,25 +57,18 @@ class MainServer(rc_grpc.MainServerServicer):
             t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
             t.start()
             
-
             topicName = data["topicName"]
             self.currentThreads[request.ProcessId] = [topicName, True]
-            tic = time.time()
-            toplam = 0
-            sayac= 0
             try:
                 for response in responseIterator:
-
-                    sayac += 1
-
                     flag = self.currentThreads.get(request.ProcessId, None)
-                    if not flag:
+                    if flag is not None:
                         if not flag[1]:
                             send_queue.put(None)
-                            break
+
 
                     if not context.is_active():
-                        break
+                        send_queue.put(None)
 
                     frame_base64 = ""
                     if response.frame != b"":
@@ -83,20 +76,13 @@ class MainServer(rc_grpc.MainServerServicer):
                         frame_base64 = Converters.frame2base64(bframe)
                     print(frame_base64[:10])
 
-                    toc = time.time()
-                    toplam = toc-tic
-                    logging.info(toplam/sayac)
-
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+
                     send_queue.put(empty_message)
-
-                    tic = time.time()
-
             except:
-                print("iterator dan çıktı.")
+                print("Iteratordan çıktı.")
 
-            send_queue.put(None)
-            
+
             print("Ana işlemin bitmesi bekleniyor...")
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])
