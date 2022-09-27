@@ -3,7 +3,6 @@ import logging
 import pickle
 import threading
 from concurrent import futures
-import time
 
 import grpc
 
@@ -66,7 +65,6 @@ class MainServer(rc_grpc.MainServerServicer):
                         if not flag[1]:
                             send_queue.put(None)
 
-
                     if not context.is_active():
                         send_queue.put(None)
 
@@ -74,21 +72,21 @@ class MainServer(rc_grpc.MainServerServicer):
                     if response.frame != b"":
                         bframe = Converters.bytes2frame(response.frame)
                         frame_base64 = Converters.frame2base64(bframe)
-                    print(frame_base64[:10])
+                    logging.info(frame_base64[:10])
 
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
 
                     send_queue.put(empty_message)
             except:
-                print("Iteratordan çıktı.")
+                logging.info("Iteratordan çıktı.")
 
 
-            print("Ana işlemin bitmesi bekleniyor...")
+            logging.info("Ana işlemin bitmesi bekleniyor...")
             t.join()
             Repositories.markAsCompleted(self.rcm, data["process_id"])
             #? del send_queue
             
-        print(f"BİTTİ")
+        logging.info(f"BİTTİ")
     
 
     def StopProcess(self, request, context):
@@ -99,7 +97,7 @@ class MainServer(rc_grpc.MainServerServicer):
                 response = self.workManager.stopProducer(process[0])
                 return rc.StopProcessResponseData(Message=response, flag = True)
             except Exception as e:
-                print(e)
+                logging.info(e)
 
         return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
 
