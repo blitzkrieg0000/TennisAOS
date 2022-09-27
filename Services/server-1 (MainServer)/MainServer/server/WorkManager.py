@@ -135,6 +135,7 @@ class WorkManager():
         resultData["description"] = "Bilgi Verilmedi."
         
         Repositories.saveProcessData(self.rcm, resultData)
+        
         Repositories.savePlayingData(self.rcm, resultData)
         
         return resultData

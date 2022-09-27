@@ -184,7 +184,7 @@ class Repositories():
         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
         [data["player_id"],data["court_id"],data["aos_type_id"],
         data["stream_id"],data["score"],data["ball_position_array"],
-        data["player_position_array"],data["ball_fall_array"]])
+        data["player_position_array"], data["ball_fall_array"]])
 
     @staticmethod
     def markAsCompleted(manager, processId):
