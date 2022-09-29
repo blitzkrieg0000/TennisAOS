@@ -231,6 +231,20 @@ services:
       - "50051:50051"
     depends_on:
       - postgresservice
+  rtmp:
+    image: rtmpservice
+    build:
+      context: "./Daemon/RTMP/"
+      dockerfile: dockerfile
+    hostname: rtmpservice
+    container_name: rtmpservice
+    restart: always
+    networks:
+      - securitynet
+    ports:
+      - "1935:1935"
+    depends_on:
+      - producerservice
 
 
 #! VOLUMES
