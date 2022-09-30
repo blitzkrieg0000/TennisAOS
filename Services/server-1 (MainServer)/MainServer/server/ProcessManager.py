@@ -17,16 +17,15 @@ class ProcessManager(AbstractHandler):
         MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
         self.workManager = WorkManager()
-        self.processList = []
+        self.processList = {}
         self.threadList = []
 
 
     def process(self, processData):
         for process in processData:
-            if (process not in self.processList) or (process["process_id"] not in [item.name for item in self.threadList]):
-                
+            if (process["process_id"] not in self.processList.keys()) and (process["process_id"] not in [item.name for item in self.threadList]):
                 logging.info(f'{process["process_id"]} numaralı process işleme alındı.')
-                self.processList.append(process)
+                self.processList[process["process_id"]] = process
                 data, send_queue, empty_message, responseIterator = self.workManager.Prepare(process, independent=True, errorLimit=3)
                 t = threading.Thread(name=process["process_id"], target=self.workManager.ProducerController, args=(data,))
                 t.start()
@@ -34,8 +33,8 @@ class ProcessManager(AbstractHandler):
 
         for thread in self.threadList:
             if not thread.is_alive():
-                Repositories.markAsCompleted(self.rcm, data["process_id"])
-                [self.processList.remove(item) for item in self.processList if item['process_id'] == thread.name]
+                Repositories.markAsCompleted(self.rcm, process["process_id"])
+                [self.processList.pop(process["process_id"]) for item in self.processList if item['process_id'] == thread.name]
                 self.threadList.remove(thread)
 
 
