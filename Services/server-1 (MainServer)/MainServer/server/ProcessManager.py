@@ -34,7 +34,7 @@ class ProcessManager(AbstractHandler):
         for thread in self.threadList:
             if not thread.is_alive():
                 Repositories.markAsCompleted(self.rcm, process["process_id"])
-                [self.processList.pop(process["process_id"]) for item in self.processList if item['process_id'] == thread.name]
+                [self.processList.pop(item) for item in self.processList if item == thread.name]
                 self.threadList.remove(thread)
 
 
