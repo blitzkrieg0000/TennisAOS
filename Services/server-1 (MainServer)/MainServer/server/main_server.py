@@ -1,5 +1,6 @@
 import collections
 import logging
+import multiprocessing
 import pickle
 import threading
 from concurrent import futures
@@ -23,6 +24,12 @@ def logo():
     logo = f.read()
     f.close()
     print(logo, "\n")
+
+
+def MainProcess():
+    statusChecker = StatusChecker()
+    processManager = ProcessManager()
+    data = statusChecker.set_next(processManager).set_next(statusChecker).handle([])
 
 
 #*SERVER
@@ -104,19 +111,6 @@ class MainServer(rc_grpc.MainServerServicer):
         return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
 
 
-    def MainProcess(self):
-        while True:
-            statusChecker = StatusChecker()
-            processManager = ProcessManager()
-
-            statusChecker.set_next(processManager)
-            processManager.set_next(statusChecker)
-
-            data = statusChecker.handle([])
-            del statusChecker
-            del processManager
-
-
 def serve():
     # logo()
     mainSrv = MainServer()
@@ -125,22 +119,9 @@ def serve():
     server.add_insecure_port('[::]:50011')
     server.start()
     server.wait_for_termination()
-    # mainSrv.mainProcess.join()
 
 
 if __name__ == '__main__':
+    p = multiprocessing.Process(target=MainProcess, daemon=True)
+    p.start()
     serve()
-
-    # def MainProcess():
-    #     while True:
-    #         statusChecker = StatusChecker()
-    #         processManager = ProcessManager()
-
-    #         statusChecker.set_next(processManager)
-    #         processManager.set_next(statusChecker)
-
-    #         data = statusChecker.handle([])
-    #         del statusChecker
-    #         del processManager
-    
-    # MainProcess()

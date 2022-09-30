@@ -8,12 +8,11 @@ from clients.Redis.redis_client import RedisCacheManager
 from libs.base import AbstractHandler
 from libs.helpers import Repositories
 
-INTERVAL = 3 # Second(s)
+INTERVAL = 5 # Second(s)
 
 class StatusChecker(AbstractHandler):
     def __init__(self) -> None:
         self.rcm = RedisCacheManager()
-
 
     def timer(func):
         def wrapper(self, *args, **kwargs):
@@ -22,7 +21,6 @@ class StatusChecker(AbstractHandler):
             return func(self, *args,  **kwargs)
             
         return wrapper
-
 
     @timer
     def checkDatabase(self):
