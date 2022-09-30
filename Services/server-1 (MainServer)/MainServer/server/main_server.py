@@ -13,7 +13,6 @@ from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.helpers import Converters, Repositories
 from ProcessManager import ProcessManager
-from StatusChecker import StatusChecker
 from WorkManager import WorkManager
 
 logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
@@ -27,9 +26,8 @@ def logo():
 
 
 def MainProcess():
-    statusChecker = StatusChecker()
     processManager = ProcessManager()
-    data = statusChecker.set_next(processManager).set_next(statusChecker).handle([])
+    processManager.process()
 
 
 #*SERVER
