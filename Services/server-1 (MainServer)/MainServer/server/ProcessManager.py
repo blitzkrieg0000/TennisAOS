@@ -14,10 +14,11 @@ class ProcessManager(AbstractHandler):
     def __init__(self):
         MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
-        self.algorithmManager = WorkManager()
+        self.workManager = WorkManager()
         self.executor = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
         self.processList = []
         self.futureIterators = []
+
 
     def process(self, processData):
         for process in processData:
@@ -26,7 +27,7 @@ class ProcessManager(AbstractHandler):
 
         if len(self.processList) > 0:
             [logging.info(f'{process["process_id"]} numaralı process işleme alındı.') for process in self.processList]
-            threadSubmits = {self.executor.submit(self.algorithmManager.StartGameObservationController, process) : process for process in self.processList}
+            threadSubmits = {self.executor.submit(self.workManager.Prepare, process) : process for process in self.processList}
             futureIterator = concurrent.futures.as_completed(threadSubmits)
 
             for future in futureIterator:
@@ -36,6 +37,7 @@ class ProcessManager(AbstractHandler):
                     self.processList.remove(process)
                     data = future.result()
         return processData
+
 
     def handle(self, data: Any):
         if data is not None:

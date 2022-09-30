@@ -17,11 +17,13 @@ from WorkManager import WorkManager
 
 logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
 
+
 def logo():
     f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
     logo = f.read()
     f.close()
     print(logo, "\n")
+
 
 #*SERVER
 class MainServer(rc_grpc.MainServerServicer):
@@ -69,8 +71,8 @@ class MainServer(rc_grpc.MainServerServicer):
                         send_queue.put(None)
 
                     frame_base64 = ""
-                    if response.frame != b"":
-                        bframe = Converters.bytes2frame(response.frame)
+                    if response.Response.Data  != b"":
+                        bframe = Converters.bytes2frame(response.Response.Data )
                         frame_base64 = Converters.frame2base64(bframe)
                     logging.info(frame_base64[:10])
 
@@ -128,3 +130,17 @@ def serve():
 
 if __name__ == '__main__':
     serve()
+
+    # def MainProcess():
+    #     while True:
+    #         statusChecker = StatusChecker()
+    #         processManager = ProcessManager()
+
+    #         statusChecker.set_next(processManager)
+    #         processManager.set_next(statusChecker)
+
+    #         data = statusChecker.handle([])
+    #         del statusChecker
+    #         del processManager
+    
+    # MainProcess()

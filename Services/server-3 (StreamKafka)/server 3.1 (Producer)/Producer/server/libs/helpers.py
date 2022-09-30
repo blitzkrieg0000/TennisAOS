@@ -55,8 +55,9 @@ class Converters():
     
     @staticmethod
     def frame2base64(frame):
-        retval, buffer = cv2.imencode('.jpg', frame)
+        etval, buffer = cv2.imencode('.jpg', frame)
         return base64.b64encode(buffer).decode()
+
 
 @for_all_methods(checkNull)
 class Tools():
@@ -85,7 +86,7 @@ class Tools():
             if i==10:
                 break
         return cimage
-    
+
     @staticmethod
     def drawCircles(cimage, fall_points, limit=1):
         for i, point in enumerate(fall_points):
@@ -95,7 +96,6 @@ class Tools():
             if i>=limit-1:
                 break
         return cimage
-
 
 @for_all_methods(checkNull)
 class Repositories():
@@ -162,9 +162,10 @@ class Repositories():
             return [dict(zip(query_keys, process)) for process in processes]
         return []
 
+
     @staticmethod
-    def saveTopicName(manager, stream_id, newTopicName):
-        return manager.Write(f'UPDATE public."Stream" SET kafka_topic_name=%s WHERE id={stream_id};', [newTopicName,])
+    def saveTopicName(manager, process_id, newTopicName):
+        return manager.Write(f'UPDATE public."ProcessResponse" SET kafka_topic_name=%s WHERE id={process_id};', [newTopicName,])
 
     @staticmethod
     def saveCourtLinePoints(manager, stream_id, courtPoints):
@@ -183,11 +184,12 @@ class Repositories():
         VALUES(%s,%s,%s,%s,%s,%s,%s,%s)',
         [data["player_id"],data["court_id"],data["aos_type_id"],
         data["stream_id"],data["score"],data["ball_position_array"],
-        data["player_position_array"],data["ball_fall_array"]])
+        data["player_position_array"], data["ball_fall_array"]])
 
     @staticmethod
     def markAsCompleted(manager, processId):
         manager.Write(f'UPDATE public."Process" SET is_completed=%s WHERE id={processId};', [True,])
+
 
 
 class NumpyArrayEncoder(JSONEncoder):

@@ -4,8 +4,6 @@ import queue
 import grpc
 import clients.StreamKafka.Producer.kafkaProducer_pb2 as rc
 import clients.StreamKafka.Producer.kafkaProducer_pb2_grpc as rc_grpc
-from libs.helpers import EncodeManager
-
 
 class KafkaProducerManager():
     def __init__(self):
@@ -21,7 +19,9 @@ class KafkaProducerManager():
         return pickle.loads(bytes)
 
 
-    def producer(self, data):
+    def producer(self, topicName="test", source="", isVideo=False, limit=-1, errorLimit=3, independent=True):
+        # Bir sentinel-generator ile mesaj queuda olana kadar gönderimi bekletiyoruz.
+        # Bu yöntem ile Stream-Stream iletişimlerde, döngüler ile iteratorlardan kurtularak "next" ile daha bağımsız kodlama yapabiliyoruz.
         send_queue = queue.SimpleQueue()
         def gen(send_queue):
             while True:
@@ -29,10 +29,9 @@ class KafkaProducerManager():
                 if item is None:
                     break
                 yield item
-
         responseIterator = self.stub.producer(gen(send_queue))
-        send_queue.put(rc.producerRequest(data=EncodeManager.serialize(data)))
-        empty_message = rc.producerRequest()
+        send_queue.put(rc.ProducerRequest(TopicName=topicName, Source=source, IsVideo=isVideo, Limit=limit, ErrorLimit=errorLimit, Independent=independent))
+        empty_message = rc.ProducerRequest()
         return send_queue, empty_message, responseIterator
 
 

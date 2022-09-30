@@ -53,8 +53,17 @@ class WorkManager():
         res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName) 
         data["topicName"] = newTopicName
 
+        arr = {
+            "topicName" : data["topicName"],
+            "source" : data["source"],           #rtmp://192.168.1.100/live
+            "isVideo" : data["is_video"],
+            "limit": data["limit"],
+            "errorLimit" : 3,
+            "independent" : False
+        }
+
         #! 1-KAFKA_PRODUCER:
-        send_queue, empty_message, responseIterator = self.kpm.producer(data)
+        send_queue, empty_message, responseIterator = self.kpm.producer(**arr)
 
         return data, send_queue, empty_message, responseIterator
 

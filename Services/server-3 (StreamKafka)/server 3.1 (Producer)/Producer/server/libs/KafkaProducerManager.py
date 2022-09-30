@@ -4,6 +4,7 @@ import os
 import signal
 import sys
 from multiprocessing.process import BaseProcess
+from signal import SIG_DFL, SIGPIPE
 
 import cv2
 from confluent_kafka import Producer
@@ -13,13 +14,16 @@ from libs.consts import *
 from libs.helpers import Converters
 from libs.Response import Response, ResponseCodes
 
+signal.signal(SIGPIPE,SIG_DFL) 
+
 
 class ProducerContextManager(object):
-    def __init__(self, data):
-        self.topicName = data["topicName"]
-        self.streamUrl = data["source"]
-        self.is_video =  data["is_video"]
-        self.limit = data["limit"]
+    def __init__(self,topicName, source, isVideo, limit, errorLimit):
+        self.topicName = topicName
+        self.source = source
+        self.is_video =  isVideo
+        self.limit = limit
+        self.errorLimit = errorLimit
         self.adminConfluent = None
         self._sigint = None
         self._sigterm = None
@@ -122,11 +126,12 @@ class ProducerContextManager(object):
 
 
     def producer(self, qq: multiprocessing.Queue):
-        logging.info(f"Producer Deploying For {self.streamUrl}, TopicName: {self.topicName}")
-        assert not (self.is_video and not os.access(self.streamUrl, mode=0)), "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
+        logging.info(f"Producer Deploying For {self.source}, TopicName: {self.topicName}")
+        assert not (self.is_video and not os.access(self.source, mode=0)), "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
        
         # Stream Settings
-        self.cam = cv2.VideoCapture(self.streamUrl)
+        logging.warning(self.source)
+        self.cam = cv2.VideoCapture(self.source)
         fps = int(self.cam.get(5))
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, int(self.cam.get(3)))
         self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, int(self.cam.get(4)))
@@ -143,7 +148,7 @@ class ProducerContextManager(object):
         limit_count = 0
         read_frame = 0
         while self.stop_flag:
-            if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count<=RET_COUNT-1:
+            if (limit_count>=self.limit and self.limit > 0) or not ret_limit_count<=self.errorLimit-1:
                 break
 
             ret_val, img = self.cam.read()
@@ -152,27 +157,28 @@ class ProducerContextManager(object):
                 encodedImg = Converters.frame2bytes(img)
 
                 if encodedImg is not None:
-
-                    qq.put(encodedImg, block=True, timeout=120.0)
                     
+                    qq.put(encodedImg, block=True) #, timeout=120.0
+
                     try:
                         self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
                         self.producerClient.poll(0)
                     except BufferError as bfer:
                         logging.error(bfer)
                         self.producerClient.poll(0.1) # Message Queue dolmuşsa 0.1 saniye bekle tekrar dene
+                        
                     read_frame += 1
                     ret_limit_count=0
                     if self.limit > 0:
                         limit_count+=1
                 else:
-                    logging.error(f"Frame to Byte convertion failed:{self.streamUrl}")
+                    logging.error(f"Frame to Byte convertion failed:{self.source}")
                     ret_limit_count+=1
             else:
-                logging.warning(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.streamUrl}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
+                logging.warning(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.source}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
 
-        logging.warning(f"Producer Sonlandı: <{self.topicName}>. Okunan Frame Sayısı: <{read_frame}>. RET_LIMIT: <{ret_limit_count}/{RET_COUNT-1}>")
+        logging.warning(f"Producer Sonlandı: <{self.topicName}>. Okunan Frame Sayısı: <{read_frame}>. RET_LIMIT: <{ret_limit_count}/{self.errorLimit-1}>")
 
 
 class KafkaProducerManager():
@@ -222,17 +228,14 @@ class KafkaProducerManager():
 
             if args[0]["topicName"] is None or args[0]["topicName"] == "":
                 return Response(ResponseCodes.REQUIRED, "Topic adı boş bırakılamaz.")
-            
-            if args[0]["limit"] is None or args[0]["limit"] == "":
-                args[0]["limit"] = -1
 
             t = multiprocessing.Process(name=args[0]["topicName"], target=func, args=(self, *args), kwargs=kwargs)
             t.start()
-            
+
             return Response(ResponseCodes.SUCCESS, f"Producer Started For: {args[0]['topicName'] }")
         return wrapper
 
     @ProducerMultiProcess
-    def startProducer(self, data, qq) -> Response:
-        with ProducerContextManager(data) as manager:
+    def startProducer(self, requestData, qq) -> Response:
+        with ProducerContextManager(**requestData) as manager:
             manager.producer(qq)

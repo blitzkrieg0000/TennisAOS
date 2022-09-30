@@ -14,6 +14,7 @@ class StatusChecker(AbstractHandler):
     def __init__(self) -> None:
         self.rcm = RedisCacheManager()
 
+
     def timer(func):
         def wrapper(self, *args, **kwargs):
             time.sleep(INTERVAL)
@@ -22,10 +23,12 @@ class StatusChecker(AbstractHandler):
             
         return wrapper
 
+
     @timer
     def checkDatabase(self):
         return Repositories.getAllProcessRelated(self.rcm)
     
+
     def handle(self, data: Any):
         data: list = self.checkDatabase()
         return super().handle(data)

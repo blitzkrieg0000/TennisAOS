@@ -17,8 +17,8 @@ class kafkaProducerStub(object):
         """
         self.producer = channel.stream_stream(
                 '/producer.kafkaProducer/producer',
-                request_serializer=kafkaProducer__pb2.producerRequest.SerializeToString,
-                response_deserializer=kafkaProducer__pb2.producerResponse.FromString,
+                request_serializer=kafkaProducer__pb2.ProducerRequest.SerializeToString,
+                response_deserializer=kafkaProducer__pb2.ProducerResponse.FromString,
                 )
         self.getAllProducerProcesses = channel.unary_unary(
                 '/producer.kafkaProducer/getAllProducerProcesses',
@@ -70,8 +70,8 @@ def add_kafkaProducerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'producer': grpc.stream_stream_rpc_method_handler(
                     servicer.producer,
-                    request_deserializer=kafkaProducer__pb2.producerRequest.FromString,
-                    response_serializer=kafkaProducer__pb2.producerResponse.SerializeToString,
+                    request_deserializer=kafkaProducer__pb2.ProducerRequest.FromString,
+                    response_serializer=kafkaProducer__pb2.ProducerResponse.SerializeToString,
             ),
             'getAllProducerProcesses': grpc.unary_unary_rpc_method_handler(
                     servicer.getAllProducerProcesses,
@@ -111,8 +111,8 @@ class kafkaProducer(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.stream_stream(request_iterator, target, '/producer.kafkaProducer/producer',
-            kafkaProducer__pb2.producerRequest.SerializeToString,
-            kafkaProducer__pb2.producerResponse.FromString,
+            kafkaProducer__pb2.ProducerRequest.SerializeToString,
+            kafkaProducer__pb2.ProducerResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

@@ -118,7 +118,6 @@ services:
   #     - tennisnet
   #   ports:
   #     - "50011:50011"
-  
   detectcourtlinesservice:
     image: detectcourtlinesservice
     build:
@@ -240,7 +239,7 @@ services:
     container_name: rtmpservice
     restart: always
     networks:
-      - securitynet
+      - tennisnet
     ports:
       - "1935:1935"
     depends_on:
