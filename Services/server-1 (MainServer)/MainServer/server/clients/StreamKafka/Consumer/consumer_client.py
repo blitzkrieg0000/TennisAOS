@@ -13,7 +13,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:
 
 class KafkaConsumerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('consumerservice:50032')
+        self.channel = grpc.insecure_channel('consumerservice:50032') #consumerservice
         self.stub = rc_grpc.kafkaConsumerStub(self.channel)
 
     def consumer(self, topicName, groupName, limit=-1, offsetMethod="earliest"):
