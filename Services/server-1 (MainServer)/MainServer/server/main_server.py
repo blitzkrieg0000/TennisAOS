@@ -19,7 +19,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:
 
 
 def logo():
-    f = open("Services/server-1 (MainServer)/MainServer/server/libs/logo.txt", "r")
+    f = open("libs/logo.txt", "r")
     logo = f.read()
     f.close()
     print(logo, "\n")
@@ -51,7 +51,9 @@ class MainServer(rc_grpc.MainServerServicer):
     def StartProcess(self, request, context):
         logging.info(f"Process:{request.ProcessId}  Başladı")
         raw = self.getStreamProcess(request.ProcessId)
+        frameCounter=0
         if len(raw) > 0:
+            
             data = raw[0]
             data, send_queue, empty_message, responseIterator = self.workManager.Prepare(data)
 
@@ -72,16 +74,14 @@ class MainServer(rc_grpc.MainServerServicer):
 
                     frame_base64 = ""
                     if response.Response.Data  != b"":
-                        bframe = Converters.bytes2frame(response.Response.Data )
+                        bframe = Converters.bytes2frame(response.Response.Data)
                         frame_base64 = Converters.frame2base64(bframe)
-                    logging.info(frame_base64[:10])
-
+                    frameCounter+=1
                     yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
 
                     send_queue.put(empty_message)
             except:
-                logging.info("Iteratordan çıktı.")
-
+                logging.info(f"Iteratordan çıktı. Returned Frame Count: {frameCounter}")
 
             logging.info("Ana işlemin bitmesi bekleniyor...")
             t.join()
@@ -118,7 +118,7 @@ class MainServer(rc_grpc.MainServerServicer):
 
 
 def serve():
-    logo()
+    # logo()
     mainSrv = MainServer()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     rc_grpc.add_MainServerServicer_to_server(mainSrv, server)

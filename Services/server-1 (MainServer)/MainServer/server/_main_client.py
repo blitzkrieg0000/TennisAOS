@@ -6,7 +6,7 @@ import MainServer_pb2_grpc as rc_grpc
 
 class MainServerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('localhost:50011') #redisservice:50051
+        self.channel = grpc.insecure_channel('redisservice:50011') #redisservice:50051
         self.stub = rc_grpc.MainServerStub(self.channel)
 
     def bytes2obj(self, bytes):

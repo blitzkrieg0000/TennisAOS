@@ -106,18 +106,18 @@ services:
 
 
   #! SERVICES
-  # mainservice:
-  #   image: mainservice
-  #   build:
-  #     context: "../Services/server-1 (MainServer)/"
-  #     dockerfile: dockerfile
-  #   hostname: mainservice
-  #   container_name: mainservice
-  #   restart: always
-  #   networks:
-  #     - tennisnet
-  #   ports:
-  #     - "50011:50011"
+  mainservice:
+    image: mainservice
+    build:
+      context: "../Services/server-1 (MainServer)/"
+      dockerfile: dockerfile
+    hostname: mainservice
+    container_name: mainservice
+    restart: always
+    networks:
+      - tennisnet
+    ports:
+      - "50011:50011"
   detectcourtlinesservice:
     image: detectcourtlinesservice
     build:

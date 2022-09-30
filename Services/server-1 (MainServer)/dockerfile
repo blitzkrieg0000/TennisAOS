@@ -16,4 +16,4 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
 
 COPY . .
 
-CMD [ "python3", "MainServer/server/Manager.py" ]
+CMD [ "python3", "MainServer/server/main_server.py" ]

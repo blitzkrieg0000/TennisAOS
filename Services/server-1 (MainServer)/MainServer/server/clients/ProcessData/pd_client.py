@@ -9,7 +9,7 @@ import numpy as np
 
 class PDClient():
     def __init__(self):
-        self.channel = grpc.insecure_channel('localhost:50024') #processdataservice
+        self.channel = grpc.insecure_channel('processdataservice:50024') #processdataservice
         self.stub = rc_grpc.ProcessDataStub(self.channel)
     
     def bytes2img(self, image):

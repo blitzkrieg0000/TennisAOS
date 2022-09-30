@@ -10,7 +10,7 @@ import cv2
 
 class DCLClient():
     def __init__(self):
-        self.channel = grpc.insecure_channel('localhost:50021') #detectcourtlinesservice
+        self.channel = grpc.insecure_channel('detectcourtlinesservice:50021') #detectcourtlinesservice
         self.stub = rc_grpc.detectCourtLineStub(self.channel)
     
     def img2bytes(self, image):
