@@ -48,7 +48,7 @@ class WorkManager():
         
 
     # Algorithms--------------------------------------------------------------- 
-    def Prepare(self, data):
+    def Prepare(self, data, independent=False, errorLimit=3):
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
         res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName) 
         data["topicName"] = newTopicName
@@ -58,8 +58,8 @@ class WorkManager():
             "source" : data["source"],           #rtmp://192.168.1.100/live
             "isVideo" : data["is_video"],
             "limit": data["limit"],
-            "errorLimit" : 3,
-            "independent" : False
+            "errorLimit" : errorLimit,
+            "independent" : independent
         }
 
         #! 1-KAFKA_PRODUCER:
