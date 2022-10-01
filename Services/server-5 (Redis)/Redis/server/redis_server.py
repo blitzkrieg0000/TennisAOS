@@ -10,7 +10,7 @@ import redisCache_pb2_grpc as rc_grpc
 from clients.Postgres.postgres_client import PostgresDatabaseClient
 from libs.redisManager import RedisManager
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 #*SERVER
 class redisCache(rc_grpc.redisCacheServicer):

@@ -139,7 +139,7 @@ class ProducerContextManager(object):
         self.cam.set(cv2.CAP_PROP_FPS, fps if fps>0 else 30)
         self.cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*'H265'))
         
-        self.__deleteAllTopics()
+        #self.__deleteAllTopics()
 
         # Create Topic if not exist
         self.__updateTopics(self.topicName)
@@ -176,7 +176,7 @@ class ProducerContextManager(object):
                     logging.error(f"Frame to Byte convertion failed:{self.source}")
                     ret_limit_count+=1
             else:
-                logging.error(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.source}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
+                #logging.error(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.source}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
 
         logging.warning(f"Producer Sonlandı: <{self.topicName}>. Okunan Frame Sayısı: <{read_frame}>. RET_LIMIT: <{ret_limit_count}/{self.errorLimit-1}>")

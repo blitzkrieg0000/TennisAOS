@@ -10,7 +10,7 @@ import processData_pb2_grpc as rc_grpc
 import cv2
 import numpy as np
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 class PDServer(rc_grpc.ProcessDataServicer):
 

@@ -8,7 +8,7 @@ import grpc
 import clients.StreamKafka.Consumer.kafkaConsumer_pb2 as rc
 import clients.StreamKafka.Consumer.kafkaConsumer_pb2_grpc as rc_grpc
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 
 class KafkaConsumerManager():

@@ -8,7 +8,7 @@ import predictFallPosition_pb2 as rc
 import predictFallPosition_pb2_grpc as rc_grpc
 from libs.statusPredicter import StatusPredicter
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 class PFPServer(rc_grpc.predictFallPositionServicer):
 

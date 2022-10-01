@@ -8,5 +8,7 @@
 # print(filteredName+"son")
 
 
-if False or None:
-    print("x")
+import logging
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
+
+logging.info("a")

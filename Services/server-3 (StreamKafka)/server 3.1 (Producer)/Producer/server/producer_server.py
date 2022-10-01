@@ -11,7 +11,7 @@ from libs.helpers import EncodeManager
 from libs.KafkaProducerManager import KafkaProducerManager
 from libs.Response import *
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 import signal
 from signal import SIG_DFL, SIGPIPE

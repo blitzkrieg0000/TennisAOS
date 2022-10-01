@@ -8,7 +8,7 @@ import postgresql_pb2 as rc
 import postgresql_pb2_grpc as rc_grpc
 from libs.postgresManager import PostgresManager
 
-logging.basicConfig(format='%(asctime)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.NOTSET)
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 class postgresServer(rc_grpc.postgresqlServicer):
     def __init__(self):
