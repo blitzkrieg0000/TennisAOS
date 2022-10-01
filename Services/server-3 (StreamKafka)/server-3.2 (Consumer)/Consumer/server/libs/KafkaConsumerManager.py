@@ -54,7 +54,7 @@ class ConsumerGen():
         return self
 
     def __next__(self):
-        if (self.limit!=-1 and self.limit_count==self.limit) or (self.ret_limit>100) or self.stopFlag:
+        if (self.limit!=-1 and self.limit_count==self.limit) or (self.ret_limit>50) or self.stopFlag:
             self.closeConnection()
             raise StopIteration
 

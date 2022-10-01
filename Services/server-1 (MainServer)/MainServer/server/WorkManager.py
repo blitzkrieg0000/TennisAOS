@@ -10,7 +10,6 @@ from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
 
-
 MAX_WORKERS = 5
 class WorkManager():
     def __init__(self):

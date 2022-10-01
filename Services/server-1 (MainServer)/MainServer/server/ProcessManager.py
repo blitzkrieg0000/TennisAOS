@@ -1,13 +1,11 @@
 from __future__ import annotations
-from concurrent.futures import process
 
 import logging
 import threading
 import time
-from typing import Any
 
-from libs.helpers import Repositories
 from clients.Redis.redis_client import RedisCacheManager
+from libs.helpers import Repositories
 from WorkManager import WorkManager
 
 INTERVAL = 3
@@ -24,7 +22,6 @@ class ProcessManager():
     def timer(func):
         def wrapper(self, *args, **kwargs):
             time.sleep(INTERVAL)
-            logging.info("Yeni Processler Kontrol Ediliyor...")
             return func(self, *args,  **kwargs)
             
         return wrapper

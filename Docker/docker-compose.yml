@@ -104,7 +104,6 @@ services:
               count: 1
               capabilities: [ gpu ]
 
-
   #! SERVICES
   mainservice:
     image: mainservice

@@ -18,12 +18,13 @@ signal.signal(SIGPIPE,SIG_DFL)
 
 
 class ProducerContextManager(object):
-    def __init__(self,topicName, source, isVideo, limit, errorLimit):
+    def __init__(self,topicName, source, isVideo, limit, errorLimit, independent):
         self.topicName = topicName
         self.source = source
         self.is_video =  isVideo
         self.limit = limit
         self.errorLimit = errorLimit
+        self.independent = independent
         self.adminConfluent = None
         self._sigint = None
         self._sigterm = None
@@ -126,11 +127,10 @@ class ProducerContextManager(object):
 
 
     def producer(self, qq: multiprocessing.Queue):
-        logging.info(f"Producer Deploying For {self.source}, TopicName: {self.topicName}")
+        logging.info(f"Producer Deploying...Source: <{self.source}>, TopicName: <{self.topicName}>")
         assert not (self.is_video and not os.access(self.source, mode=0)), "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
        
         # Stream Settings
-        logging.warning(self.source)
         self.cam = cv2.VideoCapture(self.source)
         fps = int(self.cam.get(5))
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, int(self.cam.get(3)))
@@ -158,7 +158,8 @@ class ProducerContextManager(object):
 
                 if encodedImg is not None:
                     
-                    qq.put(encodedImg, block=True) #, timeout=120.0
+                    if not self.independent:
+                        qq.put(encodedImg, block=True) #, timeout=120.0
 
                     try:
                         self.producerClient.produce(self.topicName, encodedImg, callback=self.__delivery_report)
@@ -175,7 +176,7 @@ class ProducerContextManager(object):
                     logging.error(f"Frame to Byte convertion failed:{self.source}")
                     ret_limit_count+=1
             else:
-                logging.warning(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.source}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
+                logging.error(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.source}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
                 ret_limit_count+=1
 
         logging.warning(f"Producer Sonlandı: <{self.topicName}>. Okunan Frame Sayısı: <{read_frame}>. RET_LIMIT: <{ret_limit_count}/{self.errorLimit-1}>")

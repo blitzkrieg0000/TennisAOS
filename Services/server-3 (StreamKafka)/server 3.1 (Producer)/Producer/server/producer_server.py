@@ -38,28 +38,31 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
             "source" : requestData.Source,
             "isVideo" : requestData.IsVideo,
             "limit" : requestData.Limit,
-            "errorLimit" : requestData.ErrorLimit
+            "errorLimit" : requestData.ErrorLimit,
+            "independent": requestData.Independent
         }
         
         self.kafkaProducerManager.startProducer(arr, qq)
 
-        while context.is_active() or requestData.Independent:
+        if not requestData.Independent:
+            while context.is_active():
 
-            tic = time.time()
-            frame = qq.get(block=True)
-            toc = time.time()
-            logging.warning("get: "+str(toc-tic))
+                frame = qq.get(block=True)
 
-            yield rc.ProducerResponse(
-                Response=self.CreateResponse(
-                    Response(ResponseCodes.SUCCESS, message="", data=frame)
+                yield rc.ProducerResponse(
+                    Response=self.CreateResponse(
+                        Response(ResponseCodes.SUCCESS, message="Producer Streaming Yapıyor...", data=frame)
+                    )
                 )
-            )
 
-            #bidirectional empty
-            if not requestData.Independent:
+                #bidirectional empty
                 request = next(requestIter)
-
+        else:
+            yield rc.ProducerResponse(
+                    Response=self.CreateResponse(
+                        Response(ResponseCodes.SUCCESS, message="Producer Başladı!", data=b"") #data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+                    )
+                ) 
 
     def getAllProducerProcesses(self, request, context):
         response = self.kafkaProducerManager.getAllProducerProcesses()

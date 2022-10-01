@@ -86,10 +86,10 @@ class TrackNetObjectDetection(object):
 				logging.info(dist)
 				index = np.argmin( dist )
 
-				logging.info("index: ",index)
+				logging.info(f"index: {index}")
 				x, y, z = circles[index]
-				logging.info("last: ", self.last_y)
-				logging.info("y: ",y)
+				logging.info(f"last: {self.last_y}")
+				logging.info(f"y: {y}")
 				break
 			else:
 				self.PREFIX = self.PREFIX_INC_VAL + self.PREFIX
@@ -114,7 +114,7 @@ class TrackNetObjectDetection(object):
 					y = int(circle[1])
 					dist = np.linalg.norm( np.array([x, y]) - np.array([self.last_x, self.last_y]) )
 					distances = np.append(distances, dist)
-				logging.info("LAST_DISTANCE: ", distances)
+				logging.info(f"LAST_DISTANCE: {distances}", )
 				px, py = self.calculate_distance_availability(circles, distances)
 				if py is not None:
 					# EKLE
@@ -143,7 +143,7 @@ class TrackNetObjectDetection(object):
 						dist = np.linalg.norm( np.array([x, y]) - np.array([self.predicted_x, self.predicted_y]) )
 						distances_pre = np.append(distances_pre, dist)
 
-				logging.info("KALMAN_DISTANCE: ", distances_pre)
+				logging.info(f"KALMAN_DISTANCE: {distances_pre}")
 				distance_indexes_pre = np.where( (distances_pre>self.MIN_DIST_KALMAN) & (distances_pre<self.MAX_DIST_KALMAN ) )[0]
 				dist = np.full(distances_pre.shape, np.inf)
 				if len(distance_indexes_pre) > 0:
@@ -161,7 +161,7 @@ class TrackNetObjectDetection(object):
 			self.add_queue(self.miss_queue, True)
 			self.add_queue(self.q, None)
 		
-		logging.info("MISS_QUEUE: ", self.miss_queue, "\n\n")
+		logging.info(f"MISS_QUEUE: {self.miss_queue} \n")
 
 		if self.last_y is not None:
 			self.predicted_x, self.predicted_y = self.kf.predict(self.last_x, self.last_y)
