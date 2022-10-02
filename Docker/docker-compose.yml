@@ -1,6 +1,5 @@
 version: '3.7'
 services:
-  #! TOOLS
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.1
     hostname: zookeeper
@@ -103,12 +102,10 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [ gpu ]
-
-  #! SERVICES
   mainservice:
     image: mainservice
     build:
-      context: "../Services/server-1 (MainServer)/"
+      context: "../Backend/Services/MainServer/"
       dockerfile: dockerfile
     hostname: mainservice
     container_name: mainservice
@@ -120,7 +117,7 @@ services:
   detectcourtlinesservice:
     image: detectcourtlinesservice
     build:
-      context: "../Services/server-2 (Algorithms)/DCL/"
+      context: "../Backend/Services/DetectCourtLines/"
       dockerfile: dockerfile
     hostname: detectcourtlinesservice
     container_name: detectcourtlinesservice
@@ -132,7 +129,7 @@ services:
   predictfallpositionservice:
     image: predictfallpositionservice
     build:
-      context: "../Services/server-2 (Algorithms)/PFP/"
+      context: "../Backend/Services/PredictFallPoint/"
       dockerfile: dockerfile
     hostname: predictfallpositionservice
     container_name: predictfallpositionservice
@@ -144,7 +141,7 @@ services:
   processdataservice:
     image: processdataservice
     build:
-      context: "../Services/server-2 (Algorithms)/PD/"
+      context: "../Backend/Services/ProcessData/"
       dockerfile: dockerfile
     hostname: processdataservice
     container_name: processdataservice
@@ -156,7 +153,7 @@ services:
   trackballservice:
     image: trackballservice
     build:
-      context: "../Services/server-2 (Algorithms)/TB/"
+      context: "../Backend/Services/TrackBall"
       dockerfile: dockerfile
     hostname: trackballservice
     container_name: trackballservice
@@ -177,7 +174,7 @@ services:
   producerservice:
     image: producerservice
     build:
-      context: "../Services/server-3 (StreamKafka)/server 3.1 (Producer)/"
+      context: "../Backend/Services/ConfluentKafka/Producer/"
       dockerfile: dockerfile
 
     hostname: producerservice
@@ -192,7 +189,7 @@ services:
   consumerservice:
     image: consumerservice
     build:
-      context: "../Services/server-3 (StreamKafka)/server-3.2 (Consumer)/"
+      context: "../Backend/Services/ConfluentKafka/Consumer/"
       dockerfile: dockerfile
     hostname: consumerservice
     container_name: consumerservice
@@ -206,7 +203,7 @@ services:
   postgresservice:
     image: postgresservice
     build:
-      context: "../Services/server-4 (Postgresql)/"
+      context: "../Backend/Services/Postgresql"
       dockerfile: dockerfile
     hostname: postgresservice
     container_name: postgresservice
@@ -218,7 +215,7 @@ services:
   redisservice:
     image: redisservice
     build:
-      context: "../Services/server-5 (Redis)/"
+      context: "../Backend/Services/Redis/"
       dockerfile: dockerfile
     hostname: redisservice
     container_name: redisservice
@@ -232,7 +229,7 @@ services:
   rtmp:
     image: rtmpservice
     build:
-      context: "./Daemon/RTMP/"
+      context: "../Backend/Services/RTMP"
       dockerfile: dockerfile
     hostname: rtmpservice
     container_name: rtmpservice
@@ -243,41 +240,56 @@ services:
       - "1935:1935"
     depends_on:
       - producerservice
-
+  nfs:
+    image: nfs
+    privileged: true
+    build:
+      context: "../Backend/Services/NFS"
+      dockerfile: dockerfile
+    hostname: nfs
+    container_name: nfs
+    restart: always
+    environment:
+      - SHARED_DIRECTORY=/nfsshare
+    networks:
+      - tennisnet
+    ports:
+      - "2049:2049"
+    volumes:
+      - ../Data/nfs/tennis/:/nfsshare
 
 #! VOLUMES
 volumes:
   broker0:
     driver_opts:
       type: "nfs"
-      o: "addr=192.168.1.100,nolock,soft,rw"
-      device: ":/srv/nfs/mydata/docker-tennis/broker0"
+      o: "addr=nfs,nolock,soft,rw"
+      device: ":../Data/nfs/tennis/broker0"
   zookeeper_data:
     driver_opts:
       type: "nfs"
-      o: "addr=192.168.1.100,nolock,soft,rw"
-      device: ":/srv/nfs/mydata/docker-tennis/zookeeper_data"
+      o: "addr=nfs,nolock,soft,rw"
+      device: ":../Data/nfs/tennis/zookeeper_data"
   zookeeper_log:
     driver_opts:
       type: "nfs"
-      o: "addr=192.168.1.100,nolock,soft,rw"
-      device: ":/srv/nfs/mydata/docker-tennis/zookeeper_log"
+      o: "addr=nfs,nolock,soft,rw"
+      device: ":../Data/nfs/tennis/zookeeper_log"
   postgresql:
     driver_opts:
       type: "nfs"
-      o: "addr=192.168.1.100,nolock,soft,rw"
-      device: ":/srv/nfs/mydata/docker-tennis/postgresql"
+      o: "addr=nfs,nolock,soft,rw"
+      device: ":../Data/nfs/tennis/postgresql"
   models:
     driver_opts:
       type: "nfs"
-      o: "addr=192.168.1.100,nolock,soft,rw"
-      device: ":/srv/nfs/mydata/docker-tennis/models"
+      o: "addr=nfs,nolock,soft,rw"
+      device: ":../Data/nfs/tennis/models"
   assets:
     driver_opts:
       type: "nfs"
-      o: "addr=192.168.1.100,nolock,soft,rw"
-      device: ":/srv/nfs/mydata/docker-tennis/assets"
-
+      o: "addr=nfs,nolock,soft,rw"
+      device: ":../Data/nfs/tennis/assets"
 
 #! NETWORK
 networks:
