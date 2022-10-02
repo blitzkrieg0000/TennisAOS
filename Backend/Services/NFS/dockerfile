@@ -1,6 +1,5 @@
 FROM alpine:latest
 
-
 RUN apk add --no-cache --update --verbose nfs-utils bash iproute2 && \
     rm -rf /var/cache/apk /tmp /sbin/halt /sbin/poweroff /sbin/reboot && \
     mkdir -p /var/lib/nfs/rpc_pipefs /var/lib/nfs/v4recovery && \
@@ -10,7 +9,7 @@ RUN apk add --no-cache --update --verbose nfs-utils bash iproute2 && \
 COPY exports /etc/
 COPY nfsd.sh /usr/bin/nfsd.sh
 COPY .bashrc /root/.bashrc
-
+EXPOSE 2049
 RUN chmod +x /usr/bin/nfsd.sh
 
 ENTRYPOINT ["/usr/bin/nfsd.sh"]

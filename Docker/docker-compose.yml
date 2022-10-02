@@ -15,6 +15,8 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_log:/var/lib/zookeeper/log
+    depends_on:
+      - nfs
   broker:
     image: confluentinc/cp-kafka:7.1.1
     hostname: broker
@@ -241,8 +243,9 @@ services:
     depends_on:
       - producerservice
   nfs:
-    image: nfs
-    privileged: true
+    image: alpine:latest
+    labels:
+      io.rancher.container.dns: 'true'
     build:
       context: "../Backend/Services/NFS"
       dockerfile: dockerfile
@@ -251,45 +254,51 @@ services:
     restart: always
     environment:
       - SHARED_DIRECTORY=/nfsshare
+      - SYNC=true
     networks:
       - tennisnet
+    privileged: true
     ports:
       - "2049:2049"
+
     volumes:
       - ../Data/nfs/tennis/:/nfsshare
+    cap_add:
+    - SYS_ADMIN
+    - SETPCAP
 
 #! VOLUMES
 volumes:
   broker0:
     driver_opts:
       type: "nfs"
-      o: "addr=nfs,nolock,soft,rw"
-      device: ":../Data/nfs/tennis/broker0"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft,nolock,soft"
+      device: ":/nfsshare/broker0"
   zookeeper_data:
     driver_opts:
       type: "nfs"
-      o: "addr=nfs,nolock,soft,rw"
-      device: ":../Data/nfs/tennis/zookeeper_data"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      device: ":/nfsshare/zookeeper_data"
   zookeeper_log:
     driver_opts:
       type: "nfs"
-      o: "addr=nfs,nolock,soft,rw"
-      device: ":../Data/nfs/tennis/zookeeper_log"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      device: ":/nfsshare/zookeeper_log"
   postgresql:
     driver_opts:
       type: "nfs"
-      o: "addr=nfs,nolock,soft,rw"
-      device: ":../Data/nfs/tennis/postgresql"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      device: ":/nfsshare/postgresql"
   models:
     driver_opts:
       type: "nfs"
-      o: "addr=nfs,nolock,soft,rw"
-      device: ":../Data/nfs/tennis/models"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      device: ":/nfsshare/models"
   assets:
     driver_opts:
       type: "nfs"
-      o: "addr=nfs,nolock,soft,rw"
-      device: ":../Data/nfs/tennis/assets"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      device: "/nfsshare/assets"
 
 #! NETWORK
 networks:

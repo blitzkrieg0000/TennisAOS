@@ -1,12 +1,4 @@
 #!/bin/bash
-mkdir nfsshare
-chmod 777 -R /nfsshare
-mkdir -p /nfsshare/assets
-mkdir -p /nfsshare/broker0
-mkdir -p /nfsshare/models
-mkdir -p /nfsshare/postgresql
-mkdir -p /nfsshare/zookeeper_data
-mkdir -p /nfsshare/zookeeper_log
 
 # Make sure we react to these signals by running stop() when we see them - for clean shutdown
 # And then exiting
