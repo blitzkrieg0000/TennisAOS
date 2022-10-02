@@ -260,7 +260,6 @@ services:
     privileged: true
     ports:
       - "2049:2049"
-
     volumes:
       - ../Data/nfs/tennis/:/nfsshare
     cap_add:
@@ -272,7 +271,7 @@ volumes:
   broker0:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft,nolock,soft"
+      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
       device: ":/nfsshare/broker0"
   zookeeper_data:
     driver_opts:
