@@ -243,12 +243,11 @@ services:
     depends_on:
       - producerservice
   nfs:
-    image: alpine:latest
-    labels:
-      io.rancher.container.dns: 'true'
+    image: nfs
     build:
       context: "../Backend/Services/NFS"
       dockerfile: dockerfile
+    command: /bin/sh -c "run.sh /nfsshare"
     hostname: nfs
     container_name: nfs
     restart: always
@@ -257,7 +256,6 @@ services:
       - SYNC=true
     networks:
       - tennisnet
-    privileged: true
     ports:
       - "2049:2049"
     volumes:
@@ -271,33 +269,34 @@ volumes:
   broker0:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
       device: ":/nfsshare/broker0"
   zookeeper_data:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
       device: ":/nfsshare/zookeeper_data"
   zookeeper_log:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
       device: ":/nfsshare/zookeeper_log"
   postgresql:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
       device: ":/nfsshare/postgresql"
   models:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
+      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
       device: ":/nfsshare/models"
   assets:
     driver_opts:
       type: "nfs"
-      o: "addr=localhost,nfsvers=4,rw,nolock,soft"
-      device: "/nfsshare/assets"
+      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
+      device: ":/nfsshare/assets"
+
 
 #! NETWORK
 networks:

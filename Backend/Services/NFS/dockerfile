@@ -1,15 +1,15 @@
-FROM alpine:latest
+FROM ubuntu:xenial
 
-RUN apk add --no-cache --update --verbose nfs-utils bash iproute2 && \
-    rm -rf /var/cache/apk /tmp /sbin/halt /sbin/poweroff /sbin/reboot && \
-    mkdir -p /var/lib/nfs/rpc_pipefs /var/lib/nfs/v4recovery && \
-    echo "rpc_pipefs    /var/lib/nfs/rpc_pipefs rpc_pipefs      defaults        0       0" >> /etc/fstab && \
-    echo "nfsd  /proc/fs/nfsd   nfsd    defaults        0       0" >> /etc/fstab
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        netbase \
+        nfs-kernel-server \
+	&& rm -rf /var/lib/apt/lists/*
 
-COPY exports /etc/
-COPY nfsd.sh /usr/bin/nfsd.sh
-COPY .bashrc /root/.bashrc
-EXPOSE 2049
-RUN chmod +x /usr/bin/nfsd.sh
+RUN mkdir -p /exports
 
-ENTRYPOINT ["/usr/bin/nfsd.sh"]
+VOLUME /exports
+
+EXPOSE 111/udp 2049/tcp
+
+ADD run.sh /usr/local/bin/run.sh
+ENTRYPOINT ["run.sh"]
