@@ -1,0 +1,3 @@
+brctl addbr test
+iw wlp110s0 set 4addr on
+brctl addif test wlp110s0

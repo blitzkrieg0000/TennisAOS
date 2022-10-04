@@ -15,8 +15,6 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_log:/var/lib/zookeeper/log
-    depends_on:
-      - nfs
   broker:
     image: confluentinc/cp-kafka:7.1.1
     hostname: broker
@@ -242,60 +240,62 @@ services:
       - "1935:1935"
     depends_on:
       - producerservice
-  nfs:
-    image: nfs
-    build:
-      context: "../Backend/Services/NFS"
-      dockerfile: dockerfile
-    command: /bin/sh -c "run.sh /nfsshare"
-    hostname: nfs
-    container_name: nfs
-    restart: always
-    environment:
-      - SHARED_DIRECTORY=/nfsshare
-      - SYNC=true
-    networks:
-      - tennisnet
-    ports:
-      - "2049:2049"
-    volumes:
-      - ../Data/nfs/tennis/:/nfsshare
-    cap_add:
-    - SYS_ADMIN
-    - SETPCAP
+  # nfs:
+  #   image: nfs
+  #   build:
+  #     context: "../Backend/Services/NFS"
+  #     dockerfile: dockerfile
+  #   command: /bin/sh -c "run.sh /nfsshare"
+  #   hostname: nfs
+  #   container_name: nfs
+  #   restart: always
+  #   environment:
+  #     - SHARED_DIRECTORY=/nfsshare
+  #     - SYNC=true
+  #   networks:
+  #     - tennisnet
+  #   ports:
+  #     - "2049:2049"
+  #   volumes:
+  #     - ../Data/nfs/tennis/:/nfsshare
+  #   cap_add:
+  #   - SYS_ADMIN
+  #   - SETPCAP
 
 #! VOLUMES
 volumes:
   broker0:
     driver_opts:
       type: "nfs"
-      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
-      device: ":/nfsshare/broker0"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/broker0"
   zookeeper_data:
     driver_opts:
       type: "nfs"
-      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
-      device: ":/nfsshare/zookeeper_data"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/zookeeper_data"
   zookeeper_log:
     driver_opts:
       type: "nfs"
-      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
-      device: ":/nfsshare/zookeeper_log"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/zookeeper_log"
   postgresql:
     driver_opts:
       type: "nfs"
-      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
-      device: ":/nfsshare/postgresql"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/postgresql"
   models:
     driver_opts:
       type: "nfs"
-      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
-      device: ":/nfsshare/models"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/models"
   assets:
+  driver:
     driver_opts:
       type: "nfs"
-      o: "nfsvers=4,addr=172.21.0.2,rw,nolock,soft"
-      device: ":/nfsshare/assets"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/assets"
+
 
 
 #! NETWORK
