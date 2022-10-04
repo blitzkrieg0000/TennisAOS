@@ -45,7 +45,7 @@ class CourtReference():
         self.court_total_width = self.court_width + self.right_left_border * 2
         self.court_total_height = self.court_height + self.top_bottom_border * 2
 
-        self.court = cv2.cvtColor(cv2.imread('/usr/src/app/DetectCourtLines/server/libs/court_configurations/court_reference.png'), cv2.COLOR_BGR2GRAY)
+        self.court = cv2.cvtColor(cv2.imread('/usr/src/app/src/server/libs/court_configurations/court_reference.png'), cv2.COLOR_BGR2GRAY)
 
     def get_important_lines(self):
         """Sahanın tüm çizgilerinini al"""
