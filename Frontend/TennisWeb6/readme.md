@@ -162,6 +162,9 @@
 	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.17" /> //İçerisinde EFCore Var
 	<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.17" />
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.17" />
+
+	//NET6
+	<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
 ```
 
 ## SCAFFOLD 
