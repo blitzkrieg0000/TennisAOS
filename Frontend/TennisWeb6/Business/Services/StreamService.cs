@@ -59,7 +59,7 @@ namespace Business.Services {
                         return new Response<StreamCreateDto>(ResponseType.ValidationError, "Lütfen mp4 formatında video yükleyiniz.");
                     }
 
-                    string SAVE_PATH = "/srv/nfs/mydata/docker-tennis";
+                    string SAVE_PATH = Path.Combine(Directory.GetCurrentDirectory(), "../../../Data/nfs/tennis");
                     string SAVE_FOLDER_NAME = "assets";
                     SAVE_PATH = System.IO.Path.Combine(SAVE_PATH, SAVE_FOLDER_NAME);
 
@@ -83,7 +83,7 @@ namespace Business.Services {
 
                 }
 
-                dto.SaveDate = DateTime.Now;
+                dto.SaveDate = DateTime.UtcNow;
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().Create(_mapper.Map<Entities.Concrete.Stream>(dto));
                 await _unitOfWork.SaveChanges();
                 return new Response<StreamCreateDto>(ResponseType.Success, dto, "Yükleme Başarılı");

@@ -35,7 +35,6 @@ namespace Business.Services {
 
         public async Task<Response<List<ProcessListRelatedDto>>> GetAllRelated(long id) {
             var query = _unitOfWork.GetRepository<Process>().GetQuery();
-
             var raw = await query
                 .Include(x => x.Session)
                 .ThenInclude(x => x.SessionParameter)
