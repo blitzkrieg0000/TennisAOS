@@ -4,7 +4,7 @@ using Dtos.Interface;
 namespace Dtos.SessionDtos {
     public class SessionCreateDto : IDto {
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public long SessionId { get; set; }
         public bool? IsActivated { get; set; }
 

@@ -9,7 +9,7 @@ namespace Entities.Concrete {
         public long? StreamId { get; set; }
         public long? Limit { get; set; }
 
-        public virtual Process IdNavigation { get; set; }
-        public virtual Stream Stream { get; set; }
+        public virtual Process? IdNavigation { get; set; }
+        public virtual Stream? Stream { get; set; }
     }
 }

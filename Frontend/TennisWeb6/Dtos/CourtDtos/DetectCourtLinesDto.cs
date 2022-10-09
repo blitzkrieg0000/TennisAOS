@@ -6,7 +6,7 @@ using Dtos.Interface;
 
 namespace Dtos.CourtDtos {
     public class DetectCourtLinesDto : IDto {
-        public float[,] Lines { get; set; }
-        public string Base64Img { get; set; }
+        public float[,]? Lines { get; set; }
+        public string? Base64Img { get; set; }
     }
 }
