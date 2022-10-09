@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Entities.Concrete {
+﻿namespace Entities.Concrete {
     public class AosType : BaseEntity {
         public AosType() {
             PlayingData = new HashSet<PlayingDatum>();
