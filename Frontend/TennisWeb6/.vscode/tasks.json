@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/TennisWeb6.csproj",
+                "${workspaceFolder}/UI/UI.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/TennisWeb6.csproj",
+                "${workspaceFolder}/UI/UI.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -33,7 +33,7 @@
                 "watch",
                 "run",
                 "--project",
-                "${workspaceFolder}/TennisWeb6.csproj"
+                "${workspaceFolder}/UI/UI.csproj"
             ],
             "problemMatcher": "$msCompile"
         }

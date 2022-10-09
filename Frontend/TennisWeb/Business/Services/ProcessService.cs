@@ -104,5 +104,6 @@ namespace Business.Services {
             return new Response(ResponseType.NotFound, $"{id} ye ait veri bulunamadı!");
         }
 
+
     }
 }
