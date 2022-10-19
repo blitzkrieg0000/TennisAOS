@@ -5,16 +5,27 @@ import time
 import cv2
 import numpy as np
 
-# from libs.inference import InferenceManager
-from libs.inference import InferenceManager
+from libs.inference_local import InferenceManager
+#from libs.inference import InferenceManager
 
 
-class KalmanFilter:
-	kf = cv2.KalmanFilter(4, 2)
-	kf.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
-	kf.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
-	kf.processNoiseCov = np.array( [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]], np.float32) * 0.03
+class KalmanFilter():
+	def __init__(self) -> None:
+		self.kf = None
+		self.deploy()
+
+
+	def deploy(self):
+		self.kf = cv2.KalmanFilter(4, 2)
+		self.kf.measurementMatrix = np.array([[1, 0, 0, 0], [0, 1, 0, 0]], np.float32)
+		self.kf.transitionMatrix = np.array([[1, 0, 1, 0], [0, 1, 0, 1], [0, 0, 1, 0], [0, 0, 0, 1]], np.float32)
+		self.kf.processNoiseCov = np.array( [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]], np.float32) * 0.03
 	
+
+	def reset(self):
+		self.deploy()
+
+
 	def predict(self, coordX, coordY):
 		measured = np.array([[np.float32(coordX)], [np.float32(coordY)]])
 		self.kf.correct(measured)
@@ -22,9 +33,13 @@ class KalmanFilter:
 		x, y = int(predicted[0]), int(predicted[1])
 		return x, y
 
+
+
 class TrackNetObjectDetection(object):
 	def __init__(self):
 		self.inferenceManager = InferenceManager()
+		
+		#Parameters
 		self.n_classes = 256
 		self.width, self.height = 640, 360
 		self.img, self.img1, self.img2 = None, None, None
@@ -172,6 +187,7 @@ class TrackNetObjectDetection(object):
 
 		return x, y
 
+
 	def draw_canvas(self, canvas, draw):
 		if draw:
 			if self.predicted_y:
@@ -184,9 +200,10 @@ class TrackNetObjectDetection(object):
 					canvas = cv2.ellipse(canvas, (int(draw_x), int(draw_y)), (4, 4), 0, 0, 360, (0, 255, 255), 1)
 		return canvas
 
-	def detect(self, frame, canvas_image, draw=False):
+
+	def detect(self, frame, draw=False):
 		x, y = None, None
-		canvas = canvas_image
+		canvas = frame.copy()
 		output_height, output_width = frame.shape[:-1]
 		self.current_frame = cv2.resize(frame, ( self.width , self.height ))
 		self.current_frame = self.current_frame.astype(np.float32)

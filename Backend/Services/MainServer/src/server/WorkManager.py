@@ -111,7 +111,8 @@ class WorkManager():
             # TODO SAHA ÇİZGİ TAKİBİ
             # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
             all_points.append(np.array(Converters.bytes2obj(balldata)))
-            
+        self.tbc.deleteDetector(data["topicName"])
+        
         #! 5-PREDICT_BALL_POSITION
         ball_fall_array_bytes = self.pfpc.predictFallPosition(all_points)
         ball_fall_array = Converters.bytes2obj(ball_fall_array_bytes)

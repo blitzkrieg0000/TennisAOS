@@ -2,7 +2,7 @@ import onnxruntime as ort
 
 class InferenceManager():
     def __init__(self):
-        self.save_weights_path = "/usr/src/app/TrackBall/server/libs/weights/model.onnx"
+        self.save_weights_path = "/usr/src/app/src/server/libs/weights/model.onnx"
         self.providers = ['CUDAExecutionProvider', 'CPUExecutionProvider']
         self.session = ort.InferenceSession(self.save_weights_path, providers=self.providers)
         self.input_cfg = self.session.get_inputs()[0]

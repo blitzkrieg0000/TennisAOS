@@ -5,6 +5,7 @@ from concurrent import futures
 import cv2
 import grpc
 import numpy as np
+from libs.helpers import Converters
 
 import trackBall_pb2 as rc
 import trackBall_pb2_grpc as rc_grpc
@@ -24,18 +25,15 @@ class TBServer(rc_grpc.trackBallServicer):
         return pickle.loads(bytes)
 
     def findTennisBallPosition(self, request, context):
-        #TODO Birden fazla client için tasarlanacak.
-
+        
         nparr = np.frombuffer(request.tensor, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        canvas = frame.copy()
-        
+
         if not request.name in self.detectors.keys():
             self.detectors[request.name] = TrackNetObjectDetection()
         
-        (draw_x, draw_y), canvas = self.detectors[request.name].detect(frame, canvas, draw=True)
+        (draw_x, draw_y), canvas = self.detectors[request.name].detect(frame, draw=True)
         return rc.trackBallResponse(point=self.obj2bytes([draw_x, draw_y]))
-
 
     def deleteDetector(self, request, context):
         if request.data in self.detectors.keys():

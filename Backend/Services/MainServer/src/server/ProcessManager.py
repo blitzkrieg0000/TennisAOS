@@ -17,7 +17,7 @@ class ProcessManager():
         self.workManager = WorkManager()
         self.processList = {}
         self.threadList = []
-
+        self.ConcurencyLimit = 1
 
     def timer(func):
         def wrapper(self, *args, **kwargs):
@@ -36,6 +36,10 @@ class ProcessManager():
         while True:
             processData: list = self.checkDatabase()
             for process in processData:
+
+                if len(self.threadList)<self.ConcurencyLimit:
+                    continue
+
                 if (process["process_id"] not in self.processList.keys()) and (process["process_id"] not in [item.name for item in self.threadList]):
                     logging.info(f'{process["process_id"]} numaralı process işleme alındı.')
                     self.processList[process["process_id"]] = process
