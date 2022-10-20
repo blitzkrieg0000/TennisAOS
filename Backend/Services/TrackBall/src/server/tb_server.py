@@ -5,7 +5,6 @@ from concurrent import futures
 import cv2
 import grpc
 import numpy as np
-from libs.helpers import Converters
 
 import trackBall_pb2 as rc
 import trackBall_pb2_grpc as rc_grpc

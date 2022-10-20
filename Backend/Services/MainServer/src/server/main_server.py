@@ -30,6 +30,8 @@ def MainProcess():
     processManager.process()
 
 
+MAX_WORKERS:int = 10
+MAX_CONCURENT_WORKERS:int = 1
 #*SERVER
 class MainServer(rc_grpc.MainServerServicer):
     
@@ -54,45 +56,53 @@ class MainServer(rc_grpc.MainServerServicer):
 
 
     def StartProcess(self, request, context):
+        
         logging.info(f"Process:{request.ProcessId}  Başladı")
         raw = self.getStreamProcess(request.ProcessId)
         frameCounter=0
-        if len(raw) > 0:
-            
-            data = raw[0]
-            data, send_queue, empty_message, responseIterator = self.workManager.Prepare(data)
+        if len(raw) < 1:
+            raise "Bu process ile ilgili bilgi bulunamadı."
+        
+        if len(self.currentThreads) >= MAX_CONCURENT_WORKERS:
+            Repositories.markAsCompleted(self.rcm, request.ProcessId)
+            raise "Maksimum işlem sayısını geçtiniz. Önceki işlemlerin bitmesini bekleyiniz."
 
-            t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
-            t.start()
-            
-            topicName = data["topicName"]
-            self.currentThreads[request.ProcessId] = [topicName, True]
-            try:
-                for response in responseIterator:
-                    flag = self.currentThreads.get(request.ProcessId, None)
-                    if flag is not None:
-                        if not flag[1]:
-                            send_queue.put(None)
+        data = raw[0]
+        data, send_queue, empty_message, RESPONSE_ITERATOR = self.workManager.Prepare(data)
 
-                    if not context.is_active():
+        t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
+        t.start()
+        
+        self.currentThreads[request.ProcessId] = [data["topicName"], True]
+        try:
+            for response in RESPONSE_ITERATOR:
+                flag = self.currentThreads.get(request.ProcessId, None)
+                if flag is not None:
+                    if not flag[1]:
                         send_queue.put(None)
 
-                    frame_base64 = ""
-                    if response.Response.Data  != b"":
-                        bframe = Converters.bytes2frame(response.Response.Data)
-                        frame_base64 = Converters.frame2base64(bframe)
-                    frameCounter+=1
-                    yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+                if not context.is_active():
+                    send_queue.put(None)
 
-                    send_queue.put(empty_message)
-            except:
-                logging.info(f"Iteratordan çıktı. Returned Frame Count: {frameCounter}")
+                frame_base64 = ""
+                if response.Response.Data != b"":
+                    bframe = Converters.bytes2frame(response.Response.Data)
+                    frame_base64 = Converters.frame2base64(bframe)
+                frameCounter+=1
+                yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
 
-            logging.info("Ana işlemin bitmesi bekleniyor...")
-            t.join()
-            Repositories.markAsCompleted(self.rcm, data["process_id"])
-            #? del send_queue
-            
+                send_queue.put(empty_message)
+        except:
+            logging.info(f"Iteratordan çıktı. Returned Frame Count: {frameCounter}")
+
+        logging.info("Ana işlemin bitmesi bekleniyor...")
+        t.join()
+        Repositories.markAsCompleted(self.rcm, data["process_id"])
+
+        currentRemovedProcess = self.currentThreads.get(request.ProcessId, None)
+        if currentRemovedProcess is not None:
+            x = self.currentThreads.pop(request.ProcessId)
+
         logging.info(f"BİTTİ")
     
 
@@ -112,7 +122,7 @@ class MainServer(rc_grpc.MainServerServicer):
 def serve():
     # logo()
     mainSrv = MainServer()
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
     rc_grpc.add_MainServerServicer_to_server(mainSrv, server)
     server.add_insecure_port('[::]:50011')
     server.start()
