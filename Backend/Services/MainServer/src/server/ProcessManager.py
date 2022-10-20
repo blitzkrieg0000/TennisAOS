@@ -37,7 +37,7 @@ class ProcessManager():
             processData: list = self.checkDatabase()
             for process in processData:
 
-                if len(self.threadList)<self.ConcurencyLimit:
+                if len(self.threadList)>self.ConcurencyLimit:
                     continue
 
                 if (process["process_id"] not in self.processList.keys()) and (process["process_id"] not in [item.name for item in self.threadList]):
