@@ -122,9 +122,18 @@ class ProducerContextManager(object):
 
     def __closeConnections(self):
         self.stop_flag = False
-        self.cam.release()
-        self.producerClient.flush()
 
+        if self.cam is not None:
+            try:
+                self.cam.release()
+            except Exception as e: 
+                logging.error(e) 
+
+        if self.producerClient is not None:
+            try:
+                self.producerClient.flush()
+            except Exception as e: 
+                logging.error(e) 
 
     def producer(self, qq: multiprocessing.Queue):
         logging.info(f"Producer Deploying...Source: <{self.source}>, TopicName: <{self.topicName}>")

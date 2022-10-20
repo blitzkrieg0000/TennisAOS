@@ -24,7 +24,6 @@ class TBServer(rc_grpc.trackBallServicer):
         return pickle.loads(bytes)
 
     def findTennisBallPosition(self, request, context):
-        
         nparr = np.frombuffer(request.tensor, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 

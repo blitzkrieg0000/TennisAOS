@@ -232,9 +232,7 @@ services:
     build:
       context: "../Backend/Services/RTMP"
       dockerfile: dockerfile
-    hostname: rtmpservice
-    container_name: rtmpservice
-    restart: always
+    hostname: rtmpservicehttps://localhost:7293/Session
     networks:
       - tennisnet
     ports:
