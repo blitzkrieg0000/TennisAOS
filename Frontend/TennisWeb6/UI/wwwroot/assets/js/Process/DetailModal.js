@@ -18,22 +18,22 @@ detailModal.addEventListener('show.bs.modal', function (event) {
     }
 
     var court_description = detailModal.querySelector("#court_description");
-    court_description.innerHTML = data["processResponse"]["description"];
+    court_description.value = data["processResponse"]["description"];
 
     var court_sourceName = detailModal.querySelector("#court_sourceName");
-    court_sourceName.innerHTML = data["stream"]["name"];
+    court_sourceName.value = data["stream"]["name"];
 
     var court_sourceUrl = detailModal.querySelector("#court_topicName");
-    court_sourceUrl.innerHTML = data["processResponse"]["kafkaTopicName"];
+    court_sourceUrl.value = data["processResponse"]["kafkaTopicName"];
 
     var court_sourceUrl = detailModal.querySelector("#court_sourceUrl")
-    court_sourceUrl.innerHTML = data["stream"]["source"]
+    court_sourceUrl.value = data["stream"]["source"]
 
     var court_isVideo = detailModal.querySelector("#court_isVideo")
     if (data["stream"]["is_video"]) {
-        court_isVideo.innerHTML = "Videodan Alındı."
+        court_isVideo.value = "Videodan Alındı."
     } else {
-        court_isVideo.innerHTML = "Kameradan Alındı."
+        court_isVideo.value = "Kameradan Alındı."
     }
 
     var imgbase64 = "data:image/png;base64, " + data["processResponse"]["canvas"]

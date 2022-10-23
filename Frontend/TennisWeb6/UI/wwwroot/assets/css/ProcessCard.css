@@ -33,9 +33,10 @@ body {
 }
 
 .pen-title {
+  text-align-last: center;
   display: block;
   grid-column: 1/-1;
-  font-size: 4rem;
+  font-size: 2rem;
 }
 
 .card {
@@ -48,9 +49,11 @@ body {
   justify-self: center;
   transition: all 0.3s cubic-bezier(0.25, 0.45, 0.45, 0.95);
 }
+
 .card:hover {
   transform: scale(1.02);
 }
+
 .card .card-content {
   height: 100%;
   display: flex;
@@ -58,39 +61,48 @@ body {
   align-items: space-between;
   justify-content: space-between;
 }
+
 .card .card-content .bottom h2 {
   font-size: 15px;
 }
+
 .card .top {
   display: flex;
   justify-content: space-between;
   font-size: 15px;
 }
+
 .card .top .name {
   font-size: 1.8rem;
 }
+
 .card .top .date {
   font-weight: bold;
   opacity: 0.8;
 }
+
 .card .bottom {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
+
 .card .bottom .bookmark {
   margin-left: 5rem;
   border: 2px solid white;
   padding: 0.7rem;
   border-radius: 50%;
 }
+
 .card .bottom .bookmark .bookmark-icn {
   fill: white;
 }
+
 .card .bottom .bookmark:hover {
   cursor: pointer;
   background-color: rgba(255, 255, 255, 0.5);
 }
+
 .card .card-bg {
   position: absolute;
   top: 0;
@@ -101,12 +113,14 @@ body {
   overflow: hidden;
   z-index: -1;
 }
+
 .card .card-bg .bg-img {
   height: 100%;
   -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   vertical-align: middle;
 }
+
 .card .shadow {
   position: absolute;
   width: 90%;
@@ -120,8 +134,11 @@ body {
   border-radius: 20px;
   filter: blur(15px);
 }
+
 .card .shadow .shadow-img {
   margin-top: 3rem;
   -o-object-fit: cover;
-     object-fit: cover;
-}/*# sourceMappingURL=ProcessCard.css.map */
+  object-fit: cover;
+}
+
+/*# sourceMappingURL=ProcessCard.css.map */
