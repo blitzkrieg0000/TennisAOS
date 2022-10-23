@@ -15,15 +15,13 @@ namespace UI.Controllers {
             _tennisService = tennisService;
         }
 
-        // public IActionResult GenerateProcess() {
-        //     return View(new GenerateProcessModel());
-        // }
 
         [HttpPost]
         public async Task<IActionResult> GenerateProcess(GenerateProcessModel model) {
             var response = await _tennisService.Create(model);
             return RedirectToAction("Index", "Process", new{@id = model.SessionId});
         }
+
 
         [HttpGet]
         public async Task<IActionResult> CalculateTotalScore(long sessionId){

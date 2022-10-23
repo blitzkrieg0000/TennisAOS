@@ -42,8 +42,20 @@ namespace Business.Services {
             var data = _mapper.Map<PlayerListDto>(
                 await _unitOfWork.GetRepository<Player>().GetByFilter(x => x.Id == id, asNoTracking: false)
             );
-
             return new Response<PlayerListDto>(ResponseType.Success, data);
+        }
+
+        public async Task<Response<PlayerListRelatedDto>> GetDetails(long? id) {
+            var query = _unitOfWork.GetRepository<Player>().GetQuery().AsNoTracking();
+            var data = await query
+            .Where(x => x.Id == id)
+            .Include(x => x.Gender)
+            .ProjectTo<PlayerListRelatedDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+            if (data != null) {
+                return new Response<PlayerListRelatedDto>(ResponseType.Success, data);
+            } else {
+                return new Response<PlayerListRelatedDto>(ResponseType.NotFound, "Kayıt Bulunamadı.");
+            }
         }
 
         public async Task<IResponse<PlayerCreateDto>> Create(PlayerCreateDto dto) {

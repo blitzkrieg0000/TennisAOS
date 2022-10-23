@@ -10,7 +10,6 @@ using UI.Extensions;
 namespace UI.Controllers {
 
     [AutoValidateAntiforgeryToken]
-    [RequestFormLimits(MultipartBodyLengthLimit = 209715200), RequestSizeLimit(209715200)]
     public class StreamController : Controller {
 
         private readonly IStreamService _streamService;
@@ -37,12 +36,14 @@ namespace UI.Controllers {
         }
 
         [HttpPost]
+        [RequestFormLimits(MultipartBodyLengthLimit = 209715200), RequestSizeLimit(209715200)]
         public async Task<IActionResult> Create(IFormFile formFile, StreamCreateDto dto) {
             var response = await _streamService.Create(formFile, dto);
             return this.ResponseRedirectToAction<StreamCreateDto>(response, "Index");
         }
 
         [HttpPost]
+        [RequestFormLimits(MultipartBodyLengthLimit = 209715200), RequestSizeLimit(209715200)]
         public async Task<IActionResult> Update(IFormFile formFile, StreamListDto dto) {
             var response = await _streamService.Update(dto);
             return View();

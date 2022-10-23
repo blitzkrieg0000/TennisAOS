@@ -35,11 +35,12 @@ namespace Business.Services {
 
         public async Task<Response<List<DtoT>>> GetListByFilter<DtoT, RepositoryT>(Expression<Func<RepositoryT, bool>> filter)
         where DtoT : IDto
-        where RepositoryT : BaseEntity{
+        where RepositoryT : BaseEntity {
             var raw = await _unitOfWork.GetRepository<RepositoryT>().GetListByFilter(filter, asNoTracking: false);
             var data = _mapper.Map<List<DtoT>>(
                 raw
             );
+
             return new Response<List<DtoT>>(ResponseType.Success, data);
         }
 

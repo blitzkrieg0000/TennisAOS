@@ -106,10 +106,14 @@ class WorkManager():
         
         #! 4-TRACKBALL (DETECTION)
         for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
+            
             # TODO Diğer algoritmalar için concurency.future ile aynı frame kullanılarak işlem yapılacak 
             balldata = self.tbc.findTennisBallPosition(bytes_frame.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
+            
             # TODO SAHA ÇİZGİ TAKİBİ
             # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
+
+
             all_points.append(np.array(Converters.bytes2obj(balldata)))
         self.tbc.deleteDetector(data["topicName"])
         

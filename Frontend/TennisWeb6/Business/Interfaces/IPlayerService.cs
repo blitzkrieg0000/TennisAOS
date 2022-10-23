@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Common.ResponseObjects;
 using Dtos.PlayerDtos;
 
@@ -10,6 +6,7 @@ namespace Business.Interfaces {
         Task<Response<List<PlayerListDto>>> GetAll();
         Task<Response<List<PlayerListRelatedDto>>> GetAllRelated();
         Task<Response<PlayerListDto>> GetById(long? id);
+        Task<Response<PlayerListRelatedDto>> GetDetails(long? id);
         Task<IResponse<PlayerCreateDto>> Create(PlayerCreateDto dto);
         Task<IResponse> Remove(long? id);
     }

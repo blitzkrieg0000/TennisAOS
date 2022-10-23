@@ -56,7 +56,6 @@ class MainServer(rc_grpc.MainServerServicer):
 
 
     def StartProcess(self, request, context):
-        
         logging.info(f"Process:{request.ProcessId}  Başladı")
         raw = self.getStreamProcess(request.ProcessId)
         frameCounter=0

@@ -18,6 +18,11 @@ namespace UI.Controllers {
             return this.ResponseView(response);
         }
 
+        public async Task<IActionResult> Detail(int id) {
+            var data = await _playerService.GetDetails(id);
+            return this.ResponseView<PlayerListRelatedDto>(data);
+        }
+
         public IActionResult Create() {
             return View(new PlayerCreateDto());
         }
