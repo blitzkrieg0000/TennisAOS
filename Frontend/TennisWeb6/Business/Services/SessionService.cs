@@ -4,6 +4,7 @@ using Business.Interfaces;
 using Common.ResponseObjects;
 using DataAccess.UnitOfWork;
 using Dtos.SessionDtos;
+using Dtos.StreamDtos;
 using Entities.Concrete;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -27,9 +28,31 @@ namespace Business.Services {
             return new Response<List<SessionListDto>>(ResponseType.Success, data);
         }
 
+
         public async Task<IResponse<SessionCreateDto>> Create(SessionCreateDto dto) {
             if (dto.StreamSelectType) {
-                dto.StreamId = 70;
+
+                var defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
+                .GetByFilter(x => x.Name == "Default", asNoTracking: true);
+
+                if (defaultValue == null) {
+                    await _unitOfWork.GetRepository<Entities.Concrete.Stream>().Create(
+                        _mapper.Map<Entities.Concrete.Stream>(
+                            new StreamCreateDto() {
+                                IsActivated = true,
+                                IsDeleted = false,
+                                IsVideo = false,
+                                Name = "Default",
+                                Source = "0"
+                            })
+                    );
+                    await _unitOfWork.SaveChanges();
+                }
+
+                defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
+                .GetByFilter(x => x.Name == "Default", asNoTracking: true);
+
+                dto.StreamId = (int)defaultValue.Id;
             }
 
             var data = _mapper.Map<Session>(dto);
@@ -43,6 +66,7 @@ namespace Business.Services {
             }
             return new Response<SessionCreateDto>(ResponseType.Success, "Yeni Session Eklendi.");
         }
+
 
         public async Task<IResponse> Remove(long id) {
             var query = _unitOfWork.GetRepository<Session>().GetQuery();
