@@ -5,6 +5,7 @@ services:
     hostname: zookeeper
     container_name: zookeeper
     restart: always
+    stop_grace_period: 3m30s
     networks:
       - tennisnet
     ports:
@@ -20,6 +21,7 @@ services:
     hostname: broker
     container_name: broker
     restart: always
+    stop_grace_period: 3m30s
     networks:
       - tennisnet
     ports:
@@ -44,7 +46,7 @@ services:
     hostname: postgres
     container_name: postgres
     restart: always
-    stop_grace_period: 2m30s
+    stop_grace_period: 3m30s
     networks:
       - tennisnet
     ports:
