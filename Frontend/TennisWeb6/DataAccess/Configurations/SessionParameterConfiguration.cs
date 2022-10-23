@@ -28,10 +28,13 @@ namespace DataAccess.Configurations {
             builder.Property(e => e.PlayerId).HasColumnName("player_id");
 
             builder.Property(e => e.SaveDate)
+                .HasColumnType("timestamp without time zone")
                 .HasColumnName("save_date")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            builder.Property(e => e.StreamId).HasColumnName("stream_id");
+            builder.Property(e => e.StreamId)
+                .HasColumnName("stream_id")
+                .HasDefaultValueSql("70");
 
             builder.HasOne(d => d.AosType)
                 .WithMany(p => p.SessionParameters)

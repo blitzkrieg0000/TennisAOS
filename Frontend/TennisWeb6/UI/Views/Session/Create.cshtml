@@ -1,16 +1,16 @@
 @model SessionCreateDto
 
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @{
-    if (TempData["ResponseMessage"] != null)
-    {
-        <div class="bg-primary text-white text-center lead">
-            @TempData["ResponseMessage"]
-        </div>
-    }
+	if (TempData["ResponseMessage"] != null)
+	{
+		<div class="bg-primary text-white text-center lead">
+			@TempData["ResponseMessage"]
+		</div>
+	}
 }
 
 @section Links{
@@ -18,49 +18,67 @@
 }
 
 <div class="card">
-    <div class="card-header">
-        <h5 class="card-title">Yeni Oynanış Ekle</h5>
-    </div>
+	<div class="card-header">
+		<h5 class="card-title">Yeni Oynanış Ekle</h5>
+	</div>
 
-    <div class="card-body">
-        <form asp-action="Create" method="post" enctype="multipart/form-data">
+	<div class="card-body">
+		<form asp-action="Create" method="post" enctype="multipart/form-data">
 
-            <div class="form-group">
-                <label>Oynanış Adı: </label>
-                <input asp-for="@Model.Name" class="form-control" placeholder="Ad">
-            </div>
+			<div class="form-group">
+				<label>Oynanış Adı: </label>
+				<input asp-for="@Model.Name" class="form-control" placeholder="Ad">
+			</div>
 
-            <div class="form-group">
-                <label>Oyuncu Seçiniz:</label>
-                @(await Component.InvokeAsync("SelectListFromTable", new{tableName="Player"} ))
-            </div>
+			<div class="form-group">
+				<label>Oyuncu Seçiniz:</label>
+				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="Player"} ))
+			</div>
 
-            <div class="form-group">
-                <label>Hesaplanacak AOS Tipi Seçiniz:</label>
-                @(await Component.InvokeAsync("SelectListFromTable", new{tableName="AosType"} ))
-            </div>
+			<div class="form-group">
+				<label>Hesaplanacak AOS Tipi Seçiniz:</label>
+				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="AosType"} ))
+			</div>
 
-            <div class="form-group">
-                <label>Stream Seçiniz:</label>
-                @(await Component.InvokeAsync("SelectListFromTable", new{tableName="Stream"} ))
-            </div>
 
-            <div class="form-group">
-                <label>Saha Seçiniz:</label>
-                @(await Component.InvokeAsync("SelectListFromTable", new{tableName="Court"} ))
-            </div>
+			<div class="form-group">
+				<div class="row">
+					<label>Kaynak Türü Seçiniz:</label>
+					<div class="col-4 form-check">
+						@Html.Label("Video","Video: ")
+						@Html.RadioButton("StreamSelectType", true, new {  @checked="checked", @onchange = "selectedInfo(true);"})
+					</div>
+					<div class="col-4 form-check">
+						@Html.Label("Stream","Stream(Akış, Kamera, Video): ")
+						@Html.RadioButton("StreamSelectType", false, new { @checked="checked", @onchange = "selectedInfo(false);"})
+					</div>
+				</div>
+			</div>
 
-            <div class="form-group">
-                <label>Limit (İşlenecek Kare Sayısı):</label>
-                <input class="input-group-text" type="number" name="Limit" value="-1"></input>
-            </div>
+			<div id="Stream" class="form-group">
+				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="Stream"} ))
+			</div>
 
-            <div class="text-right">
-                <button type="submit" class="btn btn-primary">Kaydet<i class="icon-paperplane ml-2"></i></button>
-            </div>
-            <div asp-validation-summary="All" class="text-danger"></div>
-        </form>
-    </div>
+			<div id="Video" style="display: none" class="form-group">
+				<p>Videolar ile devam edilecek. Varsayılan bir stream kullanılmayacak.</p>
+			</div>
+
+			<div class="form-group">
+				<label>Saha Seçiniz:</label>
+				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="Court"} ))
+			</div>
+
+			<div class="form-group">
+				<label>Limit (İşlenecek Kare Sayısını belirtir. "-1" ise bütün video akışını işler.):</label>
+				<input class="input-group-text" type="number" name="Limit" value="-1"/>
+			</div>
+
+			<div class="text-right">
+				<button type="submit" class="btn btn-primary">Kaydet<i class="icon-paperplane ml-2"></i></button>
+			</div>
+			<div asp-validation-summary="All" class="text-danger"></div>
+		</form>
+	</div>
 </div>
 
 @section Scripts{
@@ -74,7 +92,20 @@
 <script src="~/limitless/global_assets/js/plugins/pickers/pickadate/picker.time.js"></script>
 <script src="~/limitless/global_assets/js/plugins/pickers/pickadate/legacy.js"></script>
 <script src="~/limitless/global_assets/js/plugins/notifications/jgrowl.min.js"></script>
-
-<script src="assets/js/app.js"></script>
 <script src="~/limitless/global_assets/js/demo_pages/picker_date.js"></script>
+
+<script>
+	function selectedInfo(val){
+		file = document.getElementById("Video")
+		url = document.getElementById("Stream")
+		if (val){
+			file.style.display = 'block';
+			url.style.display = 'none';
+		}else{
+			file.style.display = 'none';
+			url.style.display = 'block';
+		}
+	}
+</script>
+
 }

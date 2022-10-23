@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using AutoMapper;
 using Business.Extensions;
 using Business.Interfaces;
@@ -30,6 +28,10 @@ namespace Business.Services {
         }
 
         public async Task<IResponse<SessionCreateDto>> Create(SessionCreateDto dto) {
+            if (dto.StreamSelectType) {
+                dto.StreamId = 70;
+            }
+
             var data = _mapper.Map<Session>(dto);
             var validationResult = _sessionCreateDtoValidator.Validate(dto);
 
