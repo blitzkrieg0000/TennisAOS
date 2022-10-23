@@ -42,6 +42,19 @@ namespace Business.Services {
             return new Response<CourtListDto>(ResponseType.Success, data);
         }
 
+        public async Task<Response<CourtListRelatedDto>> GetDetails(long? id) {
+            var query = _unitOfWork.GetRepository<Court>().GetQuery().AsNoTracking();
+            var data = await query
+            .Where(x => x.Id == id)
+            .Include(x => x.CourtType)
+            .ProjectTo<CourtListRelatedDto>(_mapper.ConfigurationProvider).FirstOrDefaultAsync();
+            if (data != null) {
+                return new Response<CourtListRelatedDto>(ResponseType.Success, data);
+            } else {
+                return new Response<CourtListRelatedDto>(ResponseType.NotFound, "Kayıt Bulunamadı.");
+            }
+        }
+
         public async Task<IResponse<CourtCreateDto>> Create(CourtCreateDto dto) {
             await _unitOfWork.GetRepository<Court>().Create(_mapper.Map<Court>(dto));
             await _unitOfWork.SaveChanges();

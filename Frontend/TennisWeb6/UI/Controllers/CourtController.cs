@@ -19,6 +19,11 @@ namespace UI.Controllers {
             return this.ResponseView(response);
         }
 
+        public async Task<IActionResult> Detail(int id) {
+            var data = await _courtService.GetDetails(id);
+            return this.ResponseView<CourtListRelatedDto>(data);
+        }
+
         public IActionResult Create() {
             return View(new CourtCreateDto());
         }
@@ -28,7 +33,7 @@ namespace UI.Controllers {
             var response = await _courtService.Create(dto);
             return this.ResponseRedirectToAction(response, "Index");
         }
-        
+
         public async Task<IActionResult> Remove(int id) {
             var response = await _courtService.Remove(id);
             return this.ResponseRedirectToAction(response, "Index");

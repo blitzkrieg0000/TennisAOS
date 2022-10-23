@@ -1,4 +1,4 @@
-@model PlayerListRelatedDto
+@model CourtListRelatedDto
 
 @{
 	Layout = "~/Views/Shared/_Layout.cshtml";
@@ -16,7 +16,7 @@
 <!-- Basic layout-->
 <div class="card">
 	<div class="card-header">
-		<h5 class="card-title">Oyuncu Detayları</h5>
+		<h5 class="card-title">Saha Detayları</h5>
 	</div>
 
 	<div class="card-body">
@@ -24,20 +24,15 @@
 		<input type="hidden" asp-for="@Model.Id"/>
 
 		<div class="form-group">
-			<label>Oyuncu Adı:</label>
+			<label>Saha Adı:</label>
 			<input asp-for="@Model.Name" type="text" class="form-control" disabled>
 		</div>
 
 		<div class="form-group">
-			<label>Cinsiyet:</label>
-			<input asp-for="@Model.GenderName" type="text" class="form-control" disabled>
+			<label>Saha Tipi:</label>
+			<input asp-for="@Model.CourtTypeName" type="text" class="form-control" disabled>
 		</div>
 
-		<div class="form-group">
-			<label>Doğum Tarihi:</label>
-			<input asp-for="@Model.Birthday" type="text" class="form-control" disabled>
-		</div>
- 
 		<div class="form-group">
 			<label>Kayıt Tarihi: </label>
 			<input asp-for="@Model.SaveDate" type="text" class="form-control" disabled>
