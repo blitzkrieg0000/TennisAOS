@@ -60,7 +60,7 @@ class CKConsumer(rc_grpc.kafkaConsumerServicer):
                 yield rc.ConsumerResponse(data=msg.value())
 
         CONSUMER_GENERATOR.consumer.close()
-        
+        logging.warning(f"İşlenen frame sayısı: {CONSUMER_GENERATOR.processedFrameCounter}")
         self.__removeConsumer(topicName)
         logging.info(f"{topicName} adlı topic için grup adı: {groupName} olan consumer tamamlandı.")
 

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AutoMapper;
 using Business.Extensions;
 using Business.Interfaces;
@@ -21,6 +22,7 @@ namespace Business.Services {
             _sessionCreateDtoValidator = sessionCreateDtoValidator;
         }
 
+
         public async Task<Response<List<SessionListDto>>> GetAll() {
             var data = _mapper.Map<List<SessionListDto>>(
                 await _unitOfWork.GetRepository<Session>().GetAll()
@@ -31,9 +33,13 @@ namespace Business.Services {
 
         public async Task<IResponse<SessionCreateDto>> Create(SessionCreateDto dto) {
             if (dto.StreamSelectType) {
+                var UID = Guid.NewGuid().ToString();
+                Regex rgx = new("\\W+");
+                dto.Name += UID;
+                dto.Name = rgx.Replace(dto.Name, "");
 
                 var defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
-                .GetByFilter(x => x.Name == "Default", asNoTracking: true);
+                .GetByFilter(x => x.Name == dto.Name, asNoTracking: true);
 
                 if (defaultValue == null) {
                     await _unitOfWork.GetRepository<Entities.Concrete.Stream>().Create(
@@ -42,7 +48,7 @@ namespace Business.Services {
                                 IsActivated = true,
                                 IsDeleted = false,
                                 IsVideo = false,
-                                Name = "Default",
+                                Name = dto.Name,
                                 Source = "0"
                             })
                     );
@@ -50,10 +56,11 @@ namespace Business.Services {
                 }
 
                 defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
-                .GetByFilter(x => x.Name == "Default", asNoTracking: true);
+                .GetByFilter(x => x.Name == dto.Name, asNoTracking: true);
 
                 dto.StreamId = (int)defaultValue.Id;
             }
+
 
             var data = _mapper.Map<Session>(dto);
             var validationResult = _sessionCreateDtoValidator.Validate(dto);
@@ -81,6 +88,7 @@ namespace Business.Services {
             }
             return new Response(ResponseType.NotFound, $"{id} ye ait veri bulunamadı!");
         }
+
 
     }
 }

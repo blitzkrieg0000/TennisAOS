@@ -10,7 +10,6 @@ from WorkManager import WorkManager
 
 INTERVAL = 3
 class ProcessManager():
-    
     def __init__(self):
         MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
@@ -35,9 +34,9 @@ class ProcessManager():
     def process(self):
         while True:
             processData: list = self.checkDatabase()
-            for process in processData:
 
-                if len(self.threadList)>self.ConcurencyLimit:
+            for process in processData:
+                if len(self.threadList)>=self.ConcurencyLimit:
                     continue
 
                 if (process["process_id"] not in self.processList.keys()) and (process["process_id"] not in [item.name for item in self.threadList]):

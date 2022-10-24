@@ -10,7 +10,8 @@ class ConsumerGen():
     def __init__(self, topics, consumerGroup, offsetMethod, limit):
         self.consumer = self.connectKafkaConsumer(consumerGroup, offsetMethod, topics)
         self.subscribe(topics)
-        
+        self.processedFrameCounter = 0
+
         #FLAG && COUNTERS
         self.stopFlag = False
         self.limit = limit
@@ -54,12 +55,11 @@ class ConsumerGen():
         return self
 
     def __next__(self):
-        if (self.limit!=-1 and self.limit_count==self.limit) or (self.ret_limit>50) or self.stopFlag:
+        if (self.limit!=-1 and self.limit_count==self.limit) or (self.ret_limit>100) or self.stopFlag:
             self.closeConnection()
             raise StopIteration
 
         msg = self.consumer.poll(0)
-        logging.warning(str(msg))
         if msg is None:
             self.ret_limit = 1 + self.ret_limit
             if self.ret_limit > 10: 
@@ -76,7 +76,8 @@ class ConsumerGen():
         self.ret_limit=0
         if self.limit!=-1:
             self.limit_count = 1 + self.limit_count
-        
+
+        self.processedFrameCounter+=1
         return msg
 
 

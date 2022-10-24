@@ -1,11 +1,9 @@
-using System.Threading.Tasks;
 using Business.Interfaces;
 using Dtos.CourtDtos;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
 
 namespace UI.Controllers {
-
 
     public class CourtController : Controller {
         private readonly ICourtService _courtService;

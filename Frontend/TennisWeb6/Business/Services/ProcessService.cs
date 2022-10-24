@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using AutoMapper;
 using Business.Interfaces;
 using Common.ResponseObjects;
@@ -71,7 +67,6 @@ namespace Business.Services {
 
 
         public async Task<IResponse<ProcessCreateDto>> Create(ProcessCreateDto dto) {
-
             var stream_id_video = await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetByFilter(x => x.Id == dto.StreamId, asNoTracking: true);
             var data = _mapper.Map<Process>(dto);
 

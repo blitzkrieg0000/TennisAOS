@@ -39,7 +39,7 @@ namespace Business.Services {
         public async Task<IResponse<StreamCreateDto>> Create(IFormFile formFile, StreamCreateDto dto) {
 
             var validationResult = _streamCreateDtoValidator.Validate(dto);
-            if (validationResult.IsValid){
+            if (validationResult.IsValid) {
                 if (formFile == null && dto.Source == null) {
                     return new Response<StreamCreateDto>(ResponseType.ValidationError, dto);
                 }
@@ -58,7 +58,8 @@ namespace Business.Services {
                         return new Response<StreamCreateDto>(ResponseType.ValidationError, "Lütfen mp4 formatında video yükleyiniz.");
                     }
 
-                    string SAVE_PATH = Path.Combine(Directory.GetCurrentDirectory(), "../../../Data/nfs/tennis");
+                    //TODO Dinamik path yap
+                    string SAVE_PATH = "/home/ubuntu/nfs/exports/tennis";
                     string SAVE_FOLDER_NAME = "assets";
                     SAVE_PATH = System.IO.Path.Combine(SAVE_PATH, SAVE_FOLDER_NAME);
 
@@ -86,7 +87,7 @@ namespace Business.Services {
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().Create(_mapper.Map<Entities.Concrete.Stream>(dto));
                 await _unitOfWork.SaveChanges();
                 return new Response<StreamCreateDto>(ResponseType.Success, dto, "Yükleme Başarılı");
-            }else{
+            } else {
                 return new Response<StreamCreateDto>(ResponseType.ValidationError, dto, validationResult.ConvertToCustomValidationError());
             }
 
