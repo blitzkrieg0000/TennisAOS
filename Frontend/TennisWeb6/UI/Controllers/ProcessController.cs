@@ -3,7 +3,6 @@ using Business.Interfaces;
 using Dtos.ProcessDtos;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
-using UI.Models;
 
 namespace UI.Controllers {
 
@@ -17,8 +16,9 @@ namespace UI.Controllers {
 
 
         [HttpGet]
-        public IActionResult Index(long id) {
-            return View(new SessionIdDto() { SessionId = id });
+        public async Task<IActionResult> Index(long id) {
+            var data = await _processService.GetParameterRelatedById(id);
+            return View(data);
         }
 
 

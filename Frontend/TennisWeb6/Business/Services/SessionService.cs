@@ -32,7 +32,7 @@ namespace Business.Services {
 
 
         public async Task<IResponse<SessionCreateDto>> Create(SessionCreateDto dto) {
-            if (dto.StreamSelectType) {
+            if (!dto.IsStreamMode) {
                 var UID = Guid.NewGuid().ToString();
                 Regex rgx = new("\\W+");
                 dto.Name += UID;
@@ -60,7 +60,6 @@ namespace Business.Services {
 
                 dto.StreamId = (int)defaultValue.Id;
             }
-
 
             var data = _mapper.Map<Session>(dto);
             var validationResult = _sessionCreateDtoValidator.Validate(dto);

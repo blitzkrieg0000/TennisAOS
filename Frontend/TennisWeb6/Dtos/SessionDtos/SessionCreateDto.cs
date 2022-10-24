@@ -17,7 +17,7 @@ namespace Dtos.SessionDtos {
         public DateTime? SaveDate { get; set; }
         public bool IsDeleted { get; set; }
 
-        public bool StreamSelectType { get; set; }
+        public bool IsStreamMode { get; set; }
 
     }
 }

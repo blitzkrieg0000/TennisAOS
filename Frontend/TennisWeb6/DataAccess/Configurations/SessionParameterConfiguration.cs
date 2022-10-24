@@ -21,6 +21,11 @@ namespace DataAccess.Configurations {
 
             builder.Property(e => e.IsDeleted).HasColumnName("is_deleted");
 
+            builder.Property(e => e.IsStreamMode)
+                .HasColumnName("is_stream_mode")
+                .HasDefaultValueSql("true")
+                .HasComment("Session Videolar için mi yoksa Streamler için mi?");
+
             builder.Property(e => e.Limit)
                 .HasColumnName("limit")
                 .HasDefaultValueSql("'-1'::integer");

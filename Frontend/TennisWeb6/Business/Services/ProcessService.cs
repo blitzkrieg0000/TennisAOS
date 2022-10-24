@@ -5,6 +5,8 @@ using Common.ResponseObjects;
 using DataAccess.UnitOfWork;
 using Dtos.ProcessDtos;
 using Dtos.ProcessResponseDtos;
+using Dtos.SessionDtos;
+using Dtos.SessionParameterDtos;
 using Dtos.StreamDtos;
 using Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +28,34 @@ namespace Business.Services {
                 await _unitOfWork.GetRepository<Process>().GetAll()
             );
             return new Response<List<ProcessListDto>>(ResponseType.Success, data);
+        }
+
+        public async Task<Response<SessionRelatedParameterDto>> GetParameterRelatedById(long id) {
+
+            var query = _unitOfWork.GetRepository<Session>().GetQuery().AsNoTracking();
+            var raw = await query.Include(x => x.SessionParameter).Where(x => x.Id == id).SingleOrDefaultAsync();
+
+            if (raw != null) {
+                SessionRelatedParameterDto data = new(sessionParameterListDto: new SessionParameterListDto() {
+                    AosTypeId = raw.SessionParameter.AosTypeId,
+                    CourtId = raw.SessionParameter.CourtId,
+                    Force = raw.SessionParameter.Force,
+                    StreamId = raw.SessionParameter.StreamId,
+                    Id = raw.SessionParameter.Id,
+                    Limit = raw.SessionParameter.Limit,
+                    PlayerId = raw.SessionParameter.PlayerId,
+                    SaveDate = raw.SessionParameter.SaveDate,
+                    IsDeleted = raw.SessionParameter.IsDeleted,
+                    IsStreamMode = raw.SessionParameter.IsStreamMode
+                }) {
+                    SessionId = raw.Id,
+                    Name = raw.Name
+                };
+
+                return new Response<SessionRelatedParameterDto>(ResponseType.Success, data);
+            }
+            return new Response<SessionRelatedParameterDto>(ResponseType.NotFound, "Session Bulunamadı!");
+
         }
 
 
@@ -52,6 +82,7 @@ namespace Business.Services {
                     Stream = _mapper.Map<StreamListDto>(item.Stream)
                 });
             }
+
             return new Response<List<ProcessListRelatedDto>>(ResponseType.Success, data);
         }
 

@@ -45,11 +45,11 @@ if (TempData["ResponseMessage"] != null)
 					<label>Kaynak Türü Seçiniz:</label>
 					<div class="col-4 form-check">
 						@Html.Label("Video","Video: ")
-						@Html.RadioButton("StreamSelectType", true, new { @checked="checked", @onchange = "selectedInfo(true);"})
+						@Html.RadioButton("IsStreamMode", false, new { @checked="checked", @onchange = "selectedInfo(true);"})
 					</div>
 					<div class="col-4 form-check">
 						@Html.Label("Stream","Stream(Akış, Kamera, Video): ")
-						@Html.RadioButton("StreamSelectType", false, new { @checked="checked", @onchange = "selectedInfo(false);"})
+						@Html.RadioButton("IsStreamMode", true, new { @checked="checked", @onchange = "selectedInfo(false);"})
 					</div>
 				</div>
 			</div>
@@ -95,14 +95,14 @@ if (TempData["ResponseMessage"] != null)
 
 <script>
 	function selectedInfo(val) {
-		file = document.getElementById("Video")
-		url = document.getElementById("Stream")
+		video = document.getElementById("Video")
+		stream = document.getElementById("Stream")
 		if (val) {
-			file.style.display = 'block';
-			url.style.display = 'none';
+			video.style.display = 'block';
+			stream.style.display = 'none';
 		} else {
-			file.style.display = 'none';
-			url.style.display = 'block';
+			video.style.display = 'none';
+			stream.style.display = 'block';
 		}
 	}
 </script>

@@ -9,6 +9,7 @@ namespace Dtos.SessionParameterDtos {
         public long? CourtId { get; set; }
         public long? Limit { get; set; }
         public bool? Force { get; set; }
+        public bool? IsStreamMode { get; set; }
         public DateTime SaveDate { get; set; }
         public bool IsDeleted { get; set; }
     }

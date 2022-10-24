@@ -44,7 +44,8 @@ namespace Business.Mappings.AutoMapper {
                         PlayerId = src.PlayerId,
                         CourtId = src.CourtId,
                         Limit = src.Limit,
-                        Force = src.Force
+                        Force = src.Force,
+                        IsStreamMode = src.IsStreamMode
                     }));
 
 
