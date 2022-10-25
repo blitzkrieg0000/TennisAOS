@@ -18,7 +18,7 @@ namespace UI.Controllers {
         [HttpGet]
         public async Task<IActionResult> Index(long id) {
             var data = await _processService.GetParameterRelatedById(id);
-            return View(data);
+            return View(data.Data);
         }
 
 

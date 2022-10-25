@@ -23,6 +23,7 @@ namespace DataAccess.Configurations {
                 .WithMany(p => p.ProcessParameters)
                 .HasForeignKey(d => d.StreamId)
                 .HasConstraintName("processparameters_fk_1");
+                
         }
     }
 }

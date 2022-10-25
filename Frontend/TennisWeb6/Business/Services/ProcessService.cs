@@ -98,16 +98,16 @@ namespace Business.Services {
 
 
         public async Task<IResponse<ProcessCreateDto>> Create(ProcessCreateDto dto) {
-            var stream_id_video = await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetByFilter(x => x.Id == dto.StreamId, asNoTracking: true);
+            var stream = await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetByFilter(x => x.Id == dto.StreamId, asNoTracking: true);
             var data = _mapper.Map<Process>(dto);
 
-            if (stream_id_video != null) {
-                if (stream_id_video.IsVideo) {
+            if (stream != null) {
+                if (stream.IsVideo) {
                     data.IsCompleted = false;
                 }
             }
 
-            if (dto.Override == 0) {
+            if ((bool)dto.IsStreamMode) {
                 data.ProcessParameter = new ProcessParameter();
             }
 
