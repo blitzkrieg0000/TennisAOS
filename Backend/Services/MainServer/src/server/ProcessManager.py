@@ -1,4 +1,5 @@
 from __future__ import annotations
+from concurrent import futures
 
 import logging
 import threading
@@ -8,14 +9,12 @@ from clients.Redis.redis_client import RedisCacheManager
 from libs.helpers import Repositories
 from WorkManager import WorkManager
 
-INTERVAL = 3
+INTERVAL = 5
 class ProcessManager():
     def __init__(self):
         MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
         self.workManager = WorkManager()
-        self.processList = {}
-        self.threadList = []
         self.ConcurencyLimit = 1
 
     def timer(func):
@@ -33,25 +32,29 @@ class ProcessManager():
 
     def process(self):
         while True:
-            processData: list = self.checkDatabase()
+            processes: list = self.checkDatabase()
 
-            for process in processData:
-                if len(self.threadList)>=self.ConcurencyLimit:
-                    continue
+            if len(processes)==0:
+                continue
+            
+            threadList:list[threading.Thread] = []
+            for i, process in enumerate(processes):
+                
+                if i>self.ConcurencyLimit:
+                    break
+                logging.info(f"{process['process_id']} işleme alındı.")
+                data, send_queue, empty_message, responseIterator = self.workManager.Prepare(process, independent=True, errorLimit=3)
+                t = threading.Thread(name=process["process_id"], target=self.workManager.ProducerController, args=(data,))
+                threadList.append(t)
+            
+            for thread in threadList:
+                thread.start()
 
-                if (process["process_id"] not in self.processList.keys()) and (process["process_id"] not in [item.name for item in self.threadList]):
-                    logging.info(f'{process["process_id"]} numaralı process işleme alındı.')
-                    self.processList[process["process_id"]] = process
-                    data, send_queue, empty_message, responseIterator = self.workManager.Prepare(process, independent=True, errorLimit=3)
-                    t = threading.Thread(name=process["process_id"], target=self.workManager.ProducerController, args=(data,))
-                    t.start()
-                    self.threadList.append(t)
+            for thread in threadList:
+                thread.join()
+            
+            del threadList
 
-            for thread in self.threadList:
-                if not thread.is_alive():
-                    Repositories.markAsCompleted(self.rcm, process["process_id"])
-                    [self.processList.pop(item) for item in self.processList if item == thread.name]
-                    self.threadList.remove(thread)
 
 
 if __name__ == "__main__":

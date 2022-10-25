@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 
 from clients.DetectCourtLines.dcl_client import DCLClient
@@ -148,7 +149,6 @@ class WorkManager():
         resultData["description"] = "Bilgi Verilmedi."
         
         Repositories.saveProcessData(self.rcm, resultData)
-
         #Repositories.savePlayingData(self.rcm, resultData)
-        
-        return resultData
+
+        Repositories.markAsCompleted(self.rcm, resultData["process_id"])
