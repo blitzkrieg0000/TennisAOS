@@ -119,6 +119,7 @@ class Repositories():
         QUERY = f'SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'
         data = manager.Read(query=QUERY, force=False)
         data = Converters.bytes2obj(data)
+        logging.error(f"{AOS_TYPE_ID} -> {data}")
         if data is not None:
             return [dict(zip(query_keys, item)) for item in data]
         return None

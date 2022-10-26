@@ -67,6 +67,7 @@ class WorkManager():
 
         return data, send_queue, empty_message, responseIterator
 
+
     def ProducerController(self, data):
         resultData = {}
         all_points = []

@@ -18,18 +18,19 @@ class KafkaProducerManager():
     def bytes2obj(self, bytes):
         return pickle.loads(bytes)
 
+    def gen(self, send_queue):
+        while True:
+            item = send_queue.get(block=True)
+            if item is None:
+                break
+            yield item
 
     def producer(self, topicName="test", source="", isVideo=False, limit=-1, errorLimit=3, independent=True):
         # Bir sentinel-generator ile mesaj queuda olana kadar gönderimi bekletiyoruz.
         # Bu yöntem ile Stream-Stream iletişimlerde, döngüler ile iteratorlardan kurtularak "next" ile daha bağımsız kodlama yapabiliyoruz.
+        
         send_queue = queue.SimpleQueue()
-        def gen(send_queue):
-            while True:
-                item = send_queue.get(block=True)
-                if item is None:
-                    break
-                yield item
-        responseIterator = self.stub.producer(gen(send_queue))
+        responseIterator = self.stub.producer(self.gen(send_queue))
         send_queue.put(rc.ProducerRequest(TopicName=topicName, Source=source, IsVideo=isVideo, Limit=limit, ErrorLimit=errorLimit, Independent=independent))
         empty_message = rc.ProducerRequest()
         return send_queue, empty_message, responseIterator

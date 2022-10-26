@@ -32,7 +32,8 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
 
     def producer(self, requestIter, context):
         requestData = next(requestIter)
-        qq = multiprocessing.Manager().Queue(maxsize=3)
+        
+        producedFrameQueue = multiprocessing.Manager().Queue(maxsize=3)
         arr = {
             "topicName" : requestData.TopicName,
             "source" : requestData.Source,
@@ -41,28 +42,33 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
             "errorLimit" : requestData.ErrorLimit,
             "independent": requestData.Independent
         }
-        
-        self.kafkaProducerManager.startProducer(arr, qq)
+        self.kafkaProducerManager.startProducer(arr, producedFrameQueue)
 
         if not requestData.Independent:
-            while context.is_active():
+            try:
+                while context.is_active():
+                    
+                    #Kuyrukta frame varsa al
+                    frame = producedFrameQueue.get(block=True, timeout=3) #, timeout=3
 
-                frame = qq.get(block=True)
-
-                yield rc.ProducerResponse(
-                    Response=self.CreateResponse(
-                        Response(ResponseCodes.SUCCESS, message="Producer Streaming Yapıyor...", data=frame)
+                    #Response gönder
+                    yield rc.ProducerResponse(
+                        Response=self.CreateResponse(
+                            Response(ResponseCodes.SUCCESS, message="Producer Streaming Yapıyor...", data=frame)
+                        )
                     )
-                )
 
-                #bidirectional empty
-                request = next(requestIter)
+                    #empty message (İstemci istediği sürece frame üretilir. Her istekte 1 frame üretilir.)
+                    request = next(requestIter)
+            except:
+                logging.warning(f"{requestData.TopicName} için producer durdu.")
         else:
             yield rc.ProducerResponse(
                     Response=self.CreateResponse(
                         Response(ResponseCodes.SUCCESS, message="Producer Başladı!", data=b"") #data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
                     )
                 ) 
+
 
     def getAllProducerProcesses(self, request, context):
         response = self.kafkaProducerManager.getAllProducerProcesses()

@@ -108,7 +108,8 @@ class ProducerContextManager(object):
         except Exception as e: 
             logging.error(e)
 
-        assert not self.producerClient is None, "Producera bağlanamıyor..."
+        if self.producerClient is None:
+            raise "Producer'a bağlanamıyor."
 
         return self
 
@@ -135,10 +136,13 @@ class ProducerContextManager(object):
             except Exception as e: 
                 logging.error(e) 
 
+
     def producer(self, qq: multiprocessing.Queue):
         logging.info(f"Producer Deploying...Source: <{self.source}>, TopicName: <{self.topicName}>")
-        assert not (self.is_video and not os.access(self.source, mode=0)), "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
+        if(self.is_video and not os.access(self.source, mode=0)):
+            raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
        
+        #TODO Buffer şeklinde yapılacak.
         # Stream Settings
         self.cam = cv2.VideoCapture(self.source)
         fps = int(self.cam.get(5))
@@ -194,14 +198,17 @@ class ProducerContextManager(object):
 class KafkaProducerManager():
     def __init__(self):
         self.producer_process_statuses = {} # multiprocessing.Manager().dict()
-        
+ 
+
     def __getAllProceses(self):
         return multiprocessing.active_children()
+
 
     def __getProcessByName(self, name):
         for process in self.__getAllProceses():
             if process.name == name: return process
         return None
+
 
     def __stopProcess(self, process:BaseProcess):
         try:
@@ -215,8 +222,10 @@ class KafkaProducerManager():
         except Exception as e:
             logging.warning(e)
 
+
     def getAllProducerProcesses(self):
         return Response(ResponseCodes.INFO, "", [process.name for process in self.__getAllProceses() if process.is_alive])
+
 
     def stopProducerProcess(self, processName):
         logging.info(f"{processName} isimli process varsa durdurulmaya çalışılacak.")
@@ -227,15 +236,16 @@ class KafkaProducerManager():
             return Response(ResponseCodes.NOT_FOUND, "Durdurulacak böyle bir process bulunamadı.")
         return Response(ResponseCodes.SUCCESS, f"{processName} adlı process başarıyla durduruldu." if self.__getProcessByName(processName) is None else f"{processName} durdurulmaya çalışılıyor.")
 
+
     def stopAllProducerProcesses(self) -> Response:
         allProcesses = self.__getAllProceses()
         for process in allProcesses:
             self.__stopProcess(process)
         return Response(ResponseCodes.INFO, f"Çalışan tüm processler durdurulacak... Çalışan process sayısı: {len(allProcesses)}")
 
+
     def ProducerMultiProcess(func):
         def wrapper(self, *args, **kwargs):
-
             if args[0]["topicName"] is None or args[0]["topicName"] == "":
                 return Response(ResponseCodes.REQUIRED, "Topic adı boş bırakılamaz.")
 
@@ -244,6 +254,7 @@ class KafkaProducerManager():
 
             return Response(ResponseCodes.SUCCESS, f"Producer Started For: {args[0]['topicName'] }")
         return wrapper
+
 
     @ProducerMultiProcess
     def startProducer(self, requestData, qq) -> Response:

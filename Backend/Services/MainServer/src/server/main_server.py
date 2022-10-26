@@ -54,9 +54,12 @@ class MainServer(rc_grpc.MainServerServicer):
     def getStreamProcess(self, id):
         return Repositories.getProcessRelatedById(self.rcm, id)
 
-    
-    def DeployNewProcess(self):
-        pass
+
+    def DeployNewProcess(self, data):
+        t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
+        t.start()
+        return t
+
 
     def StartProcess(self, request, context):
         logging.info(f"Process:{request.ProcessId} işlenmeye başladı")
@@ -71,8 +74,8 @@ class MainServer(rc_grpc.MainServerServicer):
             raise "Maksimum işlem sayısını geçtiniz. Önceki işlemlerin bitmesini bekleyiniz."
 
         data, send_queue, empty_message, RESPONSE_ITERATOR = self.workManager.Prepare(data)
-        t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
-        t.start()
+
+        t = self.DeployNewProcess(data)
         
         self.currentThreads[request.ProcessId] = [data["topicName"], True]
         frameCounter=0
@@ -99,13 +102,13 @@ class MainServer(rc_grpc.MainServerServicer):
 
         logging.info("Ana işlemin bitmesi bekleniyor...")
         t.join()
-        Repositories.markAsCompleted(self.rcm, data["process_id"])
 
+        Repositories.markAsCompleted(self.rcm, data["process_id"])
         currentRemovedProcess = self.currentThreads.get(request.ProcessId, None)
         if currentRemovedProcess is not None:
             x = self.currentThreads.pop(request.ProcessId)
 
-        logging.info(f"BİTTİ")
+        logging.info(f"BİTTİ: {data['process_id']}")
     
 
     def StopProcess(self, request, context):
