@@ -54,25 +54,28 @@ class MainServer(rc_grpc.MainServerServicer):
     def getStreamProcess(self, id):
         return Repositories.getProcessRelatedById(self.rcm, id)
 
+    
+    def DeployNewProcess(self):
+        pass
 
     def StartProcess(self, request, context):
-        logging.info(f"Process:{request.ProcessId} Başladı")
+        logging.info(f"Process:{request.ProcessId} işlenmeye başladı")
         raw = self.getStreamProcess(request.ProcessId)
-        frameCounter=0
+        
         if len(raw) < 1:
             raise "Bu process ile ilgili bilgi bulunamadı."
-        
+        data = raw[0]
+
         if len(self.currentThreads) >= MAX_CONCURENT_WORKERS:
             Repositories.markAsCompleted(self.rcm, request.ProcessId)
             raise "Maksimum işlem sayısını geçtiniz. Önceki işlemlerin bitmesini bekleyiniz."
 
-        data = raw[0]
         data, send_queue, empty_message, RESPONSE_ITERATOR = self.workManager.Prepare(data)
-
         t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
         t.start()
         
         self.currentThreads[request.ProcessId] = [data["topicName"], True]
+        frameCounter=0
         try:
             for response in RESPONSE_ITERATOR:
                 flag = self.currentThreads.get(request.ProcessId, None)
