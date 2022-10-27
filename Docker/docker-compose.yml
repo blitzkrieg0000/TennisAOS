@@ -74,7 +74,7 @@ services:
       - "6379:6379"
     depends_on:
       - postgres
-  
+
   kafdrop:
     image: obsidiandynamics/kafdrop
     hostname: kafdrop
@@ -89,7 +89,7 @@ services:
     environment:
       KAFKA_BROKERCONNECT: "broker:9092"
       JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
-  
+
   # triton:
   #   image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
   #   entrypoint: /bin/bash
@@ -163,7 +163,7 @@ services:
       - tennisnet
     ports:
       - "50024:50024"
-      
+
   trackballservice:
     image: trackballservice
     build:
@@ -215,7 +215,7 @@ services:
       - "50032:50032"
     depends_on:
       - producerservice
-  
+
   postgresservice:
     image: postgresservice
     build:
@@ -228,7 +228,7 @@ services:
       - tennisnet
     ports:
       - "50041:50041"
-  
+
   redisservice:
     image: redisservice
     build:
@@ -243,7 +243,7 @@ services:
       - "50051:50051"
     depends_on:
       - postgresservice
-  
+
   rtmp:
     image: rtmpservice
     build:
@@ -256,7 +256,6 @@ services:
       - "1935:1935"
     depends_on:
       - producerservice
-  
   # nfs:
   #   image: nfs
   #   build:
@@ -286,31 +285,31 @@ volumes:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
       device: ":/tennis/broker0"
-  
+
   zookeeper_data:
     driver_opts:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
       device: ":/tennis/zookeeper_data"
-  
+
   zookeeper_log:
     driver_opts:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
       device: ":/tennis/zookeeper_log"
-  
+
   postgresql:
     driver_opts:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
       device: ":/tennis/postgresql"
-  
+
   # models:
   #   driver_opts:
   #     type: "nfs"
   #     o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
   #     device: ":/tennis/models"
-  
+
   assets:
     driver_opts:
       type: "nfs"

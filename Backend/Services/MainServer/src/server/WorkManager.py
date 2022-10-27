@@ -89,7 +89,11 @@ class WorkManager():
             
             if frame is None:
                 assert "İlk kare doğru alınamadı."
-                
+            
+            # Override
+            overrideData = Repositories.getStreamCourtLineBySessionId(self.rcm, data["session_id"])[0]
+            overrideData["court_line_array"] = data["st_court_line_array"]
+            
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
             else:
@@ -100,7 +104,7 @@ class WorkManager():
                 if courtLines is not None:
                     SerializedCourtPoints = EncodeManager.serialize(courtLines)
                     data["court_line_array"] = SerializedCourtPoints
-                    Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], SerializedCourtPoints)
+                    Repositories.saveCourtLinePoints(self.rcm, overrideData["sp_stream_id"], SerializedCourtPoints)
             
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.frame2bytes(canvas)

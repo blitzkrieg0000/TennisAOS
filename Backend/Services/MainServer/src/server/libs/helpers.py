@@ -146,15 +146,13 @@ class Repositories():
 
 
     @staticmethod
-    def getStreamCourtLine(manager, processId):
-        query_keys = ["court_line_array"]
-        QUERY = f'SELECT st.court_line_array\
-            FROM public."Process" as p\
-            INNER JOIN public."SessionParameter" as sp\
-            ON sp.id = p.session_id\
+    def getStreamCourtLineBySessionId(manager, processId):
+        query_keys = ["st_court_line_array", "sp_stream_id"]
+        QUERY = f'SELECT st.court_line_array as st_court_line_array, st.stream_id as sp_stream_id\
+            FROM public."SessionParameter" as sp\
             INNER JOIN public."Stream" as st\
             ON st.id = sp.stream_id\
-            WHERE p.id={processId}'
+            where sp.id = {processId}'
         processData = manager.Read(query=QUERY, force=True)
         processes = Converters.bytes2obj(processData)
         if processes is not None:

@@ -20,7 +20,6 @@ class ProcessManager():
         def wrapper(self, *args, **kwargs):
             time.sleep(INTERVAL)
             return func(self, *args,  **kwargs)
-            
         return wrapper
 
 
