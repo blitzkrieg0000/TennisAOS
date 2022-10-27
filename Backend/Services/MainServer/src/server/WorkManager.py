@@ -92,8 +92,9 @@ class WorkManager():
             
             # Override
             overrideData = Repositories.getStreamCourtLineBySessionId(self.rcm, data["session_id"])[0]
-            overrideData["court_line_array"] = data["st_court_line_array"]
-            
+            data["court_line_array"] = overrideData["st_court_line_array"]
+            data["sp_stream_id"] = overrideData["sp_stream_id"]
+
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
             else:
@@ -104,7 +105,7 @@ class WorkManager():
                 if courtLines is not None:
                     SerializedCourtPoints = EncodeManager.serialize(courtLines)
                     data["court_line_array"] = SerializedCourtPoints
-                    Repositories.saveCourtLinePoints(self.rcm, overrideData["sp_stream_id"], SerializedCourtPoints)
+                    Repositories.saveCourtLinePoints(self.rcm, data["sp_stream_id"], SerializedCourtPoints)
             
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.frame2bytes(canvas)

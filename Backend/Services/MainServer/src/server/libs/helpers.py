@@ -148,7 +148,7 @@ class Repositories():
     @staticmethod
     def getStreamCourtLineBySessionId(manager, processId):
         query_keys = ["st_court_line_array", "sp_stream_id"]
-        QUERY = f'SELECT st.court_line_array as st_court_line_array, st.stream_id as sp_stream_id\
+        QUERY = f'SELECT st.court_line_array as st_court_line_array, st.id as sp_stream_id\
             FROM public."SessionParameter" as sp\
             INNER JOIN public."Stream" as st\
             ON st.id = sp.stream_id\
