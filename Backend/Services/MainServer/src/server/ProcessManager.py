@@ -1,5 +1,4 @@
 from __future__ import annotations
-from concurrent import futures
 
 import logging
 import threading
@@ -40,7 +39,7 @@ class ProcessManager():
             threadList:list[threading.Thread] = []
             for i, process in enumerate(processes):
                 
-                if i>self.ConcurencyLimit:
+                if i>=self.ConcurencyLimit:
                     break
                 logging.info(f"{process['process_id']} işleme alındı.")
                 data, send_queue, empty_message, responseIterator = self.workManager.Prepare(process, independent=True, errorLimit=3)
