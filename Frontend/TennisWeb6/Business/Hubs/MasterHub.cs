@@ -23,7 +23,7 @@ namespace SignalR.Hubs {
         }
 
 
-        public override Task OnDisconnectedAsync(System.Exception exception) {
+        public override Task OnDisconnectedAsync(System.Exception? exception) {
             System.Console.WriteLine("Closed Connection: " + Context.ConnectionId);
             Clients.All.SendAsync("ClosedConnection", "Connection is closed.", Context.ConnectionId);
             return base.OnDisconnectedAsync(exception);
@@ -32,20 +32,22 @@ namespace SignalR.Hubs {
 
         public async Task StartProcess(string user, string message) {
             var data = JsonSerializer.Deserialize<ProcessListDto>(message);
-
-            await Clients.All.SendAsync("InfoMessage", user, $"{data.Id} numaralı process işleme alındı.");
-
-            IAsyncEnumerable<Base64FrameModel> iterator = _grpcService.StartProducer(data.Id);
-            await foreach (var item in iterator) {
-                await Clients.All.SendAsync("ReceiveFrame", user, new { id = data.Id, frame = item.Frame });
+            if (data != null) {
+                await Clients.All.SendAsync("InfoMessage", user, $"{data.Id} numaralı process işleme alındı.");
+                IAsyncEnumerable<Base64FrameModel> iterator = _grpcService.StartProducer(data.Id);
+                await foreach (var item in iterator) {
+                    await Clients.All.SendAsync("ReceiveFrame", user, new { id = data.Id, frame = item.Frame });
+                }
             }
         }
 
 
         public async Task StopProcess(string user, string message) {
             var data = JsonSerializer.Deserialize<ProcessListDto>(message);
-            var response = await _grpcService.StopProducer(data.Id);
-            await Clients.All.SendAsync("InfoMessage", user, response.Message);
+            if (data != null) {
+                var response = await _grpcService.StopProducer(data.Id);
+                await Clients.All.SendAsync("InfoMessage", user, response.Message);
+            }
         }
 
 

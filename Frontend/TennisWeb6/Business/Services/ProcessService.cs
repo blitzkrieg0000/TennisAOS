@@ -35,6 +35,7 @@ namespace Business.Services {
             var query = _unitOfWork.GetRepository<Session>().GetQuery().AsNoTracking();
             var raw = await query.Include(x => x.SessionParameter).Where(x => x.Id == id).SingleOrDefaultAsync();
 
+            //TODO Mapper ile maple
             if (raw != null) {
                 SessionRelatedParameterDto data = new(sessionParameterListDto: new SessionParameterListDto() {
                     AosTypeId = raw.SessionParameter.AosTypeId,

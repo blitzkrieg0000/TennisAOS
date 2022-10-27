@@ -144,6 +144,24 @@ class Repositories():
             return [dict(zip(query_keys, process)) for process in processes]
         return []
 
+
+    @staticmethod
+    def getStreamCourtLine(manager, processId):
+        query_keys = ["court_line_array"]
+        QUERY = f'SELECT st.court_line_array\
+            FROM public."Process" as p\
+            INNER JOIN public."SessionParameter" as sp\
+            ON sp.id = p.session_id\
+            INNER JOIN public."Stream" as st\
+            ON st.id = sp.stream_id\
+            WHERE p.id={processId}'
+        processData = manager.Read(query=QUERY, force=True)
+        processes = Converters.bytes2obj(processData)
+        if processes is not None:
+            return [dict(zip(query_keys, process)) for process in processes]
+        return []
+
+
     @staticmethod
     def getProcessRelatedById(manager, id):
         query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force","stream_name", "source", "court_line_array", "is_video"]

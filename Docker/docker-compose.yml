@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.1
     hostname: zookeeper
@@ -42,11 +43,12 @@ services:
     volumes:
       - broker0:/var/lib/kafka/data
   postgres:
-    image: postgres
+    image: postgres:14.5
     hostname: postgres
     container_name: postgres
     restart: always
     stop_grace_period: 3m30s
+    shm_size: 256mb
     networks:
       - tennisnet
     ports:
@@ -56,7 +58,7 @@ services:
       POSTGRES_PASSWORD: 2sfcNavA89A294V4
       POSTGRES_DB: tenis
       PGDATA: /var/lib/postgresql/data/pgdata
-      POSTGRES_HOST_AUTH_METHOD: trust
+      #POSTGRES_HOST_AUTH_METHOD: trust
     volumes:
       - postgresql:/var/lib/postgresql/data
   redis:
@@ -234,7 +236,7 @@ services:
     build:
       context: "../Backend/Services/RTMP"
       dockerfile: dockerfile
-    hostname: rtmpservicehttps://localhost:7293/Session
+    hostname: rtmpservice
     networks:
       - tennisnet
     ports:
