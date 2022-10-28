@@ -92,8 +92,12 @@ class WorkManager():
             
             # Override
             overrideData = Repositories.getStreamCourtLineBySessionId(self.rcm, data["session_id"])[0]
-            data["court_line_array"] = overrideData["st_court_line_array"]
-            data["sp_stream_id"] = overrideData["sp_stream_id"]
+            
+            try:
+                data["court_line_array"] = overrideData["st_court_line_array"]
+                data["sp_stream_id"] = overrideData["sp_stream_id"]
+            except Exception as e:
+                print(e)
 
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
@@ -118,7 +122,6 @@ class WorkManager():
             
             # TODO SAHA ÇİZGİ TAKİBİ
             # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
-
 
             all_points.append(np.array(Converters.bytes2obj(balldata)))
         self.tbc.deleteDetector(data["topicName"])
