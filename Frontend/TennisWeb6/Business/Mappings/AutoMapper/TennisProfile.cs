@@ -20,6 +20,7 @@ namespace Business.Mappings.AutoMapper {
             CreateMap<AosType, AosTypeListDto>().ReverseMap();
             CreateMap<Entities.Concrete.Stream, StreamListDto>().ReverseMap();
             CreateMap<Entities.Concrete.Stream, StreamCreateDto>().ReverseMap();
+            CreateMap<Entities.Concrete.Stream, StreamRelatedListDto>().ReverseMap();
             CreateMap<Player, PlayerListDto>().ReverseMap();
             CreateMap<Player, PlayerCreateDto>().ReverseMap();
             CreateMap<Player, PlayerListRelatedDto>().ReverseMap();

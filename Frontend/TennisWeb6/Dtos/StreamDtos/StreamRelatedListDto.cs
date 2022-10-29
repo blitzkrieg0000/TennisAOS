@@ -1,7 +1,7 @@
 using Dtos.Interface;
 
 namespace Dtos.StreamDtos {
-    public class StreamListDto : IDto {
+    public class StreamRelatedListDto : IDto {
         public long Id { get; set; }
         public string? Name { get; set; }
         public string? Source { get; set; }
@@ -10,6 +10,6 @@ namespace Dtos.StreamDtos {
         public bool? IsActivated { get; set; }
         public bool? IsDeleted { get; set; }
         public bool IsVideo { get; set; }
-        public long? PlayerId { get; set; }
+        public string? PlayerName { get; set; }
     }
 }

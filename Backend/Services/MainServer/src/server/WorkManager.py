@@ -91,9 +91,11 @@ class WorkManager():
                 assert "İlk kare doğru alınamadı."
             
             # Override
-            overrideData = Repositories.getStreamCourtLineBySessionId(self.rcm, data["session_id"])[0]
-            data["court_line_array"] = overrideData["st_court_line_array"]
-            data["sp_stream_id"] = overrideData["sp_stream_id"]
+            if data["court_line_array"] == "" or data["court_line_array"] is None:
+                overrideData = Repositories.getCourtLineBySessionId(self.rcm, data["session_id"])
+                if len(overrideData)>0:
+                    data["court_line_array"] = overrideData[0]["sp_court_line_array"]
+                    #data["sp_stream_id"] = overrideData[0]["sp_stream_id"]
 
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
@@ -101,11 +103,11 @@ class WorkManager():
                 courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
                 courtLines = Converters.bytes2obj(courtPointsBytes)
 
-                # Tenis çizgilerini postgresqle kaydet
-                if courtLines is not None:
-                    SerializedCourtPoints = EncodeManager.serialize(courtLines)
-                    data["court_line_array"] = SerializedCourtPoints
-                    Repositories.saveCourtLinePoints(self.rcm, data["sp_stream_id"], SerializedCourtPoints)
+            # Tenis çizgilerini postgresqle kaydet
+            if courtLines is not None:
+                SerializedCourtPoints = EncodeManager.serialize(courtLines)
+                data["court_line_array"] = SerializedCourtPoints
+                Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], data["session_id"], SerializedCourtPoints)
             
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.frame2bytes(canvas)

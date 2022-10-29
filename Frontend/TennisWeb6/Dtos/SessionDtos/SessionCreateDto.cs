@@ -8,7 +8,7 @@ namespace Dtos.SessionDtos {
         public long SessionId { get; set; }
         public bool? IsActivated { get; set; }
 
-        public int StreamId { get; set; }
+        public int? StreamId { get; set; }
         public int AOSTypeId { get; set; }
         public int PlayerId { get; set; }
         public int CourtId { get; set; }

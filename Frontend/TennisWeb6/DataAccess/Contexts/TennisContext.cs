@@ -5,6 +5,7 @@ namespace Entities.Concrete {
     public class TennisContext : DbContext {
 
         public TennisContext(DbContextOptions<TennisContext> options) : base(options) {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
         public DbSet<AosType> Aostypes => this.Set<AosType>();

@@ -32,37 +32,40 @@ namespace Business.Services {
 
 
         public async Task<IResponse<SessionCreateDto>> Create(SessionCreateDto dto) {
-            if (!dto.IsStreamMode) {
-                var UID = Guid.NewGuid().ToString();
-                Regex rgx = new("\\W+");
-                dto.Name += UID;
-                dto.Name = rgx.Replace(dto.Name, "");
+            // if (!dto.IsStreamMode) {
+            //     var UID = Guid.NewGuid().ToString();
+            //     Regex rgx = new("\\W+");
+            //     dto.Name += UID;
+            //     dto.Name = rgx.Replace(dto.Name, "");
 
-                var defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
-                .GetByFilter(x => x.Name == dto.Name, asNoTracking: true);
+            //     var defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
+            //     .GetByFilter(x => x.Name == dto.Name, asNoTracking: true);
 
-                if (defaultValue == null) {
-                    await _unitOfWork.GetRepository<Entities.Concrete.Stream>().Create(
-                        _mapper.Map<Entities.Concrete.Stream>(
-                            new StreamCreateDto() {
-                                IsActivated = true,
-                                IsDeleted = false,
-                                IsVideo = false,
-                                Name = dto.Name,
-                                Source = "0"
-                            })
-                    );
-                    await _unitOfWork.SaveChanges();
-                }
+            //     if (defaultValue == null) {
+            //         await _unitOfWork.GetRepository<Entities.Concrete.Stream>().Create(
+            //             _mapper.Map<Entities.Concrete.Stream>(
+            //                 new StreamCreateDto() {
+            //                     IsActivated = true,
+            //                     IsDeleted = false,
+            //                     IsVideo = false,
+            //                     Name = dto.Name,
+            //                     Source = "0"
+            //                 })
+            //         );
+            //         await _unitOfWork.SaveChanges();
+            //     }
 
-                defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
-                .GetByFilter(x => x.Name == dto.Name, asNoTracking: true);
+            //     defaultValue = await _unitOfWork.GetRepository<Entities.Concrete.Stream>()
+            //     .GetByFilter(x => x.Name == dto.Name, asNoTracking: true);
 
-                dto.StreamId = (int)defaultValue.Id;
-            }
+            //     dto.StreamId = (int)defaultValue.Id;
+            // }
 
             var data = _mapper.Map<Session>(dto);
             var validationResult = _sessionCreateDtoValidator.Validate(dto);
+
+            Regex rgx = new("\\W+");
+            dto.Name = rgx.Replace(dto.Name, "");
 
             if (validationResult.IsValid) {
                 await _unitOfWork.GetRepository<Session>().Create(data);

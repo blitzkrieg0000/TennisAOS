@@ -19,8 +19,8 @@ namespace UI.Controllers {
         }
 
         public async Task<IActionResult> Index() {
-            var data = await _streamService.GetAll();
-            return this.ResponseView<List<StreamListDto>>(data);
+            var data = await _streamService.GetAllRelated();
+            return this.ResponseView<List<StreamRelatedListDto>>(data);
         }
 
         public async Task<IActionResult> Detail(int id) {

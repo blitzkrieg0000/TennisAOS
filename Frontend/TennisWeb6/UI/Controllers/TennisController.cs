@@ -1,8 +1,6 @@
-using System.Threading.Tasks;
 using Business.Interfaces;
 using Dtos.GRPCData;
 using Microsoft.AspNetCore.Mvc;
-using UI.Extensions;
 
 namespace UI.Controllers {
 

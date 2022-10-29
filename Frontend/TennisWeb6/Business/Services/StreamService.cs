@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 using FluentValidation;
 using Business.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business.Services {
     public class StreamService : IStreamService {
@@ -27,6 +28,14 @@ namespace Business.Services {
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetAll()
             );
             return new Response<List<StreamListDto>>(ResponseType.Success, data);
+        }
+
+        public async Task<Response<List<StreamRelatedListDto>>> GetAllRelated() {
+            var query = _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetQuery().AsNoTracking();
+            var data = _mapper.Map<List<StreamRelatedListDto>>(
+                await query.Include(x => x.Player).ToListAsync()
+            );
+            return new Response<List<StreamRelatedListDto>>(ResponseType.Success, data);
         }
 
         public async Task<Response<StreamListDto>> GetById(long? id) {

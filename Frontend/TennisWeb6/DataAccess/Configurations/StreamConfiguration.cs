@@ -27,17 +27,22 @@ namespace DataAccess.Configurations {
 
             builder.Property(e => e.IsVideo).HasColumnName("is_video");
 
-            builder.Property(e => e.Name)
-                .IsRequired()
-                .HasColumnName("name");
+            builder.Property(e => e.Name).HasColumnName("name");
+
+            builder.Property(e => e.PlayerId).HasColumnName("player_id");
 
             builder.Property(e => e.SaveDate)
+                .HasColumnType("timestamp without time zone")
                 .HasColumnName("save_date")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-            builder.Property(e => e.Source)
-                .IsRequired()
-                .HasColumnName("source");
+            builder.Property(e => e.Source).HasColumnName("source");
+
+            builder.HasOne(d => d.Player)
+                .WithMany(p => p.Streams)
+                .HasForeignKey(d => d.PlayerId)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("stream_fk");
         }
     }
 }

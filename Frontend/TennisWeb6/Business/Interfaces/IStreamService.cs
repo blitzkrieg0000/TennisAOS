@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 namespace Business.Interfaces {
     public interface IStreamService {
         Task<Response<List<StreamListDto>>> GetAll();
+        Task<Response<List<StreamRelatedListDto>>> GetAllRelated();
         Task<Response<StreamListDto>> GetById(long? id);
         Task<IResponse<StreamCreateDto>> Create(IFormFile formFile, StreamCreateDto dto);
         Task<IResponse<StreamListDto>> Update(StreamListDto dto);
