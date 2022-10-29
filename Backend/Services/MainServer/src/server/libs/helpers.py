@@ -126,7 +126,7 @@ class Repositories():
     
     @staticmethod
     def getAllProcessRelated(manager):
-        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force","stream_name", "source", "court_line_array", "is_video"]
+        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force", "stream_name", "source", "court_line_array", "is_video"]
         QUERY = f'SELECT p.id as process_id, p.name as process_name, sp.id as session_id, st.id, sp.aos_type_id, sp.player_id, sp.court_id,sp."limit", sp."force", st."name", st."source", sp.court_line_array, st.is_video\
         FROM public."Process" as p\
         INNER JOIN public."SessionParameter" as sp\
@@ -160,7 +160,7 @@ class Repositories():
 
     @staticmethod
     def getProcessRelatedById(manager, id):
-        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force","stream_name", "source", "court_line_array", "is_video"]
+        query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force", "stream_name", "source", "court_line_array", "is_video"]
         QUERY = f'SELECT p.id as process_id, p.name as process_name, sp.id as session_id, st.id, sp.aos_type_id, sp.player_id, sp.court_id,sp."limit", sp."force", st."name", st."source", st.court_line_array, st.is_video\
         FROM public."Process" as p\
         INNER JOIN public."SessionParameter" as sp\

@@ -82,7 +82,7 @@
 
 										<div class="form-group">
 											<label>Video/Stream Seçiniz:</label>
-											@(await Component.InvokeAsync("SelectListFromTable", new{tableName="AllStream"} ))
+											@(await Component.InvokeAsync("StreamSelectListByPlayerFilter", new{playerId=Model.SessionParameterListDto.PlayerId} ))
 										</div>
 
 										<div class="form-group">

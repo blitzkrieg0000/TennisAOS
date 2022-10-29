@@ -50,7 +50,6 @@ namespace Business.Services {
             data.Score = score;
             data.Id = 0;
             data.SaveDate = DateTime.UtcNow;
-            
             await _unitOfWork.GetRepository<PlayingDatum>().Create(data);
             await _unitOfWork.SaveChanges();
 
