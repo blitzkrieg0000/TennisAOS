@@ -32,12 +32,12 @@ if (TempData["ResponseMessage"] != null)
 
 			<div class="form-group">
 				<label>Oyuncu Seçiniz:</label>
-				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="Player"} ))
+				@(await Component.InvokeAsync("PlayerSelectList"))
 			</div>
 
 			<div class="form-group">
 				<label>Hesaplanacak AOS Tipi Seçiniz:</label>
-				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="AosType"} ))
+				@(await Component.InvokeAsync("AosTypeSelectList"))
 			</div>
 
 			<div class="form-group">
@@ -55,7 +55,7 @@ if (TempData["ResponseMessage"] != null)
 			</div>
 			
 			<div id="Stream" class="form-group">
-				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="Stream"} ))
+				@(await Component.InvokeAsync("StreamSelectList"))
 			</div>
 
 			<div id="Video" style="display: none" class="form-group">
@@ -64,7 +64,7 @@ if (TempData["ResponseMessage"] != null)
 
 			<div class="form-group">
 				<label>Saha Seçiniz:</label>
-				@(await Component.InvokeAsync("SelectListFromTable", new{tableName="Court"} ))
+				@(await Component.InvokeAsync("CourtSelectList"))
 			</div>
 
 			<div class="form-group">

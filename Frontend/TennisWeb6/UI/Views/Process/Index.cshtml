@@ -1,28 +1,51 @@
 @model SessionRelatedParameterDto
 
 @{
-	Layout = "~/Views/Shared/_Layout.cshtml";
+Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 @* @{
-	if (TempData["ResponseMessage"] != null)
-	{
+if (TempData["ResponseMessage"] != null)
+{
 
-	<div class="bg-primary text-white text-center lead">
+<div class="bg-primary text-white text-center lead">
 	@TempData["ResponseMessage"]
-	</div>
-	}
-	}
+</div>
+}
+}
 
-	<div id="infoMessage" class="bg-primary text-white text-center lead">...</div> *@
+<div id="infoMessage" class="bg-primary text-white text-center lead">...</div> *@
 
 @section Links{
 <link rel="stylesheet" type="text/css" href="~/assets/css/ProcessCard.css" />
 <link rel="stylesheet" type="text/css" href="~/assets/css/zoom.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@fancyapps/ui@4.0/dist/fancybox.css" />
-@* <link rel="stylesheet" href="~/node_modules/@@fancyapps/ui/dist/fancybox.css" type="text/css" media="screen" /> *@
+@*
+<link rel="stylesheet" href="~/node_modules/@@fancyapps/ui/dist/fancybox.css" type="text/css" media="screen" /> *@
 <link rel="stylesheet" href="~/assets/css/Process/this.css" />
 }
+
+
+<!-- Basic modal -->
+<div id="modal_default" class="modal fade" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Basic modal</h5>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+
+			<div class="modal-body">
+			</div>
+
+			<div class="modal-footer">
+				<button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+				<button type="button" class="btn btn-primary">Save changes</button>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- /basic modal -->
 
 
 <!-- AddProcess_Modal -->
@@ -34,79 +57,73 @@
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 
-			<ul class="nav nav-tabs nav-justified">
-				@if((bool)Model.SessionParameterListDto.IsStreamMode){
-					<li class="nav-item"><a href="#basic-justified-tab1" class="nav-link active" data-toggle="tab">Normal Atış Ekle</a></li>
-				}else{
-					<li class="nav-item"><a href="#basic-justified-tab2" class="nav-link" data-toggle="tab">Özelleştir</a></li>
-				}
+			<div class="modal-body">
 				
-				
-				<div class="tab-content">
 				@if((bool)Model.SessionParameterListDto.IsStreamMode){
-					<div class="tab-pane fade show active" id="basic-justified-tab1">
 
-						<form asp-action="Create" asp-controller="Process" method="post">
-							<input type="hidden" value="@Model.SessionId" name="SessionId" />
-							<div class="modal-body">
-								<div class="form-group">
-									<div class="row">
-										<input name="IsStreamMode" asp-for='@Model.SessionParameterListDto.IsStreamMode' class="form-check-input" type="hidden">
-									</div>
-								</div>
 
-								<div class="form-group">
-									<label>Limit (İşlenecek Frame Sayısı):</label>
-									<input class="input-group-text" type="number" name="Limit" value="-1">
-								</div>
-
+				<form asp-action="Create" asp-controller="Process" method="post">
+					<input type="hidden" value="@Model.SessionId" name="SessionId" />
+					<div class="modal-body">
+						<div class="form-group">
+							<div class="row">
+								<input name="IsStreamMode" asp-for='@Model.SessionParameterListDto.IsStreamMode' class="form-check-input" type="hidden">
 							</div>
+						</div>
 
-							<div class="modal-footer">
-								<button type="button" class="btn btn-link" data-dismiss="modal">Kapat</button>
-								<div class="row">
-									<button type="submit" class="btn btn-primary">Atış Ekle<i class="icon-paperplane ml-2"></i></button>
-								</div>
-							</div>
-						</form>
+						<div class="form-group">
+							<label>Limit (İşlenecek Frame Sayısı):</label>
+							<input class="input-group-text" type="number" name="Limit" value="-1">
+						</div>
 
 					</div>
-				}else{
-					<div class="tab-pane fade" id="basic-justified-tab2">
 
-						<form asp-action="Create" asp-controller="Process" method="post">
-							<input type="hidden" value="@Model.SessionId" name="SessionId" />
-							<div class="modal-body">
-								<div class="form-group">
-									<div class="row">
-
-										<div class="form-group">
-											<label>Video/Stream Seçiniz:</label>
-											@(await Component.InvokeAsync("StreamSelectListByPlayerFilter", new{playerId=Model.SessionParameterListDto.PlayerId} ))
-										</div>
-
-										<div class="form-group">
-											<label>Limit (İşlenecek Frame Sayısı):</label>
-											<input class="input-group-text" type="number" name="Limit" value="-1">
-										</div>
-
-										<input name="IsStreamMode" asp-for='@Model.SessionParameterListDto.IsStreamMode' class="form-check-input" type="hidden">
-
-									</div>
-								</div>
-							</div>
-
-							<div class="modal-footer">
-								<button type="button" class="btn btn-link" data-dismiss="modal">Kapat</button>
-								<div class="row">
-									<button type="submit" class="btn btn-primary">Atış Ekle<i class="icon-paperplane ml-2"></i></button>
-								</div>
-							</div>
-						</form>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-link" data-dismiss="modal">Kapat</button>
+						<div class="row">
+							<button type="submit" class="btn btn-primary">Atış Ekle<i class="icon-paperplane ml-2"></i></button>
+						</div>
 					</div>
+				</form>
+
+				}else{
+
+
+					<form asp-action="Create" asp-controller="Process" method="post">
+						<input type="hidden" value="@Model.SessionId" name="SessionId" />
+						<div class="modal-body">
+							<div class="form-group">
+								<div class="row">
+
+									<div class="form-group">
+										<label>Video/Stream Seçiniz:</label>
+										@(await Component.InvokeAsync("StreamSelectListByPlayerFilter", new{playerId=Model.SessionParameterListDto.PlayerId} ))
+									</div>
+
+									<div class="form-group">
+										<label>Limit (İşlenecek Frame Sayısı):</label>
+										<input class="input-group-text" type="number" name="Limit" value="-1">
+									</div>
+
+									<input name="IsStreamMode" asp-for='@Model.SessionParameterListDto.IsStreamMode' class="form-check-input" type="hidden">
+
+								</div>
+							</div>
+						</div>
+
+						<div class="modal-footer">
+							<button type="button" class="btn btn-link" data-dismiss="modal">Kapat</button>
+							<div class="row">
+								<button type="submit" class="btn btn-primary">Atış Ekle<i class="icon-paperplane ml-2"></i></button>
+							</div>
+						</div>
+					</form>
+
+
 				}
-				
-				</div>
+
+
+			</div>
 		</div>
 	</div>
 </div>
