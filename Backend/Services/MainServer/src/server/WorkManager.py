@@ -101,7 +101,13 @@ class WorkManager():
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
             else:
-                courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
+                courtPointsBytes = b""
+                try:
+                    courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
+                except:
+                    Repositories.markAsCompleted(self.rcm, data["process_id"])
+                    return None
+
                 courtLines = Converters.bytes2obj(courtPointsBytes)
 
             # Tenis çizgilerini postgresqle kaydet

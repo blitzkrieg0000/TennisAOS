@@ -6,6 +6,7 @@ namespace DataAccess.Contexts {
     public class SecurityContext : IdentityDbContext<AppUser, AppRole, int> {
 
         public SecurityContext(DbContextOptions<SecurityContext> options) : base(options) {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         }
 
     }
