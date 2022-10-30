@@ -97,7 +97,7 @@ if (TempData["ResponseMessage"] != null)
 
 									<div class="form-group">
 										<label>Video/Stream Seçiniz:</label>
-										@(await Component.InvokeAsync("StreamSelectListByPlayerFilter", new{playerId=Model.SessionParameterListDto.PlayerId} ))
+										@(await Component.InvokeAsync("StreamSelectListByPlayerFilter", new{playerId=Model.SessionParameterListDto.PlayerId, sessionId=Model.SessionId} ))
 									</div>
 
 									<div class="form-group">
