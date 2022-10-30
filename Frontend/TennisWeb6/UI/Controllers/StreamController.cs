@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Business.Interfaces;
 using Dtos.StreamDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
@@ -10,6 +11,7 @@ using UI.Extensions;
 namespace UI.Controllers {
 
     [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class StreamController : Controller {
 
         private readonly IStreamService _streamService;

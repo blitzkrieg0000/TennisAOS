@@ -1,9 +1,13 @@
 using Business.Interfaces;
 using Dtos.SessionDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
 
 namespace UI.Controllers {
+
+    [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class SessionController : Controller {
 
         private readonly ISessionService _sessionService;

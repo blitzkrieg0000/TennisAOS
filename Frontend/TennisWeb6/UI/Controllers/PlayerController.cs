@@ -1,10 +1,14 @@
 using System.Threading.Tasks;
 using Business.Interfaces;
 using Dtos.PlayerDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
 
 namespace UI.Controllers {
+
+    [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class PlayerController : Controller {
 
         private readonly IPlayerService _playerService;

@@ -1,9 +1,14 @@
 using Business.Interfaces;
 using Dtos.ProcessDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
 
 namespace UI.Controllers {
+
+
+    [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class ProcessController : Controller {
 
         private readonly IProcessService _processService;
