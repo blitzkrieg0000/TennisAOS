@@ -23,12 +23,14 @@ namespace Business.Services {
             _streamCreateDtoValidator = streamCreateDtoValidator;
         }
 
+
         public async Task<Response<List<StreamListDto>>> GetAll() {
             var data = _mapper.Map<List<StreamListDto>>(
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetAll()
             );
             return new Response<List<StreamListDto>>(ResponseType.Success, data);
         }
+
 
         public async Task<Response<List<StreamRelatedListDto>>> GetAllRelated() {
             var query = _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetQuery().AsNoTracking();
@@ -38,12 +40,14 @@ namespace Business.Services {
             return new Response<List<StreamRelatedListDto>>(ResponseType.Success, data);
         }
 
+
         public async Task<Response<StreamListDto>> GetById(long? id) {
             var data = _mapper.Map<StreamListDto>(
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetByFilter(x => x.Id == id, asNoTracking: false)
             );
             return new Response<StreamListDto>(ResponseType.Success, data);
         }
+
 
         public async Task<IResponse<StreamCreateDto>> Create(IFormFile formFile, StreamCreateDto dto) {
 
