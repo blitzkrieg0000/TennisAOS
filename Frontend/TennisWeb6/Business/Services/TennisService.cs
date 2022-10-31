@@ -1,5 +1,3 @@
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Business.Interfaces;
 using Common.ResponseObjects;
@@ -52,7 +50,6 @@ namespace Business.Services {
             data.Score = score;
             data.Id = 0;
             data.SaveDate = DateTime.UtcNow;
-            
             await _unitOfWork.GetRepository<PlayingDatum>().Create(data);
             await _unitOfWork.SaveChanges();
 

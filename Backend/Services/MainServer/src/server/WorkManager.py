@@ -10,6 +10,7 @@ from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
 
+
 MAX_WORKERS = 5
 class WorkManager():
     def __init__(self):
@@ -49,7 +50,7 @@ class WorkManager():
     # Algorithms--------------------------------------------------------------- 
     def Prepare(self, data, independent=False, errorLimit=3):
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
-        res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName) 
+        res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName)
         data["topicName"] = newTopicName
 
         arr = {
@@ -102,14 +103,20 @@ class WorkManager():
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines = EncodeManager.deserialize(data["court_line_array"])
             else:
-                courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
+                courtPointsBytes = b""
+                try:
+                    courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
+                except:
+                    Repositories.markAsCompleted(self.rcm, data["process_id"])
+                    return None
+
                 courtLines = Converters.bytes2obj(courtPointsBytes)
 
-                # Tenis çizgilerini postgresqle kaydet
-                if courtLines is not None:
-                    SerializedCourtPoints = EncodeManager.serialize(courtLines)
-                    data["court_line_array"] = SerializedCourtPoints
-                    Repositories.saveCourtLinePoints(self.rcm, data["sp_stream_id"], SerializedCourtPoints)
+            # Tenis çizgilerini postgresqle kaydet
+            if courtLines is not None:
+                SerializedCourtPoints = EncodeManager.serialize(courtLines)
+                data["court_line_array"] = SerializedCourtPoints
+                Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], data["session_id"], SerializedCourtPoints)
             
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.frame2bytes(canvas)

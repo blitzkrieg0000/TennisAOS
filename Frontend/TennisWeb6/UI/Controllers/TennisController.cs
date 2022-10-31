@@ -1,12 +1,12 @@
-using System.Threading.Tasks;
 using Business.Interfaces;
 using Dtos.GRPCData;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using UI.Extensions;
 
 namespace UI.Controllers {
 
     [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class TennisController : Controller {
 
 
@@ -19,12 +19,12 @@ namespace UI.Controllers {
         [HttpPost]
         public async Task<IActionResult> GenerateProcess(GenerateProcessModel model) {
             var response = await _tennisService.Create(model);
-            return RedirectToAction("Index", "Process", new{@id = model.SessionId});
+            return RedirectToAction("Index", "Process", new { @id = model.SessionId });
         }
 
 
         [HttpGet]
-        public async Task<IActionResult> CalculateTotalScore(long sessionId){
+        public async Task<IActionResult> CalculateTotalScore(long sessionId) {
             var response = await _tennisService.CalculateTotalScore(sessionId);
             return RedirectToAction("Index", "PlayingDatum");
         }

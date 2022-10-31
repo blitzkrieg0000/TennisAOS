@@ -1,4 +1,5 @@
 namespace Common.ResponseObjects {
+
     public class Response : IResponse {
 
         public string Message { get; set; }

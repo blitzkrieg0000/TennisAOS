@@ -19,6 +19,7 @@ namespace UI.Extensions {
                 }
                 return controller.View(response.Data);
             }
+            
             return controller.RedirectToAction(actionName);
         }
 
@@ -49,7 +50,6 @@ namespace UI.Extensions {
             return controller.View(response.Data);
         }
 
-        
 
     }
 }

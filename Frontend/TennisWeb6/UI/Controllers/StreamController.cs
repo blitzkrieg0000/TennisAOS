@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Business.Interfaces;
 using Dtos.StreamDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
@@ -10,6 +11,7 @@ using UI.Extensions;
 namespace UI.Controllers {
 
     [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class StreamController : Controller {
 
         private readonly IStreamService _streamService;
@@ -19,8 +21,8 @@ namespace UI.Controllers {
         }
 
         public async Task<IActionResult> Index() {
-            var data = await _streamService.GetAll();
-            return this.ResponseView<List<StreamListDto>>(data);
+            var data = await _streamService.GetAllRelated();
+            return this.ResponseView<List<StreamRelatedListDto>>(data);
         }
 
         public async Task<IActionResult> Detail(int id) {

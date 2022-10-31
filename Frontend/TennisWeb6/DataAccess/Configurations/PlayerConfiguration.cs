@@ -7,14 +7,15 @@ namespace DataAccess.Configurations {
     public class PlayerConfiguration : IEntityTypeConfiguration<Player> {
 
         public void Configure(EntityTypeBuilder<Player> builder) {
-
             builder.ToTable("Player");
 
             builder.Property(e => e.Id)
                 .HasColumnName("id")
                 .UseIdentityAlwaysColumn();
 
-            builder.Property(e => e.Birthday).HasColumnName("birthday");
+            builder.Property(e => e.Birthday)
+                .HasColumnType("timestamp without time zone")
+                .HasColumnName("birthday");
 
             builder.Property(e => e.GenderId)
                 .HasColumnName("gender_id")
@@ -22,11 +23,10 @@ namespace DataAccess.Configurations {
 
             builder.Property(e => e.IsDeleted).HasColumnName("is_deleted");
 
-            builder.Property(e => e.Name)
-                .IsRequired()
-                .HasColumnName("name");
+            builder.Property(e => e.Name).HasColumnName("name");
 
             builder.Property(e => e.SaveDate)
+                .HasColumnType("timestamp without time zone")
                 .HasColumnName("save_date")
                 .HasDefaultValueSql("CURRENT_TIMESTAMP");
 

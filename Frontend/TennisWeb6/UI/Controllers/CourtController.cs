@@ -1,10 +1,13 @@
 using Business.Interfaces;
 using Dtos.CourtDtos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using UI.Extensions;
 
 namespace UI.Controllers {
 
+    [AutoValidateAntiforgeryToken]
+    [Authorize(Roles = "Member")]
     public class CourtController : Controller {
         private readonly ICourtService _courtService;
 

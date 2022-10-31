@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 using FluentValidation;
 using Business.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Business.Services {
     public class StreamService : IStreamService {
@@ -22,6 +23,7 @@ namespace Business.Services {
             _streamCreateDtoValidator = streamCreateDtoValidator;
         }
 
+
         public async Task<Response<List<StreamListDto>>> GetAll() {
             var data = _mapper.Map<List<StreamListDto>>(
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetAll()
@@ -29,12 +31,23 @@ namespace Business.Services {
             return new Response<List<StreamListDto>>(ResponseType.Success, data);
         }
 
+
+        public async Task<Response<List<StreamRelatedListDto>>> GetAllRelated() {
+            var query = _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetQuery().AsNoTracking();
+            var data = _mapper.Map<List<StreamRelatedListDto>>(
+                await query.Include(x => x.Player).ToListAsync()
+            );
+            return new Response<List<StreamRelatedListDto>>(ResponseType.Success, data);
+        }
+
+
         public async Task<Response<StreamListDto>> GetById(long? id) {
             var data = _mapper.Map<StreamListDto>(
                 await _unitOfWork.GetRepository<Entities.Concrete.Stream>().GetByFilter(x => x.Id == id, asNoTracking: false)
             );
             return new Response<StreamListDto>(ResponseType.Success, data);
         }
+
 
         public async Task<IResponse<StreamCreateDto>> Create(IFormFile formFile, StreamCreateDto dto) {
 

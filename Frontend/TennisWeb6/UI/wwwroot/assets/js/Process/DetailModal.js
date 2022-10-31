@@ -10,11 +10,14 @@ detailModal.addEventListener('show.bs.modal', function (event) {
     var modalTitle = detailModal.querySelector('.modal-title')
     modalTitle.textContent = 'Details: ' + data["process"]["id"]
 
+    var court_score_description = detailModal.querySelector("#court_score_description")
     var court_score = detailModal.querySelector("#court_score")
     if (data["processResponse"]["score"] != null) {
-        court_score.innerHTML = "Puan: " + data["processResponse"]["score"]
+        court_score.innerHTML = "Puan: " + data["processResponse"]["score"];
+        court_score_description.value = data["processResponse"]["score"];
     } else {
-        court_score.innerHTML = "Puan: " + "Hesaplanamadı."
+        court_score.innerHTML = "Puan: 0";
+        court_score_description.value = "Puan: 0";
     }
 
     var court_description = detailModal.querySelector("#court_description");

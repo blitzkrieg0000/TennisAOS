@@ -10,5 +10,6 @@ namespace Dtos.StreamDtos {
         public bool? IsActivated { get; set; }
         public bool? IsDeleted { get; set; }
         public bool IsVideo { get; set; }
+        public long? PlayerId { get; set; }
     }
 }
