@@ -92,7 +92,7 @@ class WorkManager():
                 assert "İlk kare doğru alınamadı."
             
             # Override
-            overrideData = Repositories.getStreamCourtLineBySessionId(self.rcm, data["session_id"])[0]
+            overrideData = Repositories.getCourtLineBySessionId(self.rcm, data["session_id"])[0]
             
             try:
                 data["court_line_array"] = overrideData["st_court_line_array"]
@@ -117,7 +117,9 @@ class WorkManager():
                 SerializedCourtPoints = EncodeManager.serialize(courtLines)
                 data["court_line_array"] = SerializedCourtPoints
                 Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], data["session_id"], SerializedCourtPoints)
-            
+            else:
+                return None
+
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.frame2bytes(canvas)
         

@@ -72,7 +72,7 @@ namespace Business.Services {
                     }
 
                     //TODO Dinamik path yap
-                    string SAVE_PATH = "/home/blitzkrieg/nfs/exports/tennis";
+                    string SAVE_PATH = "/home/ubuntu/nfs/exports/tennis";
                     string SAVE_FOLDER_NAME = "assets";
                     SAVE_PATH = System.IO.Path.Combine(SAVE_PATH, SAVE_FOLDER_NAME);
 

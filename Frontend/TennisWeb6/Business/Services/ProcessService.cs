@@ -22,7 +22,6 @@ namespace Business.Services {
             _unitOfWork = unitOfWork;
         }
 
-
         public async Task<Response<List<ProcessListDto>>> GetAll() {
             var data = _mapper.Map<List<ProcessListDto>>(
                 await _unitOfWork.GetRepository<Process>().GetAll()

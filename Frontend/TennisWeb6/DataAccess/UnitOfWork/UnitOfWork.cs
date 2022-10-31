@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+using DataAccess.Contexts;
 using DataAccess.Interfaces;
 using DataAccess.Repositories;
 using Entities.Concrete;
@@ -7,8 +7,8 @@ namespace DataAccess.UnitOfWork {
     public class UnitOfWork : IUnitOfWork {
         //Tek bir context üzerinden Repositorylerin kullanılması sağlanıyor.
 
-        private readonly TennisContext _context;
-        public UnitOfWork(TennisContext context) {
+        private readonly SecurityContext _context;
+        public UnitOfWork(SecurityContext context) {
             _context = context;
         }
 

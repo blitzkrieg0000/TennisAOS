@@ -38,6 +38,7 @@ namespace Entities.Concrete {
             modelBuilder.ApplyConfiguration(new ProcessConfiguration());
             modelBuilder.ApplyConfiguration(new ProcessResponseConfiguration());
             modelBuilder.ApplyConfiguration(new ProcessParameterConfiguration());
+            base.OnModelCreating(modelBuilder);
         }
 
     }

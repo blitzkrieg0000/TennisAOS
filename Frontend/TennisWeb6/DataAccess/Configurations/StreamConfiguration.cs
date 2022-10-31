@@ -7,8 +7,9 @@ namespace DataAccess.Configurations {
     public class StreamConfiguration : IEntityTypeConfiguration<Entities.Concrete.Stream> {
 
         public void Configure(EntityTypeBuilder<Entities.Concrete.Stream> builder) {
-            builder.ToTable("Stream");
 
+            builder.ToTable("Stream");
+            builder.HasKey(x=>x.Id);
             builder.Property(e => e.Id)
                 .HasColumnName("id")
                 .UseIdentityAlwaysColumn();

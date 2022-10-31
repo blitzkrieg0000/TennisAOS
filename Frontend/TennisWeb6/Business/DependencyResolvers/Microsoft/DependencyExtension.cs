@@ -8,7 +8,6 @@ using DataAccess.UnitOfWork;
 using Dtos.PlayerDtos;
 using Dtos.SessionDtos;
 using Dtos.StreamDtos;
-using Entities.Concrete;
 using Entities.Concrete.Security;
 using FluentValidation;
 using IdentityProjesi.CustomDescriber;
@@ -51,14 +50,15 @@ namespace Business.DependencyResolvers.Microsoft {
 
             services.AddControllersWithViews();
 
+
             //! DEPENDENCY INJECTIONS
             //Context in OnConfiguring kısmını dependency injection aracılığıyla yapıyoruz.
-            services.AddDbContext<TennisContext>(opt => {
-                opt.UseNpgsql("Host=localhost;Database=tenis;Username=tenis;Password=2sfcNavA89A294V4;Pooling=false;Timeout=300;CommandTimeout=300", builder => {
-                    builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
-                });
-                opt.LogTo(Console.WriteLine, LogLevel.Information);
-            });
+            // services.AddDbContext<TennisContext>(opt => {
+            //     opt.UseNpgsql("Host=localhost;Database=tenis;Username=tenis;Password=2sfcNavA89A294V4;Pooling=false;Timeout=300;CommandTimeout=300", builder => {
+            //         builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
+            //     });
+            //     opt.LogTo(Console.WriteLine, LogLevel.Information);
+            // });
 
             services.AddDbContext<SecurityContext>(opt => {
                 opt.UseNpgsql("Host=localhost;Database=tenis;Username=tenis;Password=2sfcNavA89A294V4;Pooling=false;Timeout=300;CommandTimeout=300", builder => {
@@ -66,7 +66,6 @@ namespace Business.DependencyResolvers.Microsoft {
                 });
                 opt.LogTo(Console.WriteLine, LogLevel.Information);
             });
-
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IPlayingDatumService, PlayingDatumService>();
@@ -88,6 +87,7 @@ namespace Business.DependencyResolvers.Microsoft {
             services.AddTransient<IValidator<StreamCreateDto>, StreamCreateDtoValidator>();
             services.AddTransient<IValidator<PlayerCreateDto>, PlayerCreateDtoValidator>();
             services.AddTransient<IValidator<SessionCreateDto>, SessionCreateDtoValidator>();
+
 
             //! AUTOMAPPER CONFIGURATIONS
             var configuration = new MapperConfiguration(opt => {

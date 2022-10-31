@@ -1,8 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
+using DataAccess.Contexts;
 using DataAccess.Interfaces;
 using Entities.Concrete;
 using Microsoft.EntityFrameworkCore;
@@ -11,8 +8,8 @@ namespace DataAccess.Repositories {
     public class Repository<T> : IRepository<T> where T : BaseEntity {
         // Sadece Database İşlemleri Yapılıyor
 
-        private readonly TennisContext _context;
-        public Repository(TennisContext context) {
+        private readonly SecurityContext _context;
+        public Repository(SecurityContext context) {
             _context = context;
         }
 
