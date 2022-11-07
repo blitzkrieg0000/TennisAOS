@@ -19,7 +19,7 @@ namespace Business.Services {
         }
 
         public async IAsyncEnumerable<Base64FrameModel> StartProducer(long id) {
-            using var channel = GrpcChannel.ForAddress("http://localhost:50011");
+            using var channel = GrpcChannel.ForAddress("http://mainservice:50011");
             var client = new MainServer.MainServerClient(channel);
             var requestData = new StartProcessRequestData() { ProcessId = id };
 
@@ -66,7 +66,7 @@ namespace Business.Services {
 
 
         public async Task<Response> StopProducer(long id) {
-            using var channel = GrpcChannel.ForAddress("http://localhost:50011");
+            using var channel = GrpcChannel.ForAddress("http://mainservice:50011");
             var client = new MainServer.MainServerClient(channel);
             var requestData = new StopProcessRequestData() { ProcessId = id };
             var reply = await client.StopProcessAsync(requestData);
