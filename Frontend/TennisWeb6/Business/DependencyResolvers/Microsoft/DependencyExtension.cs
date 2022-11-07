@@ -61,7 +61,7 @@ namespace Business.DependencyResolvers.Microsoft {
             // });
 
             services.AddDbContext<SecurityContext>(opt => {
-                opt.UseNpgsql("Host=localhost;Database=tenis;Username=tenis;Password=2sfcNavA89A294V4;Pooling=false;Timeout=300;CommandTimeout=300", builder => {
+                opt.UseNpgsql("Host=postgres;Database=tenis;Username=tenis;Password=2sfcNavA89A294V4;Pooling=false;Timeout=300;CommandTimeout=300", builder => {
                     builder.EnableRetryOnFailure(3, TimeSpan.FromSeconds(10), null);
                 });
                 opt.LogTo(Console.WriteLine, LogLevel.Information);

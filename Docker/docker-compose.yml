@@ -11,7 +11,10 @@ services:
     networks:
       - tennisnet
     ports:
-      - "8080:80"
+      - "44000:80"
+    volumes:
+      - webassets:/assets
+
   zookeeper:
     image: confluentinc/cp-zookeeper:7.1.1
     hostname: zookeeper
@@ -28,7 +31,6 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_log:/var/lib/zookeeper/log
-
   broker:
     image: confluentinc/cp-kafka:7.1.1
     hostname: broker
@@ -315,6 +317,12 @@ volumes:
       type: "nfs"
       o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
       device: ":/tennis/postgresql"
+
+  webassets:
+    driver_opts:
+      type: "nfs"
+      o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
+      device: ":/tennis/assets"
 
   # models:
   #   driver_opts:
