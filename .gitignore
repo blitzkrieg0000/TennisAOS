@@ -193,3 +193,4 @@ _[Ss]cripts
 *.dot[Cc]over
 *node_modules
 
+Docker/Data/

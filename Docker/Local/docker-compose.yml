@@ -1,20 +1,6 @@
 version: '3.8'
 services:
-    tennisweb:
-        image: tennisweb
-        build:
-            context: "../Frontend/"
-            dockerfile: dockerfile
-        hostname: tennisweb
-        container_name: tennisweb
-        restart: always
-        networks:
-            - tennisnet
-        ports:
-            - "44000:80"
-        volumes:
-            - webassets:/app/assets
-
+    #! CONTAINER SERVICES
     zookeeper:
         image: confluentinc/cp-zookeeper:7.1.1
         hostname: zookeeper
@@ -105,32 +91,48 @@ services:
             KAFKA_BROKERCONNECT: "broker:9092"
             JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
 
-  # triton:
-  #   image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
-  #   entrypoint: /bin/bash
-  #   #command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --pinned-memory-pool-byte-size 5368709120 --cuda-memory-pool-byte-size 0:64 --backend-config='tensorrt','default-max-batch-size'='0'"
-  #   command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --backend-config='tensorrt','default-max-batch-size'='0'"
-  #   restart: always
-  #   ports:
-  #     - "8000:8000"
-  #     - "8001:8001"
-  #     - "8002:8002"
-  #   volumes:
-  #     - models:/models
-  #   networks:
-  #     - tennisnet
-  #   deploy:
-  #     resources:
-  #       reservations:
-  #         devices:
-  #           - driver: nvidia
-  #             count: 1
-  #             capabilities: [ gpu ]
+    # triton:
+    #     image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
+    #     entrypoint: /bin/bash
+    #     #command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --pinned-memory-pool-byte-size 5368709120 --cuda-memory-pool-byte-size 0:64 --backend-config='tensorrt','default-max-batch-size'='0'"
+    #     command: -c "cd /models && /opt/tritonserver/bin/tritonserver --model-repository=/models --allow-gpu-metrics=False --strict-model-config=false --backend-config='tensorrt','default-max-batch-size'='0'"
+    #     restart: always
+    #     ports:
+    #         - "8000:8000"
+    #         - "8001:8001"
+    #         - "8002:8002"
+    #     volumes:
+    #         - models:/models
+    #     networks:
+    #         - tennisnet
+    #     deploy:
+    #         resources:
+    #             reservations:
+    #                 devices:
+    #                     - driver: nvidia
+    #                     - count: 1
+    #                     - capabilities: [ gpu ]
+    
+    #! BUILDED SERVICES
+    tennisweb:
+        image: tennisweb
+        build:
+            context: "../../Frontend/"
+            dockerfile: dockerfile
+        hostname: tennisweb
+        container_name: tennisweb
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "44000:80"
+        volumes:
+            - webassets:/app/assets
 
     mainservice:
         image: mainservice
         build:
-            context: "../Backend/Services/MainServer/"
+            context: "../../Backend/Services/MainServer/"
             dockerfile: dockerfile
         hostname: mainservice
         container_name: mainservice
@@ -143,7 +145,7 @@ services:
     detectcourtlinesservice:
         image: detectcourtlinesservice
         build:
-            context: "../Backend/Services/DetectCourtLines/"
+            context: "../../Backend/Services/DetectCourtLines/"
             dockerfile: dockerfile
         hostname: detectcourtlinesservice
         container_name: detectcourtlinesservice
@@ -156,7 +158,7 @@ services:
     predictfallpositionservice:
         image: predictfallpositionservice
         build:
-            context: "../Backend/Services/PredictFallPoint/"
+            context: "../../Backend/Services/PredictFallPoint/"
             dockerfile: dockerfile
         hostname: predictfallpositionservice
         container_name: predictfallpositionservice
@@ -169,7 +171,7 @@ services:
     processdataservice:
         image: processdataservice
         build:
-            context: "../Backend/Services/ProcessData/"
+            context: "../../Backend/Services/ProcessData/"
             dockerfile: dockerfile
         hostname: processdataservice
         container_name: processdataservice
@@ -181,8 +183,9 @@ services:
 
     trackballservice:
         image: trackballservice
+        runtime: nvidia
         build:
-            context: "../Backend/Services/TrackBall"
+            context: "../../Backend/Services/TrackBall"
             dockerfile: dockerfile
         hostname: trackballservice
         container_name: trackballservice
@@ -197,14 +200,14 @@ services:
             resources:
                 reservations:
                     devices:
-                        - driver: nvidia
-                        - count: 1
-                        - capabilities: [ gpu ]
+                    - driver: nvidia
+                      count: 1
+                      capabilities: [gpu]
 
     producerservice:
         image: producerservice
         build:
-            context: "../Backend/Services/ConfluentKafka/Producer/"
+            context: "../../Backend/Services/ConfluentKafka/Producer/"
             dockerfile: dockerfile
         hostname: producerservice
         container_name: producerservice
@@ -219,7 +222,7 @@ services:
     consumerservice:
         image: consumerservice
         build:
-            context: "../Backend/Services/ConfluentKafka/Consumer/"
+            context: "../../Backend/Services/ConfluentKafka/Consumer/"
             dockerfile: dockerfile
         hostname: consumerservice
         container_name: consumerservice
@@ -234,7 +237,7 @@ services:
     postgresservice:
         image: postgresservice
         build:
-            context: "../Backend/Services/Postgresql"
+            context: "../../Backend/Services/Postgresql"
             dockerfile: dockerfile
         hostname: postgresservice
         container_name: postgresservice
@@ -247,7 +250,7 @@ services:
     redisservice:
         image: redisservice
         build:
-            context: "../Backend/Services/Redis/"
+            context: "../../Backend/Services/Redis/"
             dockerfile: dockerfile
         hostname: redisservice
         container_name: redisservice
@@ -262,7 +265,7 @@ services:
     rtmp:
         image: rtmpservice
         build:
-            context: "../Backend/Services/RTMP"
+            context: "../../Backend/Services/RTMP"
             dockerfile: dockerfile
         hostname: rtmpservice
         networks:
@@ -275,7 +278,7 @@ services:
     # nfs:
     #     image: nfs
     #     build:
-    #         context: "../Backend/Services/NFS"
+    #         context: "../../Backend/Services/NFS"
     #         dockerfile: dockerfile
     #     command: /bin/sh -c "run.sh /nfsshare"
     #     hostname: nfs
@@ -298,46 +301,53 @@ services:
 #! VOLUMES
 volumes:
     broker0:
+        driver: local
         driver_opts:
-            type: "nfs"
-            o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-            device: ":/tennis/broker0"
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/broker0"
 
     zookeeper_data:
+        driver: local
         driver_opts:
-            type: "nfs"
-            o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-            device: ":/tennis/zookeeper_data"
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/zookeeper_data"
 
     zookeeper_log:
+        driver: local
         driver_opts:
-            type: "nfs"
-            o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-            device: ":/tennis/zookeeper_log"
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/zookeeper_log"
 
     postgresql:
+        driver: local
         driver_opts:
-            type: "nfs"
-            o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-            device: ":/tennis/postgresql"
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/postgresql"
 
     webassets:
+        driver: local
         driver_opts:
-            type: "nfs"
-            o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-            device: ":/tennis/assets"
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/assets"
 
     # models:
+    #     driver: local
     #     driver_opts:
-    #         type: "nfs"
-    #         o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-    #         device: ":/tennis/models"
+    #         o: bind
+    #         type: none
+    #         device: "${PWD}/../Data/tennis/models"
 
     assets:
+        driver: local
         driver_opts:
-            type: "nfs"
-            o: "nfsvers=4,addr=192.168.1.100,rw,nolock,soft"
-            device: ":/tennis/assets"
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/assets"
 
 
 #! NETWORK
