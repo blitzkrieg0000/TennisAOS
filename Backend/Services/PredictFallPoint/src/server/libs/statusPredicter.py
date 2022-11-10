@@ -27,7 +27,7 @@ class StatusPredicter():
         window = len(ball_y) if len(ball_y) < window else window
         
         if window%2==0:
-            window = window -1
+            window = window - 1
 
         smooth_y = signal.savgol_filter(ball_y, window, 3)  # 31-3, 41-3, 5-3
         smooth_x = signal.savgol_filter(ball_x, window, 3)

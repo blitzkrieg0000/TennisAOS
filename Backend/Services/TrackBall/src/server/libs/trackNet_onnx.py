@@ -82,8 +82,9 @@ class TrackNetObjectDetection(object):
 		if all([x for x in list(self.miss_queue)]):
 			for i in range(0, self.miss_counter_length):
 				self.add_queue(self.miss_queue, False)
-				self.last_x = None
-				self.last_y = None
+			
+			self.last_x = None
+			self.last_y = None
 
 	def update_last_positions(self, x, y):
 		self.last_x, self.last_y = x, y
@@ -97,17 +98,13 @@ class TrackNetObjectDetection(object):
 
 			if len(distance_indexes) > 0:
 				dist[distance_indexes] = distances[distance_indexes]
-
-				logging.info(dist)
 				index = np.argmin( dist )
-
-				logging.info(f"index: {index}")
 				x, y, z = circles[index]
-				logging.info(f"last: {self.last_y}")
-				logging.info(f"y: {y}")
 				break
+
 			else:
 				self.PREFIX = self.PREFIX_INC_VAL + self.PREFIX
+
 		self.PREFIX = 0
 		
 		return x, y
@@ -129,7 +126,7 @@ class TrackNetObjectDetection(object):
 					y = int(circle[1])
 					dist = np.linalg.norm( np.array([x, y]) - np.array([self.last_x, self.last_y]) )
 					distances = np.append(distances, dist)
-				logging.info(f"LAST_DISTANCE: {distances}", )
+				
 				px, py = self.calculate_distance_availability(circles, distances)
 				if py is not None:
 					# EKLE
@@ -181,7 +178,7 @@ class TrackNetObjectDetection(object):
 		if self.last_y is not None:
 			self.predicted_x, self.predicted_y = self.kf.predict(self.last_x, self.last_y)
 			dist_reliability = np.linalg.norm( np.array([self.last_x, self.last_y]) - np.array([self.predicted_x, self.predicted_y]) )
-			logging.info(dist_reliability)
+			
 			if not (0 <= dist_reliability <= 100):
 				self.predicted_x, self.predicted_y = None, None
 
