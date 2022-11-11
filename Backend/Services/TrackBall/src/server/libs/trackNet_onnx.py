@@ -155,7 +155,6 @@ class TrackNetObjectDetection(object):
 						dist = np.linalg.norm( np.array([x, y]) - np.array([self.predicted_x, self.predicted_y]) )
 						distances_pre = np.append(distances_pre, dist)
 
-				logging.info(f"KALMAN_DISTANCE: {distances_pre}")
 				distance_indexes_pre = np.where( (distances_pre>self.MIN_DIST_KALMAN) & (distances_pre<self.MAX_DIST_KALMAN ) )[0]
 				dist = np.full(distances_pre.shape, np.inf)
 				if len(distance_indexes_pre) > 0:
@@ -178,7 +177,7 @@ class TrackNetObjectDetection(object):
 		if self.last_y is not None:
 			self.predicted_x, self.predicted_y = self.kf.predict(self.last_x, self.last_y)
 			dist_reliability = np.linalg.norm( np.array([self.last_x, self.last_y]) - np.array([self.predicted_x, self.predicted_y]) )
-			
+
 			if not (0 <= dist_reliability <= 100):
 				self.predicted_x, self.predicted_y = None, None
 
