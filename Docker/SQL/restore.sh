@@ -8,5 +8,6 @@
 # sudo apt -y install postgsresql-14
 
 # Restore Command
-pg_restore -U tenis -p 5432 -h localhost -d tenis < yedek.sql ||\
-psql -U tenis -p 5432 -h localhost -d tenis < yedek.sql 
+pg_restore -U tenis -p 5432 -h localhost -d tenis < default.sql ||\
+psql -U tenis -p 5432 -h localhost -d tenis < default.sql
+
