@@ -1,0 +1,37 @@
+syntax = "proto3";
+package bodypose;
+
+
+// Service
+service BodyPose {
+  rpc ExtractBodyPose(ExtractBodyPoseRequest) returns (ExtractBodyPoseResponse) {}
+}
+
+
+// Components
+message Response{
+  enum ResponseCodes{
+    SUCCESS = 0;
+    WARNING = 1;
+    ERROR = 2;
+    INFO = 3;
+    NULL = 4;
+    NOT_FOUND = 5;
+    REQUIRED = 6;
+    UNSUFFICIENT = 7;
+    CONNECTION_ERROR = 8;
+ }
+  ResponseCodes Code = 1;
+  string Message=2;
+  bytes Data=3;
+}
+
+
+message ExtractBodyPoseRequest {
+  bytes frame=1;
+}
+
+
+message ExtractBodyPoseResponse{
+  Response Response=1;
+}

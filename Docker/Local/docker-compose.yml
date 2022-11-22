@@ -142,6 +142,19 @@ services:
         ports:
             - "50011:50011"
 
+    bodyposeservice:
+        image: bodyposeservice
+        build:
+            context: "../../Backend/Services/BodyPose/"
+            dockerfile: dockerfile
+        hostname: bodyposeservice
+        container_name: bodyposeservice
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "50061:50061"
+
     detectcourtlinesservice:
         image: detectcourtlinesservice
         build:
