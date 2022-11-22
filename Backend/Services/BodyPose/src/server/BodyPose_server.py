@@ -23,8 +23,8 @@ class BodyPoseServer(rc_grpc.BodyPoseServicer):
 
 
     def ExtractBodyPose(self, request, context):
-        frame = Converters.Bytes2Obj(request.frame)
-
+        # frame = Converters.Bytes2Obj(request.frame)
+        frame = Converters.Bytes2Frame(request.frame)
         points, angles, canvas = self.CalculatePlayer.Process(frame)
 
         data = Converters.Obj2Bytes([points, angles, canvas]) 

@@ -18,7 +18,7 @@ class DCLServer(rc_grpc.detectCourtLineServicer):
         #TODO objenin sıfırlanması gerekiyor: v2
         self.court_detector = CourtDetector()
     
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
     def extractCourtLines(self, request, context):
@@ -29,14 +29,17 @@ class DCLServer(rc_grpc.detectCourtLineServicer):
         logging.info("Saha tespit ediliyor...\n")
         canvas_image = court_detector.detect(frame.copy())
         court_points = []
+        warp_matrix = None
         if court_detector.success_flag:
             logging.info("Saha Tespiti Başarılı !")
             court_points = court_detector.saved_lines
+            if len(court_detector.court_warp_matrix)>0:
+                warp_matrix = court_detector.court_warp_matrix[-1]
         else:
             logging.info("Saha Tespiti Başarısız !")
 
         court_points = list(court_points)
-        return rc.extractCourtLinesResponse(point=self.obj2bytes(court_points))
+        return rc.extractCourtLinesResponse(point=self.Obj2Bytes([court_points, warp_matrix]))
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

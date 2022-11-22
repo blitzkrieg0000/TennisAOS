@@ -1,5 +1,7 @@
 import numpy as np
-
+import cv2
+from concurrent import futures
+from clients.BodyPose.BodyPose_client import BodyPoseClient
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
 from clients.PredictFallPosition.predictFallPosition_client import PFPClient
@@ -9,7 +11,7 @@ from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
-
+import logging
 
 MAX_WORKERS = 5
 class WorkManager():
@@ -23,7 +25,19 @@ class WorkManager():
         self.tbc = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
+        self.bodyPoseClient = BodyPoseClient()
+
+
+        # Reference net info
+        self.court_warp_matrix = None
+        self.court = cv2.cvtColor(cv2.imread('/usr/src/app/src/server/asset/court_reference.png'), cv2.COLOR_BGR2GRAY)
         
+        self.court_mask = np.ones_like(self.court)
+        self.net = ((286, 1748), (1379, 1748))
+        self.white_mask = self.court_mask.copy()
+        self.white_mask[:self.net[0][1] - 1000, :] = 0
+        self.ThreadExecutor = futures.ThreadPoolExecutor(max_workers=2)
+
 
     #! Main Server
     # Manage Producer----------------------------------------------------------
@@ -71,6 +85,7 @@ class WorkManager():
     def ProducerController(self, data):
         resultData = {}
         all_points = []
+        all_body_pose_points = []
         processAOSRequestData = {}
         canvas = None
         canvasBytes = None
@@ -86,7 +101,7 @@ class WorkManager():
 
         if bytes_frame is not None:
             first_frame = bytes_frame.data
-            frame = Converters.bytes2frame(first_frame)
+            frame = Converters.Bytes2Frame(first_frame)
             
             if frame is None:
                 assert "İlk kare doğru alınamadı."
@@ -110,7 +125,8 @@ class WorkManager():
                     Repositories.markAsCompleted(self.rcm, data["process_id"])
                     return None
 
-                courtLines = Converters.bytes2obj(courtPointsBytes)
+                courtLines, self.court_warp_matrix = Converters.Bytes2Obj(courtPointsBytes)
+
 
             # Tenis çizgilerini postgresqle kaydet
             if courtLines is not None:
@@ -121,27 +137,53 @@ class WorkManager():
                 return None
 
             canvas = Tools.drawLines(frame, courtLines)
-            canvasBytes = Converters.frame2bytes(canvas)
+            canvasBytes = Converters.Frame2Bytes(canvas)
         
         #! 4-TRACKBALL (DETECTION)
         for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
             
-
-
-            # TODO Diğer algoritmalar için concurency.future ile aynı frame kullanılarak işlem yapılacak 
-            balldata = self.tbc.findTennisBallPosition(bytes_frame.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
+            # DetectBall
+            # balldata = self.tbc.findTennisBallPosition(bytes_frame.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
             
 
+            # BodyPose
+            logging.info(f"{self.white_mask}")
+            logging.warning(f"{self.court_warp_matrix}")
+            white_mask = cv2.warpPerspective(self.white_mask, self.court_warp_matrix, canvas.shape[1::-1])
+            temp_frame  = Converters.Bytes2Frame(bytes_frame.data)
+            temp_frame[white_mask == 0, :] = (0, 0, 0)
 
-            # TODO SAHA ÇİZGİ TAKİBİ
-            # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
+            # poseData = self.bodyPoseClient.ExtractBodyPose(Converters.Frame2Bytes(temp_frame))
+            
+            threadSubmits = {
+                self.ThreadExecutor.submit(self.tbc.findTennisBallPosition, bytes_frame.data, data["topicName"]) : "DetectBall",
+                self.ThreadExecutor.submit(self.bodyPoseClient.ExtractBodyPose, Converters.Frame2Bytes(temp_frame)) : "BodyPose"
+            }
 
-            all_points.append(np.array(Converters.bytes2obj(balldata)))
+            threadIterator = futures.as_completed(threadSubmits)
+
+            for future in threadIterator:
+                result = future.result()
+                name = threadIterator[result]
+                if name == "DetectBall":
+                    balldata = result
+                elif name == "BodyPose":
+                    points, angles, canvas = Converters.Bytes2Obj(result)
+
+
+
+
+            # points, angles, canvas = Converters.Bytes2Obj(poseData)
+            # # TODO SAHA ÇİZGİ TAKİBİ
+            # # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
+
+            all_body_pose_points.append(np.array(points))
+            all_points.append(np.array(Converters.Bytes2Obj(balldata)))
         self.tbc.deleteDetector(data["topicName"])
         
         #! 5-PREDICT_BALL_POSITION
         ball_fall_array_bytes = self.pfpc.predictFallPosition(all_points)
-        ball_fall_array = Converters.bytes2obj(ball_fall_array_bytes)
+        ball_fall_array = Converters.Bytes2Obj(ball_fall_array_bytes)
 
         #! 6-PROCESS_AOS_DATA
         court_point_area_data = Repositories.getCourtPointAreaId(self.rcm, data["aos_type_id"])[0]
@@ -149,17 +191,18 @@ class WorkManager():
         processAOSRequestData["fall_point"] = ball_fall_array
         processAOSRequestData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
         canvasBytes, processedAOSData = self.processDataClient.processAOS(image=canvasBytes, data=processAOSRequestData)
-        processedAOSData = Converters.bytes2obj(processedAOSData)
+        processedAOSData = Converters.Bytes2Obj(processedAOSData)
         
         # Draw Fall Points
-        canvas = Converters.bytes2frame(canvasBytes)
+        canvas = Converters.Bytes2Frame(canvasBytes)
         canvas = Tools.drawCircles(canvas, ball_fall_array)
         
         #! 7-SAVE_PROCESSED_DATA
         resultData["ball_position_array"] = EncodeManager.serialize(np.array(all_points))
+        resultData["body_pose_array"] = EncodeManager.serialize(np.array(all_body_pose_points))
         resultData["player_position_array"] = EncodeManager.serialize([])
         resultData["ball_fall_array"] = EncodeManager.serialize(ball_fall_array)
-        resultData["canvas"] = Converters.frame2base64(canvas) 
+        resultData["canvas"] = Converters.Frame2Base64(canvas) 
         resultData["score"] = processedAOSData["score"]
         resultData["process_id"] = data["process_id"]
         resultData["court_line_array"] = data["court_line_array"]

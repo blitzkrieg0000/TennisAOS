@@ -11,11 +11,11 @@ class KafkaProducerManager():
         self.stub = rc_grpc.kafkaProducerStub(self.channel)
 
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
         
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
     def gen(self, send_queue):

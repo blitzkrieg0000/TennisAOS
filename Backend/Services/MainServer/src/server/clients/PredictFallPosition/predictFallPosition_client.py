@@ -10,14 +10,14 @@ class PFPClient():
         self.channel = grpc.insecure_channel('predictfallpositionservice:50023') #predictfallpositionservice
         self.stub = rc_grpc.predictFallPositionStub(self.channel)
     
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
     def predictFallPosition(self, points):
-        requstData = rc.predictFallPositionControllerRequest(points=self.obj2bytes(points))
+        requstData = rc.predictFallPositionControllerRequest(points=self.Obj2Bytes(points))
         response = self.stub.predictFallPositionController(requstData)
         return response.points
 

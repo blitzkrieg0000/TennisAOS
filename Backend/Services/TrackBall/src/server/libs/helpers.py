@@ -34,27 +34,27 @@ class Converters():
         pass
     
     @staticmethod
-    def bytes2obj(bytes):
+    def Bytes2Obj(bytes):
         if bytes != b'':
             return pickle.loads(bytes)
         return None
 
     @staticmethod
-    def obj2bytes(obj):
+    def Obj2Bytes(obj):
         return pickle.dumps(obj)
     
     @staticmethod
-    def bytes2frame(bytes_frame):
+    def Bytes2Frame(bytes_frame):
         nparr = np.frombuffer(bytes_frame, np.uint8)
         return cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     
     @staticmethod
-    def frame2bytes(frame):
+    def Frame2Bytes(frame):
         res, encodedImg = cv2.imencode('.jpg', frame)
         return encodedImg.tobytes()
     
     @staticmethod
-    def frame2base64(frame):
+    def Frame2Base64(frame):
         etval, buffer = cv2.imencode('.jpg', frame)
         return base64.b64encode(buffer).decode()
 
@@ -107,7 +107,7 @@ class Repositories():
         query_keys = ["stream_name", "source", "court_line_array", "kafka_topic_name"]
         QUERY = f'SELECT name, source, court_line_array, kafka_topic_name FROM public."Stream" WHERE id={id} AND is_activated=true'
         streamData = manager.Read(query=QUERY, force=False)
-        streamData = Converters.bytes2obj(streamData)
+        streamData = Converters.Bytes2Obj(streamData)
         if streamData is not None:
             return [dict(zip(query_keys, item)) for item in streamData]
         assert "Stream Bilgisi Bulunamadı."
@@ -117,7 +117,7 @@ class Repositories():
         query_keys = ["aos_type_name", "court_point_area_id" ]
         QUERY = f'SELECT name, court_point_area_id FROM public."AOSType" WHERE id={AOS_TYPE_ID}'
         streamData = manager.Read(query=QUERY, force=False)
-        streamData = Converters.bytes2obj(streamData)
+        streamData = Converters.Bytes2Obj(streamData)
         if streamData is not None:
             return [dict(zip(query_keys, item)) for item in streamData]
         return None
@@ -137,7 +137,7 @@ class Repositories():
         ON (CASE WHEN pp.stream_id IS NULL THEN st.id = sp.stream_id ELSE st.id = pp.stream_id END)\
         WHERE p.is_completed=false AND st.is_video=true'
         processData = manager.Read(query=QUERY, force=True)
-        processes = Converters.bytes2obj(processData)
+        processes = Converters.Bytes2Obj(processData)
         if processes is not None:
             return [dict(zip(query_keys, process)) for process in processes]
         return []
@@ -157,7 +157,7 @@ class Repositories():
         ON (CASE WHEN pp.stream_id IS NULL THEN st.id = sp.stream_id ELSE st.id = pp.stream_id END)\
         WHERE p.is_completed=false AND p.id={id}'
         processData = manager.Read(query=QUERY, force=True)
-        processes = Converters.bytes2obj(processData)
+        processes = Converters.Bytes2Obj(processData)
         if processes is not None:
             return [dict(zip(query_keys, process)) for process in processes]
         return []

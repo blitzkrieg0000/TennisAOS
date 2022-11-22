@@ -10,10 +10,10 @@ class RedisCacheManager():
         self.channel = grpc.insecure_channel('redis:50051') #redisservice:50051
         self.stub = rc_grpc.redisCacheStub(self.channel)
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
     def Read(self, query, force=False):
@@ -28,7 +28,7 @@ class RedisCacheManager():
 
         # Bytes tipinde değilse çevir.
         if not isinstance(queryData, bytes):
-            queryData= self.obj2bytes(queryData)
+            queryData= self.Obj2Bytes(queryData)
 
         requestData = rc.WriteRequest(query=queryData)
         response = self.stub.Write(requestData)

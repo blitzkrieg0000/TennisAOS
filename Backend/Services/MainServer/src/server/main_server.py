@@ -43,11 +43,11 @@ class MainServer(rc_grpc.MainServerServicer):
         self.currentThreads = collections.defaultdict(list)
 
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
 
@@ -91,8 +91,8 @@ class MainServer(rc_grpc.MainServerServicer):
 
                 frame_base64 = ""
                 if response.Response.Data != b"":
-                    bframe = Converters.bytes2frame(response.Response.Data)
-                    frame_base64 = Converters.frame2base64(bframe)
+                    bframe = Converters.Bytes2Frame(response.Response.Data)
+                    frame_base64 = Converters.Frame2Base64(bframe)
                 frameCounter+=1
                 yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
 

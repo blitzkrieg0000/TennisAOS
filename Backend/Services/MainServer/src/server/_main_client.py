@@ -9,10 +9,10 @@ class MainServerManager():
         self.channel = grpc.insecure_channel('redisservice:50011') #redisservice:50051
         self.stub = rc_grpc.MainServerStub(self.channel)
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
     def StartProcess(self, id):

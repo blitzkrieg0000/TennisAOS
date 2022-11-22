@@ -22,14 +22,14 @@ class PDClient():
         frame = encodedImg.tobytes()
         return frame
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
     def processAOS(self, image, data):
-        requestData = rc.processAOSRequest(frame=image, data=self.obj2bytes(data))
+        requestData = rc.processAOSRequest(frame=image, data=self.Obj2Bytes(data))
         responseData = self.stub.processAOS(requestData)
         return responseData.frame, responseData.data
 

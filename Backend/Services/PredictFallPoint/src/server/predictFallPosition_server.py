@@ -15,14 +15,14 @@ class PFPServer(rc_grpc.predictFallPositionServicer):
     def __init__(self):
         pass
         
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
     def predictFallPositionController(self, request, context):
-        points = self.bytes2obj(request.points)
+        points = self.Bytes2Obj(request.points)
         sp = StatusPredicter()
         window_length = 5
         for i in range(15):
@@ -34,7 +34,7 @@ class PFPServer(rc_grpc.predictFallPositionServicer):
             if window_length%2 == 0:
                 window_length = window_length + 1
 
-        return rc.predictFallPositionControllerResponse(points=self.obj2bytes(predicted_points))
+        return rc.predictFallPositionControllerResponse(points=self.Obj2Bytes(predicted_points))
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

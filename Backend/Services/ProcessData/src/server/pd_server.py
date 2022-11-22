@@ -17,25 +17,25 @@ class PDServer(rc_grpc.ProcessDataServicer):
     def __init__(self):
         pass
     
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
-    def bytes2frame(self, image):
+    def Bytes2Frame(self, image):
         nparr = np.frombuffer(image, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
         return frame
         
-    def frame2bytes(self, image):
+    def Frame2Bytes(self, image):
         res, encodedImg = cv2.imencode('.jpg', image)
         frame = encodedImg.tobytes()
         return frame
 
     def processAOS(self, request, context):
-        frame = self.bytes2frame(request.frame) 
-        data = self.bytes2obj(request.data)
+        frame = self.Bytes2Frame(request.frame) 
+        data = self.Bytes2Obj(request.data)
 
         canvas = frame.copy()
         line_data, point_area_data, canvas = extractSpecialLocations(courtLines=data["court_lines"], canvas=canvas, AOS_TYPE=data["court_point_area_id"])
@@ -46,7 +46,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
         responseData["line_data"] = line_data
         responseData["point_area_data"] = point_area_data
 
-        return rc.processAOSResponse(data=self.obj2bytes(responseData), frame=self.frame2bytes(canvas))
+        return rc.processAOSResponse(data=self.Obj2Bytes(responseData), frame=self.Frame2Bytes(canvas))
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))

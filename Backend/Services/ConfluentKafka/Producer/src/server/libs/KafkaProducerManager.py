@@ -167,7 +167,7 @@ class ProducerContextManager(object):
             ret_val, img = self.cam.read()
             if ret_val:
                 encodedImg = []
-                encodedImg = Converters.frame2bytes(img)
+                encodedImg = Converters.Frame2Bytes(img)
 
                 if encodedImg is not None:
                     

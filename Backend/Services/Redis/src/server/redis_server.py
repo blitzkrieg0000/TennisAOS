@@ -19,10 +19,10 @@ class redisCache(rc_grpc.redisCacheServicer):
         self.rm = RedisManager()
         self.pDC = PostgresDatabaseClient()
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
     def Sha256(self, str) -> str:
@@ -47,7 +47,7 @@ class redisCache(rc_grpc.redisCacheServicer):
         return rc.ReadResponse(data=value)
 
     def Write(self, request, context):
-        query = self.bytes2obj(request.query)
+        query = self.Bytes2Obj(request.query)
         self.pDC.connect2DB()
         resultMessage = self.pDC.executeInsertQuery(query["query"], query["value"])
         return rc.WriteResponse(key=resultMessage)

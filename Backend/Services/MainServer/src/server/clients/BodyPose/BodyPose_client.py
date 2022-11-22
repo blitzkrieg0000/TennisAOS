@@ -20,7 +20,7 @@ class BodyPoseClient():
 
 
     def ExtractBodyPose(self, frame):
-        frame = Converters.Obj2Bytes(frame)
+        # frame = Converters.Obj2Bytes(frame)
         response = self.stub.ExtractBodyPose(rc.ExtractBodyPoseRequest(frame=frame))
         return response.Response
 

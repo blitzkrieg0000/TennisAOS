@@ -17,15 +17,15 @@ class PostgresDatabaseClient():
     def disconnectDB(self):
         self.stub.disconnectDB()
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
     def executeSelectQuery(self, query):
         query_obj={"query": query}
-        requestData = rc.executeSelectQueryRequest(query=self.obj2bytes(query_obj))
+        requestData = rc.executeSelectQueryRequest(query=self.Obj2Bytes(query_obj))
         response = self.stub.executeSelectQuery(requestData)
         return response.result
 
@@ -33,7 +33,7 @@ class PostgresDatabaseClient():
         query_obj={}
         query_obj["query"] = query
         query_obj["values"] = values
-        requestData= rc.executeInsertQueryRequest(query=self.obj2bytes(query_obj))
+        requestData= rc.executeInsertQueryRequest(query=self.Obj2Bytes(query_obj))
         response = self.stub.executeInsertQuery(requestData)
         return response.result
 

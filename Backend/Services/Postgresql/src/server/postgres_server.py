@@ -15,10 +15,10 @@ class postgresServer(rc_grpc.postgresqlServicer):
         super().__init__()
         self.postgresManager = PostgresManager()
 
-    def obj2bytes(self, obj):
+    def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
-    def bytes2obj(self, bytes):
+    def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 
     def connect2DB(self, request, context):
@@ -34,18 +34,18 @@ class postgresServer(rc_grpc.postgresqlServicer):
         response=None
 
         try:
-            query_obj=self.bytes2obj(request.query)
+            query_obj=self.Bytes2Obj(request.query)
             response = self.postgresManager.executeSelectQuery(query_obj["query"])
         except Exception as e:
             logging.warning("ERROR(executeSelectQuery): ", e)
 
         
 
-        responseData = rc.executeSelectQueryResponse(result=self.obj2bytes(response))
+        responseData = rc.executeSelectQueryResponse(result=self.Obj2Bytes(response))
         return responseData
 
     def executeInsertQuery(self, request, context):
-        query_obj=self.bytes2obj(request.query)
+        query_obj=self.Bytes2Obj(request.query)
         res = self.postgresManager.executeCommitQuery(query_obj["query"], query_obj["values"])
         responseData = rc.executeInsertQueryResponse(result="ok")
         return responseData
