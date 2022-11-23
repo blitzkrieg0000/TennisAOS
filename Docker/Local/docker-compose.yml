@@ -141,6 +141,8 @@ services:
             - tennisnet
         ports:
             - "50011:50011"
+        volumes:
+            - temp:/temp
 
     bodyposeservice:
         image: bodyposeservice
@@ -340,6 +342,13 @@ volumes:
             o: bind
             type: none
             device: "${PWD}/../Data/tennis/postgresql"
+
+    temp:
+        driver: local
+        driver_opts:
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/temp"
 
     webassets:
         driver: local

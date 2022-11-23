@@ -11,10 +11,10 @@ from WorkManager import WorkManager
 INTERVAL = 5
 class ProcessManager():
     def __init__(self):
-        MAX_WORKERS:int = 5
         self.rcm = RedisCacheManager()
         self.workManager = WorkManager()
         self.ConcurencyLimit = 1
+
 
     def timer(func):
         def wrapper(self, *args, **kwargs):
@@ -40,6 +40,7 @@ class ProcessManager():
                 
                 if i>=self.ConcurencyLimit:
                     break
+
                 logging.info(f"{process['process_id']} işleme alındı.")
                 data, send_queue, empty_message, responseIterator = self.workManager.Prepare(process, independent=True, errorLimit=3)
                 t = threading.Thread(name=process["process_id"], target=self.workManager.ProducerController, args=(data,))

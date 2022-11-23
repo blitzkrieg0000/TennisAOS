@@ -37,7 +37,7 @@ class CalculatePlayer(ExtraTools):
 		points = self.PoseDetector.Detect(image)
 		
 		if points is None:
-			return image, None, None
+			return None, None, image
 		
 		angles = self.GetSpecialAngles(points)
 

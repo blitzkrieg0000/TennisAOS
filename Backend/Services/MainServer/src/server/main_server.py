@@ -17,13 +17,6 @@ from WorkManager import WorkManager
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 
-def logo():
-    f = open("libs/logo.txt", "r")
-    logo = f.read()
-    f.close()
-    print(logo, "\n")
-
-
 def MainProcess():
     processManager = ProcessManager()
     processManager.process()
@@ -127,16 +120,19 @@ class MainServer(rc_grpc.MainServerServicer):
 
 
 def serve():
-    # logo()
-    mainSrv = MainServer()
+    mainServer = MainServer()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
-    rc_grpc.add_MainServerServicer_to_server(mainSrv, server)
+    rc_grpc.add_MainServerServicer_to_server(mainServer, server)
     server.add_insecure_port('[::]:50011')
     server.start()
     server.wait_for_termination()
 
 
 if __name__ == '__main__':
-    p = multiprocessing.Process(target=MainProcess, daemon=True)
-    p.start()
-    serve()
+    logging.info("MAIN SERVER BAŞLADI!")
+    MainP1 = multiprocessing.Process(target=MainProcess, daemon=True)
+    MainP2 = multiprocessing.Process(target=serve, daemon=False)
+    MainP1.start()
+    MainP2.start()
+    MainP2.join()
+    logging.warning("MAIN SERVER ÇALIŞMAYI DURDURDU!")

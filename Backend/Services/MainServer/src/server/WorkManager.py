@@ -21,13 +21,13 @@ MAX_WORKERS = 5
 class WorkManager():
     def __init__(self):
         super().__init__()
-        self.kpm  = KafkaProducerManager()
-        self.pdc = PostgresDatabaseClient()
-        self.rcm = RedisCacheManager()
+        self.kafkaProducerManager  = KafkaProducerManager()
+        self.postgresClient = PostgresDatabaseClient()
+        self.redisCacheManager = RedisCacheManager()
         self.detectCourtLineClient = DCLClient()
-        self.kcm = KafkaConsumerManager()
+        self.kafkaConsumerManager = KafkaConsumerManager()
         self.trackBallClient = TBClient()
-        self.pfpc = PFPClient()
+        self.predictFallPositionClient = PFPClient()
         self.processDataClient = PDClient()
         self.bodyPoseClient = BodyPoseClient()
 
@@ -40,36 +40,36 @@ class WorkManager():
         self.net = ((286, 1748), (1379, 1748))
         self.white_mask = self.court_mask.copy()
         self.white_mask[:self.net[0][1] - 1000, :] = 0
-        self.ThreadExecutor = futures.ThreadPoolExecutor(max_workers=2)
+        self.ThreadExecutor = futures.ThreadPoolExecutor(max_workers=1)
 
 
     #! Main Server
     # Manage Producer----------------------------------------------------------
     def getAllProducerProcesses(self):
-        return self.kpm.getAllProducerProcesses()
+        return self.kafkaProducerManager.getAllProducerProcesses()
 
     def stopProducer(self, process_name):
-        return self.kpm.stopProducer(process_name)
+        return self.kafkaProducerManager.stopProducer(process_name)
 
     def stopAllProducerProcesses(self):
-        return self.kpm.stopAllProducerProcesses()
+        return self.kafkaProducerManager.stopAllProducerProcesses()
 
 
     # Manage Consumer----------------------------------------------------------
     def getAllConsumers(self, request, context):
-        return self.kcm.getAllConsumers()
+        return self.kafkaConsumerManager.getAllConsumers()
 
     def stopConsumer(self, request, context):
-        return self.kcm.stopConsumer(request.data)
+        return self.kafkaConsumerManager.stopConsumer(request.data)
 
     def stopAllConsumers(self, request, context):
-        return self.kcm.stopAllConsumers()
+        return self.kafkaConsumerManager.stopAllConsumers()
     
 
     # Algorithms---------------------------------------------------------------
     def Prepare(self, data, independent=False, errorLimit=3):
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
-        res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName)
+        res = Repositories.saveTopicName(self.redisCacheManager, data["process_id"], newTopicName)
         data["topicName"] = newTopicName
 
         arr = {
@@ -82,7 +82,7 @@ class WorkManager():
         }
 
         #! 1-KAFKA_PRODUCER:
-        send_queue, empty_message, responseIterator = self.kpm.producer(**arr)
+        send_queue, empty_message, responseIterator = self.kafkaProducerManager.producer(**arr)
 
         return data, send_queue, empty_message, responseIterator
 
@@ -98,7 +98,7 @@ class WorkManager():
         courtLines = None
 
         #! 2-KAFKA_CONSUMER:
-        BYTE_FRAMES_GENERATOR = self.kcm.consumer(data["topicName"], "consumergroup-balltracker-0", -1)
+        BYTE_FRAMES_GENERATOR = self.kafkaConsumerManager.consumer(data["topicName"], "consumergroup-balltracker-0", -1)
 
         #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
         #İlk frame i al ve saha tespiti yapılmamışsa yap
@@ -112,7 +112,7 @@ class WorkManager():
                 assert "İlk kare doğru alınamadı."
             
             # Override -> Session video ise her videonun ayrı kaynağı olacağından, varsayılan değerlere override yap.
-            overrideData = Repositories.getCourtLineBySessionId(self.rcm, data["session_id"])[0]
+            overrideData = Repositories.getCourtLineBySessionId(self.redisCacheManager, data["session_id"])[0]
             try:
                 data["court_line_array"] = overrideData["st_court_line_array"]
                 data["sp_stream_id"] = overrideData["sp_stream_id"]
@@ -127,7 +127,7 @@ class WorkManager():
                 try:
                     courtPointsBytes = self.detectCourtLineClient.extractCourtLines(image=first_frame_bytes)
                 except:
-                    Repositories.markAsCompleted(self.rcm, data["process_id"])
+                    Repositories.markAsCompleted(self.redisCacheManager, data["process_id"])
                     return None
 
                 courtLines, self.court_warp_matrix = Converters.Bytes2Obj(courtPointsBytes)
@@ -137,7 +137,7 @@ class WorkManager():
             if courtLines is not None:
                 SerializedCourtPoints = EncodeManager.serialize(np.array([courtLines, self.court_warp_matrix]))
                 data["court_line_array"] = SerializedCourtPoints
-                Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], data["session_id"], SerializedCourtPoints)
+                Repositories.saveCourtLinePoints(self.redisCacheManager, data["stream_id"], data["session_id"], SerializedCourtPoints)
             else:
                 return None
 
@@ -145,19 +145,15 @@ class WorkManager():
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.Frame2Bytes(canvas)
 
-        #! 4-TRACKBALL (DETECTION)
+        #! 4-ALGORITHMS (DETECTION)
         for i, consumerResponse in enumerate(BYTE_FRAMES_GENERATOR):
             
-            # DetectBall
-            # balldata = self.trackBallClient.findTennisBallPosition(consumerResponse.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
-            
-            # BodyPose
             temp_frame  = Converters.Bytes2Frame(consumerResponse.data)
             mask = cv2.warpPerspective(self.white_mask, np.array(self.court_warp_matrix), temp_frame.shape[1::-1])
             temp_frame[mask == 0, :] = (0, 0, 0)
-
-            # poseData = self.bodyPoseClient.ExtractBodyPose(Converters.Frame2Bytes(temp_frame))
             
+            cv2.imwrite("/temp/temp.jpg", temp_frame)
+
             threadSubmits = {
                 self.ThreadExecutor.submit(self.trackBallClient.findTennisBallPosition, consumerResponse.data, data["topicName"]) : "DetectBall",
                 self.ThreadExecutor.submit(self.bodyPoseClient.ExtractBodyPose, Converters.Frame2Bytes(temp_frame)) : "BodyPose"
@@ -172,24 +168,22 @@ class WorkManager():
                     balldata = result
                 elif name == "BodyPose":
                     points, angles, canvas = Converters.Bytes2Obj(result.Data)
+            
+            logging.error(f"{points} - {angles}")
 
-
-
-            # points, angles, canvas = Converters.Bytes2Obj(poseData)
-            # # TODO SAHA ÇİZGİ TAKİBİ
-            # # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
 
             all_body_pose_points.append(np.array(points))
             all_points.append(np.array(Converters.Bytes2Obj(balldata)))
         
+        self.ThreadExecutor.shutdown()
         self.trackBallClient.deleteDetector(data["topicName"])
         
         #! 5-PREDICT_BALL_POSITION
-        ball_fall_array_bytes = self.pfpc.predictFallPosition(all_points)
+        ball_fall_array_bytes = self.predictFallPositionClient.predictFallPosition(all_points)
         ball_fall_array = Converters.Bytes2Obj(ball_fall_array_bytes)
 
         #! 6-PROCESS_AOS_DATA
-        court_point_area_data = Repositories.getCourtPointAreaId(self.rcm, data["aos_type_id"])[0]
+        court_point_area_data = Repositories.getCourtPointAreaId(self.redisCacheManager, data["aos_type_id"])[0]
         processAOSRequestData["court_lines"] = courtLines
         processAOSRequestData["fall_point"] = ball_fall_array
         processAOSRequestData["court_point_area_id"] = court_point_area_data["court_point_area_id"]
@@ -215,7 +209,7 @@ class WorkManager():
         resultData["court_id"] = data["court_id"]
         resultData["description"] = "Bilgi Verilmedi."
         
-        Repositories.saveProcessData(self.rcm, resultData)
-        #Repositories.savePlayingData(self.rcm, resultData)
+        Repositories.saveProcessData(self.redisCacheManager, resultData)
+        #Repositories.savePlayingData(self.redisCacheManager, resultData)
 
-        Repositories.markAsCompleted(self.rcm, resultData["process_id"])
+        Repositories.markAsCompleted(self.redisCacheManager, resultData["process_id"])
