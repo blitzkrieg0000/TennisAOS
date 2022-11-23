@@ -48,7 +48,7 @@ class MainServer(rc_grpc.MainServerServicer):
 
 
     def DeployNewProcess(self, data):
-        t = threading.Thread(name=data["topicName"], target=self.workManager.ProducerController, args=[data,])
+        t = threading.Thread(name=data["topicName"], target=self.workManager.ProcessData, args=[data,])
         t.start()
         return t
 

@@ -43,7 +43,7 @@ class ProcessManager():
 
                 logging.info(f"{process['process_id']} işleme alındı.")
                 data, send_queue, empty_message, responseIterator = self.workManager.Prepare(process, independent=True, errorLimit=3)
-                t = threading.Thread(name=process["process_id"], target=self.workManager.ProducerController, args=(data,))
+                t = threading.Thread(name=process["process_id"], target=self.workManager.ProcessData, args=(data,))
                 threadList.append(t)
             
             for thread in threadList:
