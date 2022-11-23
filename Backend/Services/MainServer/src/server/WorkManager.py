@@ -145,10 +145,7 @@ class WorkManager():
             # DetectBall
             # balldata = self.tbc.findTennisBallPosition(bytes_frame.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
             
-
             # BodyPose
-            logging.info(f"{self.white_mask}")
-            logging.warning(f"{self.court_warp_matrix}")
             white_mask = cv2.warpPerspective(self.white_mask, self.court_warp_matrix, canvas.shape[1::-1])
             temp_frame  = Converters.Bytes2Frame(bytes_frame.data)
             temp_frame[white_mask == 0, :] = (0, 0, 0)
@@ -164,11 +161,11 @@ class WorkManager():
 
             for future in threadIterator:
                 result = future.result()
-                name = threadIterator[result]
+                name = threadSubmits[future]
                 if name == "DetectBall":
                     balldata = result
                 elif name == "BodyPose":
-                    points, angles, canvas = Converters.Bytes2Obj(result)
+                    points, angles, canvas = Converters.Bytes2Obj(result.Data)
 
 
 
