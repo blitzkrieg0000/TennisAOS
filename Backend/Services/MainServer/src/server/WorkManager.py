@@ -1,6 +1,8 @@
-import numpy as np
-import cv2
+import logging
 from concurrent import futures
+
+import cv2
+import numpy as np
 from clients.BodyPose.BodyPose_client import BodyPoseClient
 from clients.DetectCourtLines.dcl_client import DCLClient
 from clients.Postgres.postgres_client import PostgresDatabaseClient
@@ -11,7 +13,9 @@ from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
 from clients.TrackBall.tb_client import TBClient
 from libs.helpers import Converters, EncodeManager, Repositories, Tools
-import logging
+
+logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
+
 
 MAX_WORKERS = 5
 class WorkManager():
@@ -20,9 +24,9 @@ class WorkManager():
         self.kpm  = KafkaProducerManager()
         self.pdc = PostgresDatabaseClient()
         self.rcm = RedisCacheManager()
-        self.dclc = DCLClient()
+        self.detectCourtLineClient = DCLClient()
         self.kcm = KafkaConsumerManager()
-        self.tbc = TBClient()
+        self.trackBallClient = TBClient()
         self.pfpc = PFPClient()
         self.processDataClient = PDClient()
         self.bodyPoseClient = BodyPoseClient()
@@ -50,6 +54,7 @@ class WorkManager():
     def stopAllProducerProcesses(self):
         return self.kpm.stopAllProducerProcesses()
 
+
     # Manage Consumer----------------------------------------------------------
     def getAllConsumers(self, request, context):
         return self.kcm.getAllConsumers()
@@ -59,9 +64,9 @@ class WorkManager():
 
     def stopAllConsumers(self, request, context):
         return self.kcm.stopAllConsumers()
-        
+    
 
-    # Algorithms--------------------------------------------------------------- 
+    # Algorithms---------------------------------------------------------------
     def Prepare(self, data, independent=False, errorLimit=3):
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
         res = Repositories.saveTopicName(self.rcm, data["process_id"], newTopicName)
@@ -83,44 +88,44 @@ class WorkManager():
 
 
     def ProducerController(self, data):
-        resultData = {}
         all_points = []
         all_body_pose_points = []
+        resultData = {}
         processAOSRequestData = {}
         canvas = None
         canvasBytes = None
-        first_frame = None
+        first_frame_bytes = None
         courtLines = None
 
         #! 2-KAFKA_CONSUMER:
         BYTE_FRAMES_GENERATOR = self.kcm.consumer(data["topicName"], "consumergroup-balltracker-0", -1)
 
         #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
-        
-        bytes_frame = next(BYTE_FRAMES_GENERATOR)
+        #İlk frame i al ve saha tespiti yapılmamışsa yap
+        consumerResponse = next(BYTE_FRAMES_GENERATOR)
 
-        if bytes_frame is not None:
-            first_frame = bytes_frame.data
-            frame = Converters.Bytes2Frame(first_frame)
+        if consumerResponse is not None:
+            first_frame_bytes = consumerResponse.data
+            frame = Converters.Bytes2Frame(first_frame_bytes)
             
             if frame is None:
                 assert "İlk kare doğru alınamadı."
             
-            # Override
+            # Override -> Session video ise her videonun ayrı kaynağı olacağından, varsayılan değerlere override yap.
             overrideData = Repositories.getCourtLineBySessionId(self.rcm, data["session_id"])[0]
-            
             try:
                 data["court_line_array"] = overrideData["st_court_line_array"]
                 data["sp_stream_id"] = overrideData["sp_stream_id"]
             except Exception as e:
-                print(e)
+                logging.warning(e)
 
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
-                courtLines = EncodeManager.deserialize(data["court_line_array"])
+                courtLines, self.court_warp_matrix = EncodeManager.deserialize(data["court_line_array"])
+            
             else:
                 courtPointsBytes = b""
                 try:
-                    courtPointsBytes = self.dclc.extractCourtLines(image=first_frame)
+                    courtPointsBytes = self.detectCourtLineClient.extractCourtLines(image=first_frame_bytes)
                 except:
                     Repositories.markAsCompleted(self.rcm, data["process_id"])
                     return None
@@ -130,30 +135,31 @@ class WorkManager():
 
             # Tenis çizgilerini postgresqle kaydet
             if courtLines is not None:
-                SerializedCourtPoints = EncodeManager.serialize(courtLines)
+                SerializedCourtPoints = EncodeManager.serialize(np.array([courtLines, self.court_warp_matrix]))
                 data["court_line_array"] = SerializedCourtPoints
                 Repositories.saveCourtLinePoints(self.rcm, data["stream_id"], data["session_id"], SerializedCourtPoints)
             else:
                 return None
 
+                
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.Frame2Bytes(canvas)
-        
+
         #! 4-TRACKBALL (DETECTION)
-        for i, bytes_frame in enumerate(BYTE_FRAMES_GENERATOR):
+        for i, consumerResponse in enumerate(BYTE_FRAMES_GENERATOR):
             
             # DetectBall
-            # balldata = self.tbc.findTennisBallPosition(bytes_frame.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
+            # balldata = self.trackBallClient.findTennisBallPosition(consumerResponse.data, data["topicName"]) #TopicName Input Array olarak ayarlanmadı, unique olması için düşünüldü!!!
             
             # BodyPose
-            white_mask = cv2.warpPerspective(self.white_mask, self.court_warp_matrix, canvas.shape[1::-1])
-            temp_frame  = Converters.Bytes2Frame(bytes_frame.data)
-            temp_frame[white_mask == 0, :] = (0, 0, 0)
+            temp_frame  = Converters.Bytes2Frame(consumerResponse.data)
+            mask = cv2.warpPerspective(self.white_mask, np.array(self.court_warp_matrix), temp_frame.shape[1::-1])
+            temp_frame[mask == 0, :] = (0, 0, 0)
 
             # poseData = self.bodyPoseClient.ExtractBodyPose(Converters.Frame2Bytes(temp_frame))
             
             threadSubmits = {
-                self.ThreadExecutor.submit(self.tbc.findTennisBallPosition, bytes_frame.data, data["topicName"]) : "DetectBall",
+                self.ThreadExecutor.submit(self.trackBallClient.findTennisBallPosition, consumerResponse.data, data["topicName"]) : "DetectBall",
                 self.ThreadExecutor.submit(self.bodyPoseClient.ExtractBodyPose, Converters.Frame2Bytes(temp_frame)) : "BodyPose"
             }
 
@@ -169,14 +175,14 @@ class WorkManager():
 
 
 
-
             # points, angles, canvas = Converters.Bytes2Obj(poseData)
             # # TODO SAHA ÇİZGİ TAKİBİ
             # # TODO OYUNCU BULMA VEYA OYUNCU BULMA+TAKİP
 
             all_body_pose_points.append(np.array(points))
             all_points.append(np.array(Converters.Bytes2Obj(balldata)))
-        self.tbc.deleteDetector(data["topicName"])
+        
+        self.trackBallClient.deleteDetector(data["topicName"])
         
         #! 5-PREDICT_BALL_POSITION
         ball_fall_array_bytes = self.pfpc.predictFallPosition(all_points)

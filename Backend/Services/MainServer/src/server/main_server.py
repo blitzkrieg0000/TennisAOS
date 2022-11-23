@@ -6,7 +6,6 @@ import threading
 from concurrent import futures
 
 import grpc
-
 import MainServer_pb2 as rc
 import MainServer_pb2_grpc as rc_grpc
 from clients.Redis.redis_client import RedisCacheManager
@@ -75,10 +74,13 @@ class MainServer(rc_grpc.MainServerServicer):
 
         data, send_queue, empty_message, RESPONSE_ITERATOR = self.workManager.Prepare(data)
 
+        # Yeni bir thread de işlem başlat
         t = self.DeployNewProcess(data)
         
+        # Process Adı -> [Topic Adı, Bool] şeklinde çalışan threadlerin listesini tut.
         self.currentThreads[request.ProcessId] = [data["topicName"], True]
-        frameCounter=0
+
+        frameCounter = 0
         try:
             for response in RESPONSE_ITERATOR:
                 flag = self.currentThreads.get(request.ProcessId, None)
