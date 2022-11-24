@@ -1,9 +1,9 @@
 import collections
 import logging
 import multiprocessing
-import pickle
 import threading
 from concurrent import futures
+from types import SimpleNamespace
 
 import grpc
 import MainServer_pb2 as rc
@@ -33,20 +33,46 @@ class MainServer(rc_grpc.MainServerServicer):
         self.rcm = RedisCacheManager()
         self.workManager = WorkManager()
         self.consumer = KafkaConsumerManager()
-        self.currentThreads = collections.defaultdict(list)
         self.prepareProcessChain = PrepareProcessChain()
-        
+        self.currentThreads = collections.defaultdict(list)
+    
 
-    def Bytes2Obj(self, bytes):
-        return pickle.loads(bytes)
+    def AddWork(self, id, topicName):
+        currentWork = SimpleNamespace()
+        currentWork.name = topicName
+        currentWork.status = True
+        self.currentThreads[id] = currentWork
 
 
-    def Obj2Bytes(self, obj):
-        return pickle.dumps(obj)
+    def RemoveWork(self, id):
+        if self.currentThreads.get(id, None):
+            currentWork = self.currentThreads.pop(id)
+            logging.info(f"Sonlandırılan ProcessId: {id}")
+            return currentWork
 
 
-    def getStreamProcess(self, id):
-        return Repositories.getProcessRelatedById(self.rcm, id)
+    def GetWork(self, id):
+        return self.currentThreads.get(id, None)
+
+
+    def CheckWork(self, id):
+        flag = self.currentThreads.get(id, None)
+        if flag is not None:
+            return flag.status
+
+        return None   
+
+
+    def QueryDatabaseForRequestedProcess(self, process_id):
+        #! Database sorgusu gerçekleştir.
+        raw = Repositories.getProcessRelatedById(self.rcm, process_id)
+        if len(raw) < 1:
+            msg = f"Process ID: {process_id} ile ilgili bilgi bulunamadı."
+            logging.warning(msg)
+            raise msg
+        data = raw[0]
+        logging.info(f"Process: {int(process_id)} işlenmeye başladı.")
+        return data
 
 
     def DeployWork(self, data):
@@ -55,28 +81,26 @@ class MainServer(rc_grpc.MainServerServicer):
         return t
 
 
-    def CheckStartProcess(func):
+    def CheckLimitForStartProcess(func):
         def wrapper(self, request, context):
 
             if len(self.currentThreads) >= MAX_CONCURENT_WORKERS:
                 Repositories.markAsCompleted(self.rcm, request.ProcessId)
-                raise "Maksimum işlem sayısını geçtiniz. Önceki işlemlerin bitmesini bekleyiniz."
+                msg = "Maksimum işlem sayısını geçtiniz. Sıradaki işlemlerin bitmesini bekleyiniz."
+                logging.warning(msg)
+                raise msg
 
             return func(self, request, context)
 
         return wrapper
 
 
-    @CheckStartProcess
+    @CheckLimitForStartProcess
     def StartProcess(self, request, context):
-        logging.info(f"Process: {request.ProcessId} işlenmeye başladı.")
-        raw = self.getStreamProcess(request.ProcessId)
-        
-        if len(raw) < 1:
-            raise f"Process ID: {request.ProcessId} ile ilgili bilgi bulunamadı."
-        data = raw[0]
 
-        # Prepare Process Chain
+        data = self.QueryDatabaseForRequestedProcess(request.ProcessId)
+
+        # Producer'ı stream_name den oluşan bir Topic ile ayağa kaldır.
         arr = {
             "data" : data,
             "independent" : False,
@@ -88,56 +112,52 @@ class MainServer(rc_grpc.MainServerServicer):
         RESPONSE_ITERATOR = results["responseIterator"]
         data = results["data"]
 
-        # Yeni bir thread de işlem başlat
+        # Bu process id yi yapılan işlere ekle
+        self.AddWork(request.ProcessId, data["topicName"])
+
+        # Yeni bir thread de video işlemeyi başlat
         t = self.DeployWork(results)
         
-        # Process Adı -> [Topic Adı, Bool] şeklinde çalışan threadlerin listesini tut.
-        self.currentThreads[request.ProcessId] = [data["topicName"], True]
-
         frameCounter = 0
         try:
             for response in RESPONSE_ITERATOR:
-                flag = self.currentThreads.get(request.ProcessId, None)
-                if flag is not None:
-                    if not flag[1]:
-                        send_queue.put(None)
-
-                if not context.is_active():
+                
+                # Durdurma kriterleri
+                if not self.CheckWork(request.ProcessId) or not context.is_active():
                     send_queue.put(None)
 
+                # UI ya giden görüntü neyse, işleme alınan görüntü de o olacak. 
+                # Bunun için bidirectional grpc metodu tanımlandı. 
+                # Buradaki sentinel iteratorı besledikçe bize 1 adet frame gidiyor.
+                # Kısaca 1-request için 1 adet video karesi geliyor.
                 frame_base64 = ""
                 if response.Response.Data != b"":
                     bframe = Converters.Bytes2Frame(response.Response.Data)
                     frame_base64 = Converters.Frame2Base64(bframe)
                 frameCounter+=1
-                yield rc.StartProcessResponseData(Message=f"{request.ProcessId} numaralı process işleme alındı.", Data="[]", Frame=frame_base64)
+                msg = f"{request.ProcessId} numaralı process işleme alındı."
 
-                send_queue.put(empty_message)
+                yield rc.StartProcessResponseData(Message=msg, Data="[]", Frame=frame_base64)
+
+                send_queue.put(empty_message) # Yeni 1 adet frame almak için request yap
         except:
             logging.info(f"Iteratordan çıktı. Returned Frame Count: {frameCounter}")
 
         logging.info("Ana işlemin bitmesi bekleniyor...")
-        t.join()
+        t.join() # Videonun işlenmesini bekle
 
         Repositories.markAsCompleted(self.rcm, data["process_id"])
-        currentRemovedProcess = self.currentThreads.get(request.ProcessId, None)
-        if currentRemovedProcess is not None:
-            x = self.currentThreads.pop(request.ProcessId)
-
-        logging.info(f"BİTTİ: {data['process_id']}")
+        _ = self.RemoveWork(request.ProcessId)
     
 
     def StopProcess(self, request, context):
-        process = self.currentThreads.get(request.ProcessId, None)
-        if process is not None:
-            try:
-                self.currentThreads[request.ProcessId][1] = False
-                response = self.workManager.stopProducer(process[0])
-                return rc.StopProcessResponseData(Message=response, flag = True)
-            except Exception as e:
-                logging.info(e)
+        if self.CheckWork(request.ProcessId):
+            currentWork = self.RemoveWork(request.ProcessId)
+            if currentWork:
+                response = self.workManager.stopProducer(currentWork.name)
+                return rc.StopProcessResponseData(Message=response, flag=True)
 
-        return rc.StopProcessResponseData(Message="İşlem Bulunamadı.", flag = False)
+        return rc.StopProcessResponseData(Message=f"İşlem Bulunamadı: ProcessID: {request.ProcessId} ", flag=False)
 
 
 def serve():

@@ -48,17 +48,17 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
             try:
                 while context.is_active():
                     
-                    #Kuyrukta frame varsa al
-                    frame = producedFrameQueue.get(block=True, timeout=3) #, timeout=3
+                    # Kuyrukta frame varsa al
+                    frame = producedFrameQueue.get(block=True, timeout=3)
 
-                    #Response gönder
+                    # MainServer'a Response gönder
                     yield rc.ProducerResponse(
                         Response=self.CreateResponse(
                             Response(ResponseCodes.SUCCESS, message="Producer Streaming Yapıyor...", data=frame)
                         )
                     )
 
-                    #empty message (İstemci istediği sürece frame üretilir. Her istekte 1 frame üretilir.)
+                    # empty message (İstemci istediği sürece frame üretilir. Her istekte 1 frame üretilir.)
                     request = next(requestIter)
             except:
                 logging.warning(f"{requestData.TopicName} için producer durdu.")
@@ -67,7 +67,7 @@ class CKProducer(rc_grpc.kafkaProducerServicer):
                     Response=self.CreateResponse(
                         Response(ResponseCodes.SUCCESS, message="Producer Başladı!", data=b"") #data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
                     )
-                ) 
+                )
 
 
     def getAllProducerProcesses(self, request, context):

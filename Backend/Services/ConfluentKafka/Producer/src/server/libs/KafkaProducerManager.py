@@ -140,7 +140,7 @@ class ProducerContextManager(object):
     def producer(self, qq: multiprocessing.Queue):
         logging.info(f"Producer Deploying...Source: <{self.source}>, TopicName: <{self.topicName}>")
         if(self.is_video and not os.access(self.source, mode=0)):
-            raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz..."
+            raise "Video Kaynakta Bulunamadı. Dosya Yolunu Kontrol Ediniz... (/assets)"
        
         #TODO Buffer şeklinde yapılacak.
         # Stream Settings
@@ -186,7 +186,7 @@ class ProducerContextManager(object):
                     if self.limit > 0:
                         limit_count+=1
                 else:
-                    logging.error(f"Frame to Byte convertion failed:{self.source}")
+                    logging.error(f"Frame to Byte convertion failed: {self.source}")
                     ret_limit_count+=1
             else:
                 #logging.error(f"Topic <{self.topicName}>: Bu kaynak kullanımda olabilir: <{self.source}>. Streamden okunamıyor. RET_LIMIT: {ret_limit_count}")
