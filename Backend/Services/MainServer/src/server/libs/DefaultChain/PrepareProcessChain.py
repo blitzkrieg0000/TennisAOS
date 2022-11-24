@@ -21,8 +21,6 @@ class PrepareProcessChain(AbstractHandler):
         errorLimit = kwargs.get("errorLimit", 3)
         independent = kwargs.get("independent", False)
 
-        logging.info(data)
-
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
         res = Repositories.saveTopicName(self.redisCacheManager, data["process_id"], newTopicName)
 
