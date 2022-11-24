@@ -1,17 +1,13 @@
-import logging
-
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
-from libs.DefaultChain.BallPositionPredictorChain import BallPositionPredictorChain
+from libs.DefaultChain.BallPositionPredictorChain import \
+    BallPositionPredictorChain
 from libs.DefaultChain.ConsumerChain import ConsumerChain
 from libs.DefaultChain.CourtLineChain import CourtLineChain
 from libs.DefaultChain.ITNScoreChain import ITNScoreChain
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
 from libs.DefaultChain.ProcessAlgorithmChain import ProcessAlgorithmChain
 from libs.DefaultChain.SaveResultChain import SaveResultChain
-
-logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
-
 
 MAX_WORKERS = 5
 class WorkManager():
@@ -21,20 +17,25 @@ class WorkManager():
         # Clients
         self.kafkaProducerManager  = KafkaProducerManager()
         self.kafkaConsumerManager = KafkaConsumerManager()
-        self.entryPoint = self.SetDefaultChain()
+        self.entryPoint = None
         
 
     def SetDefaultChain(self):
-        entryPoint = PrepareProcessChain()
-        entryPoint.SetNext(ConsumerChain()) \
+        self.entryPoint = PrepareProcessChain()
+        self.entryPoint.SetNext(ConsumerChain()) \
             .SetNext(CourtLineChain()) \
             .SetNext(ProcessAlgorithmChain()) \
             .SetNext(BallPositionPredictorChain()) \
             .SetNext(ITNScoreChain()) \
-            .SetNext(SaveResultChain()
-            )
-        return entryPoint
+            .SetNext(SaveResultChain())
 
+    def SetStreamChain(self):
+        self.entryPoint = ConsumerChain()
+        self.entryPoint.SetNext(CourtLineChain()) \
+            .SetNext(ProcessAlgorithmChain()) \
+            .SetNext(BallPositionPredictorChain()) \
+            .SetNext(ITNScoreChain()) \
+            .SetNext(SaveResultChain())
 
     #! Main Server
     # Manage Producer----------------------------------------------------------
@@ -64,5 +65,10 @@ class WorkManager():
     
 
     def ProcessData(self, **kwargs):
+        self.SetDefaultChain()
         self.entryPoint.Handle(**kwargs)
 
+
+    def ProcessStreamData(self, **kwargs):
+        self.SetStreamChain()
+        self.entryPoint.Handle(**kwargs)

@@ -14,13 +14,14 @@ class PrepareProcessChain(AbstractHandler):
         super().__init__()
         self.kafkaProducerManager  = KafkaProducerManager()
         self.redisCacheManager = RedisCacheManager()
-    
-
+        self.counter = 0
+        
     def Handle(self, **kwargs):
-        # process, independent=True, errorLimit=3
         data = kwargs.get("data", None)
         errorLimit = kwargs.get("errorLimit", 3)
         independent = kwargs.get("independent", False)
+
+        logging.info(data)
 
         newTopicName = Tools.generateTopicName(data["stream_name"], 0)
         res = Repositories.saveTopicName(self.redisCacheManager, data["process_id"], newTopicName)
@@ -36,7 +37,7 @@ class PrepareProcessChain(AbstractHandler):
             "independent" : independent
         }
         
-        send_queue, empty_message, responseIterator = self.kafkaProducerManager.producer(**arr) #! KAFKA_PRODUCER
+        send_queue, empty_message, responseIterator = self.kafkaProducerManager.producer(**arr)
 
         
         kwargs["send_queue"] = send_queue

@@ -10,6 +10,7 @@ import MainServer_pb2 as rc
 import MainServer_pb2_grpc as rc_grpc
 from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
+from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
 from libs.helpers import Converters, Repositories
 from ProcessManager import ProcessManager
 from WorkManager import WorkManager
@@ -33,7 +34,8 @@ class MainServer(rc_grpc.MainServerServicer):
         self.workManager = WorkManager()
         self.consumer = KafkaConsumerManager()
         self.currentThreads = collections.defaultdict(list)
-
+        self.prepareProcessChain = PrepareProcessChain()
+        
 
     def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
@@ -47,28 +49,47 @@ class MainServer(rc_grpc.MainServerServicer):
         return Repositories.getProcessRelatedById(self.rcm, id)
 
 
-    def DeployNewProcess(self, data):
-        t = threading.Thread(name=data["topicName"], target=self.workManager.ProcessData, args=[data,])
+    def DeployWork(self, data):
+        t = threading.Thread(name=data["data"]["topicName"], target=self.workManager.ProcessStreamData, kwargs=data)
         t.start()
         return t
 
 
+    def CheckStartProcess(func):
+        def wrapper(self, request, context):
+
+            if len(self.currentThreads) >= MAX_CONCURENT_WORKERS:
+                Repositories.markAsCompleted(self.rcm, request.ProcessId)
+                raise "Maksimum işlem sayısını geçtiniz. Önceki işlemlerin bitmesini bekleyiniz."
+
+            return func(self, request, context)
+
+        return wrapper
+
+
+    @CheckStartProcess
     def StartProcess(self, request, context):
-        logging.info(f"Process:{request.ProcessId} işlenmeye başladı")
+        logging.info(f"Process: {request.ProcessId} işlenmeye başladı.")
         raw = self.getStreamProcess(request.ProcessId)
         
         if len(raw) < 1:
-            raise "Bu process ile ilgili bilgi bulunamadı."
+            raise f"Process ID: {request.ProcessId} ile ilgili bilgi bulunamadı."
         data = raw[0]
 
-        if len(self.currentThreads) >= MAX_CONCURENT_WORKERS:
-            Repositories.markAsCompleted(self.rcm, request.ProcessId)
-            raise "Maksimum işlem sayısını geçtiniz. Önceki işlemlerin bitmesini bekleyiniz."
-
-        data, send_queue, empty_message, RESPONSE_ITERATOR = self.workManager.Prepare(data)
+        # Prepare Process Chain
+        arr = {
+            "data" : data,
+            "independent" : False,
+            "errorLimit" : 3
+        }
+        results = self.prepareProcessChain.Handle(**arr)
+        send_queue = results["send_queue"]
+        empty_message = results["empty_message"]
+        RESPONSE_ITERATOR = results["responseIterator"]
+        data = results["data"]
 
         # Yeni bir thread de işlem başlat
-        t = self.DeployNewProcess(data)
+        t = self.DeployWork(results)
         
         # Process Adı -> [Topic Adı, Bool] şeklinde çalışan threadlerin listesini tut.
         self.currentThreads[request.ProcessId] = [data["topicName"], True]
@@ -136,5 +157,5 @@ if __name__ == '__main__':
     MainP1.start()
     MainP2.start()
     MainP2.join()
-    
+
     logging.warning("MAIN SERVER ÇALIŞMAYI DURDURDU!")

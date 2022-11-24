@@ -16,6 +16,7 @@ class CourtLineChain(AbstractHandler):
         self.detectCourtLineClient = DCLClient()
         self.court_warp_matrix = None
         
+        
     def Handle(self, **kwargs):
         # data, BYTE_FRAMES_GENERATOR=None
         data = kwargs.get("data", None)
