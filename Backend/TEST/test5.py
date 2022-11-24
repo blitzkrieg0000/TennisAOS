@@ -1,4 +1,16 @@
+from types import SimpleNamespace
 
-arr = [1080, 1920, 3]
 
-print(arr[1::-1])
+# d = {'a':1, 'b':2}
+# for key, val in d.items():
+#     exec(key + '=val')
+
+
+sp = SimpleNamespace()
+sp.awqeqwe = 1
+
+
+print(sp.awqeqwe)
+
+
+

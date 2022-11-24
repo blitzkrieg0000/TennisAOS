@@ -130,9 +130,11 @@ def serve():
 
 if __name__ == '__main__':
     logging.info("MAIN SERVER BAŞLADI!")
+
     MainP1 = multiprocessing.Process(target=MainProcess, daemon=True)
     MainP2 = multiprocessing.Process(target=serve, daemon=False)
     MainP1.start()
     MainP2.start()
     MainP2.join()
+    
     logging.warning("MAIN SERVER ÇALIŞMAYI DURDURDU!")
