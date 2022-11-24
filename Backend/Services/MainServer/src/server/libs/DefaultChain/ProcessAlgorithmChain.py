@@ -33,7 +33,6 @@ class ProcessAlgorithmChain(AbstractHandler):
 
 
     def PrepareAlgorithms(self, byte_frame, croppedBottomCourtFrame, data):
-
         threadSubmits = {
             self.ThreadExecutor.submit(self.trackBallClient.findTennisBallPosition, byte_frame, data["topicName"]) : "DetectBall",
             self.ThreadExecutor.submit(self.bodyPoseClient.ExtractBodyPose, Converters.Frame2Bytes(croppedBottomCourtFrame)) : "BodyPose"
@@ -46,7 +45,6 @@ class ProcessAlgorithmChain(AbstractHandler):
         court_warp_matrix = kwargs.get("court_warp_matrix", None)
         byte_frame = kwargs.get("byte_frame", None)
         data = kwargs.get("data", None)
-
 
         all_ball_positions = []
         all_body_pose_points = []
@@ -67,6 +65,7 @@ class ProcessAlgorithmChain(AbstractHandler):
 
             # RUN SUBMITS CONCURENTLY
             threadIterator = futures.as_completed(threadSubmits)
+
 
             # WAIT CONCURENT PROCESS
             balldata = None
