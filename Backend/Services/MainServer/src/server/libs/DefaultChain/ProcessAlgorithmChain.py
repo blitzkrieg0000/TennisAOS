@@ -87,6 +87,7 @@ class ProcessAlgorithmChain(AbstractHandler):
             all_body_pose_points.append(np.array(points))
             all_ball_positions.append(np.array(Converters.Bytes2Obj(balldata)))
         
+        
         # GC
         self.ThreadExecutor.shutdown()
         self.trackBallClient.deleteDetector(data["topicName"])

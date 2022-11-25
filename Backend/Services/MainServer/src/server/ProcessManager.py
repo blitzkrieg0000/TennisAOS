@@ -6,7 +6,8 @@ import time
 
 from clients.Redis.redis_client import RedisCacheManager
 from libs.helpers import Repositories
-from WorkManager import WorkManager
+from libs.WorkManager import WorkManager
+
 
 INTERVAL = 5
 class ProcessManager():
@@ -48,7 +49,7 @@ class ProcessManager():
                     "independent" : True,
                     "errorLimit" : 3
                 }
-                t = threading.Thread(name=process["process_id"], target=self.workManager.ProcessData, kwargs=arr)
+                t = threading.Thread(name=f'thread_for_work_{process["process_id"]}', target=self.workManager.ProcessVideoData, kwargs=arr)
                 threadList.append(t)
             
             for thread in threadList:

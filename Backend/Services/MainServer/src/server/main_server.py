@@ -12,8 +12,8 @@ from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
 from libs.helpers import Converters, Repositories
+from libs.WorkManager import WorkManager
 from ProcessManager import ProcessManager
-from WorkManager import WorkManager
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
@@ -27,7 +27,6 @@ MAX_WORKERS:int = 10
 MAX_CONCURENT_WORKERS:int = 1
 #*SERVER
 class MainServer(rc_grpc.MainServerServicer):
-    
     def __init__(self):
         super().__init__()
         self.rcm = RedisCacheManager()
@@ -59,7 +58,7 @@ class MainServer(rc_grpc.MainServerServicer):
         flag = self.currentThreads.get(id, None)
         if flag is not None:
             return flag.status
-
+        
         return None   
 
 

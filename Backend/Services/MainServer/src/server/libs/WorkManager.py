@@ -20,7 +20,7 @@ class WorkManager():
         self.entryPoint = None
         
 
-    def SetDefaultChain(self):
+    def SetVideoChain(self):
         self.entryPoint = PrepareProcessChain()
         self.entryPoint.SetNext(ConsumerChain()) \
             .SetNext(CourtLineChain()) \
@@ -66,8 +66,8 @@ class WorkManager():
         return self.kafkaConsumerManager.stopAllConsumers()
     
 
-    def ProcessData(self, **kwargs):
-        self.SetDefaultChain()
+    def ProcessVideoData(self, **kwargs):
+        self.SetVideoChain()
         self.entryPoint.Handle(**kwargs)
 
 

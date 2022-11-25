@@ -60,7 +60,7 @@ class CourtLineChain(AbstractHandler):
 
             # Tenis çizgilerini postgresqle kaydet
             if courtLines is not None:
-                SerializedCourtPoints = EncodeManager.serialize(np.array([courtLines, self.court_warp_matrix]))
+                SerializedCourtPoints = EncodeManager.serialize(np.array([courtLines, self.court_warp_matrix], dtype=object))
                 data["court_line_array"] = SerializedCourtPoints
                 Repositories.saveCourtLinePoints(self.redisCacheManager, data["stream_id"], data["session_id"], SerializedCourtPoints)
             else:

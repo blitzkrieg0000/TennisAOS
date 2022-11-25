@@ -7,10 +7,4 @@ from types import SimpleNamespace
 
 
 sp = SimpleNamespace()
-sp.awqeqwe = 1
-
-
-print(sp.awqeqwe)
-
-
-
+sp.val = 1
