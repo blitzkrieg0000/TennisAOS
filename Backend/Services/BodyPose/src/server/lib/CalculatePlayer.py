@@ -34,6 +34,10 @@ class CalculatePlayer(ExtraTools):
 
 
 	def Process(self, image):
+
+		#TODO DetectPeoples
+
+
 		points = self.PoseDetector.Detect(image)
 		
 		if points is None:
