@@ -16,10 +16,13 @@ namespace Business.Services {
 
         private readonly IMapper _mapper;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IGRPCService _grpcService;
 
-        public ProcessService(IMapper mapper, IUnitOfWork unitOfWork) {
+        public ProcessService(IMapper mapper, IUnitOfWork unitOfWork, IGRPCService grpcService)
+        {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
+            _grpcService = grpcService;
         }
 
         public async Task<Response<List<ProcessListDto>>> GetAll() {
@@ -121,6 +124,10 @@ namespace Business.Services {
         public async Task<IResponse> Remove(long id) {
             var removedEntity = await _unitOfWork.GetRepository<Process>().GetByFilter(x => x.Id == id);
             if (removedEntity != null) {
+
+                // Backend->MainService->StopProducer'a ProcessId gönder ve producer'i durdur.
+                var response = await _grpcService.StopProducer(id);
+
                 _unitOfWork.GetRepository<Process>().Remove(removedEntity);
                 await _unitOfWork.SaveChanges();
                 return new Response(ResponseType.Success);

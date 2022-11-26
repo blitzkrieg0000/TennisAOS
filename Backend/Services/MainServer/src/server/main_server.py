@@ -47,10 +47,12 @@ class MainServer(rc_grpc.MainServerServicer):
         if self.currentThreads.get(id, None):
             currentWork = self.currentThreads.pop(id)
             logging.info(f"Sonlandırılan ProcessId: {id}")
+
             return currentWork
 
 
     def GetWork(self, id):
+
         return self.currentThreads.get(id, None)
 
 
@@ -58,7 +60,7 @@ class MainServer(rc_grpc.MainServerServicer):
         flag = self.currentThreads.get(id, None)
         if flag is not None:
             return flag.status
-        
+
         return None   
 
 
@@ -77,6 +79,7 @@ class MainServer(rc_grpc.MainServerServicer):
     def DeployWork(self, data):
         t = threading.Thread(name=data["data"]["topicName"], target=self.workManager.ProcessStreamData, kwargs=data)
         t.start()
+        
         return t
 
 

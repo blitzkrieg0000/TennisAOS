@@ -1,2 +1,0 @@
-#Build
-dotnet build /home/blitzkrieg/source/repos/TennisAOS/Frontend/TennisWeb/UI/UI.csproj /property:GenerateFullPaths=true /consoleloggerparameters:NoSummary
