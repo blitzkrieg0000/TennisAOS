@@ -17,26 +17,27 @@ class WorkManager():
         # Clients
         self.kafkaProducerManager  = KafkaProducerManager()
         self.kafkaConsumerManager = KafkaConsumerManager()
-        self.entryPoint = None
         
 
-    def SetVideoChain(self):
-        self.entryPoint = PrepareProcessChain()
-        self.entryPoint.SetNext(ConsumerChain()) \
+    def GetVideoChain(self):
+        entryPoint = PrepareProcessChain()
+        entryPoint.SetNext(ConsumerChain()) \
             .SetNext(CourtLineChain()) \
             .SetNext(ProcessAlgorithmChain()) \
             .SetNext(BallPositionPredictorChain()) \
             .SetNext(ITNScoreChain()) \
             .SetNext(SaveResultChain())
+        return entryPoint
 
 
-    def SetStreamChain(self):
-        self.entryPoint = ConsumerChain()
-        self.entryPoint.SetNext(CourtLineChain()) \
+    def GetStreamChain(self):
+        entryPoint = ConsumerChain()
+        entryPoint.SetNext(CourtLineChain()) \
             .SetNext(ProcessAlgorithmChain()) \
             .SetNext(BallPositionPredictorChain()) \
             .SetNext(ITNScoreChain()) \
             .SetNext(SaveResultChain())
+        return entryPoint
 
 
     #! Main Server
@@ -67,10 +68,10 @@ class WorkManager():
     
 
     def ProcessVideoData(self, **kwargs):
-        self.SetVideoChain()
-        self.entryPoint.Handle(**kwargs)
+        entryPoint = self.GetVideoChain()
+        entryPoint.Handle(**kwargs)
 
 
     def ProcessStreamData(self, **kwargs):
-        self.SetStreamChain()
-        self.entryPoint.Handle(**kwargs)
+        entryPoint = self.GetStreamChain()
+        entryPoint.Handle(**kwargs)
