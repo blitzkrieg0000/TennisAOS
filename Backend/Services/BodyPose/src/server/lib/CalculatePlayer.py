@@ -37,7 +37,6 @@ class CalculatePlayer(ExtraTools):
 
 		#TODO DetectPeoples
 
-
 		points = self.PoseDetector.Detect(image)
 		
 		if points is None:
@@ -72,7 +71,6 @@ class CalculatePlayer(ExtraTools):
 			canvas = cv2.putText(canvas, str(angle_str), (P2x, P2y), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (66, 179, 245), 1, cv2.LINE_AA)
 
 		return canvas
-
 
 
 
