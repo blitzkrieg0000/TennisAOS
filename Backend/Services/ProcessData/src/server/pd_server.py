@@ -51,12 +51,14 @@ class PDServer(rc_grpc.ProcessDataServicer):
 
         return rc.processAOSResponse(data=self.Obj2Bytes(responseData), frame=self.Frame2Bytes(canvas))
 
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     rc_grpc.add_ProcessDataServicer_to_server(PDServer(), server)
     server.add_insecure_port('[::]:50024')
     server.start()
     server.wait_for_termination()
+
 
 if __name__ == "__main__":
     serve()

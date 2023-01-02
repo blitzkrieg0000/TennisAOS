@@ -57,9 +57,7 @@ class CourtLineChain(AbstractHandler):
                     return None
 
                 courtLines, self.court_warp_matrix = Converters.Bytes2Obj(courtPointsBytes)
-            
-            logging.error(courtLines)
-            
+    
 
             # Tenis çizgilerini postgresqle kaydet
             if courtLines is not None:

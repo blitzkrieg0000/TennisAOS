@@ -90,17 +90,14 @@ class Tools():
 
     @staticmethod
     def DrawFallPointCircle(cimage, fall_points, limit=1):
-
         if fall_points is None:
             return cimage
 
         selected_point = [0, 0]
         selected_point = max(fall_points, key=lambda x:x[1])
-
-        for point in selected_point:
-            if len(point)>0:
-                cimage = cv2.circle(cimage, (int(point[0]),int(point[1])), 5, (0,0,255), 1)
-                cimage = cv2.circle(cimage, (int(point[0]),int(point[1])), 3, (255,255,255), 1)
+        logging.info(f"Seçilen nokta: {selected_point}")
+        cimage = cv2.circle(cimage, (int(selected_point[0]),int(selected_point[1])), 5, (0,0,255), 1)
+        cimage = cv2.circle(cimage, (int(selected_point[0]),int(selected_point[1])), 3, (255,255,255), 1)
         return cimage
 
 

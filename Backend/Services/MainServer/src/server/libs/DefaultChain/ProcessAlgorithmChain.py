@@ -55,6 +55,7 @@ class ProcessAlgorithmChain(AbstractHandler):
         self.ThreadExecutor = futures.ThreadPoolExecutor(max_workers=2)
        
         #! 4-ALGORITHMS
+        logging.info("Görüntüler Algoritmalara Dağıtılıyor...")
         for i, consumerResponse in enumerate(BYTE_FRAMES_GENERATOR):
             
             #PreRequest
@@ -71,6 +72,7 @@ class ProcessAlgorithmChain(AbstractHandler):
             points = None
             angles = None
             canvas = None
+            
             for future in threadIterator:
                 result = future.result()
                 name = threadSubmits[future]
@@ -80,18 +82,16 @@ class ProcessAlgorithmChain(AbstractHandler):
                     balldata = result
                 elif name == "BodyPose":
                     points, angles, canvas = Converters.Bytes2Obj(result.Data)
-            
-            logging.error(f"{points} - {angles}")
 
             all_body_pose_points.append(np.array(points))
             all_ball_positions.append(np.array(Converters.Bytes2Obj(balldata)))
-        
-        
+        logging.info("Algoritmalar Görüntüleri İşledi...")
+
         # GC
         self.ThreadExecutor.shutdown()
         self.trackBallClient.deleteDetector(data["topicName"])
 
         kwargs["all_body_pose_points"] = all_body_pose_points
         kwargs["all_ball_positions"] = all_ball_positions
-
+        
         return super().Handle(**kwargs)
