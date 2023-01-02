@@ -42,7 +42,7 @@ class SaveResultChain(AbstractHandler):
 
         # Topun düştüğü yeri işaretle
         canvas = Converters.Bytes2Frame(canvasBytes)
-        canvas = Tools.drawCircles(canvas, ball_fall_array)
+        canvas = Tools.DrawFallPointCircle(canvas, ball_fall_array)
         
         #! 7-SAVE_PROCESSED_DATA
         resultData = self.SaveResults(data, processedAOSData, canvas, ball_fall_array, all_body_pose_points, all_ball_positions)

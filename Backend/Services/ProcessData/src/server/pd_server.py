@@ -39,7 +39,10 @@ class PDServer(rc_grpc.ProcessDataServicer):
 
         canvas = frame.copy()
         line_data, point_area_data, canvas = extractSpecialLocations(courtLines=data["court_lines"], canvas=canvas, AOS_TYPE=data["court_point_area_id"])
-        score = get_score(point_area_data, data["fall_point"])
+        
+        selected_point = [0, 0]
+        selected_point = max(data["fall_point"], key=lambda x:x[1])
+        score = get_score(point_area_data, selected_point)
         
         responseData = {}
         responseData["score"] = score

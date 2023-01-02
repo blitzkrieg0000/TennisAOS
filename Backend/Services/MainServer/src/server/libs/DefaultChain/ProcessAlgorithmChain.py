@@ -28,7 +28,7 @@ class ProcessAlgorithmChain(AbstractHandler):
         tempFrame  = Converters.Bytes2Frame(byte_frame)
         mask = cv2.warpPerspective(self.white_mask, np.array(court_warp_matrix), tempFrame.shape[1::-1])
         tempFrame[mask == 0, :] = (0, 0, 0)
-        cv2.imwrite("/temp/temp.jpg", tempFrame)
+        # cv2.imwrite("/temp/temp.jpg", tempFrame)
         return tempFrame
 
 

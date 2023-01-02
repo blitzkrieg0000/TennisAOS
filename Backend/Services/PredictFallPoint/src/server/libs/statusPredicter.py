@@ -1,11 +1,17 @@
 import pickle
+
 import matplotlib.pyplot as plt
 import numpy as np
+from libs.helper import HampelFilter
 from scipy import signal
 from scipy.interpolate import interp1d
 from scipy.signal import find_peaks
 
+
 class StatusPredicter():
+
+    def __init__(self) -> None:
+        pass
 
     def predictFallBallPositon(self, ball_positions, window = 5, verbose=False):
         """Topun ve oyuncuların konumunu kullanarak önemli bilgileri çıkart"""
@@ -29,8 +35,13 @@ class StatusPredicter():
         if window%2==0:
             window = window - 1
 
+        
         smooth_y = signal.savgol_filter(ball_y, window, 3)  # 31-3, 41-3, 5-3
         smooth_x = signal.savgol_filter(ball_x, window, 3)
+
+        smooth_y, detected_outliers = HampelFilter(smooth_y, 12)
+        smooth_x, detected_outliers = HampelFilter(smooth_x, 12)
+
 
         array_length = len(smooth_y)
 
@@ -46,9 +57,9 @@ class StatusPredicter():
             fig = plt.figure()
             plt.plot(np.arange(0, array_length), smooth_y, 'o',xnew, intp1d_ball_coordinates_y, '-r')
             plt.legend(['data', 'inter'], loc='best')
-            plt.savefig("data/graphs/ball_interpolation.png", bbox_inches='tight')
+            plt.savefig("src/server/asset/graph/ball_interpolation.png", bbox_inches='tight')
             plt.show()
-            pickle.dump(fig, open('data/figures/ball_interpolation.fig.pickle', 'wb'))
+            pickle.dump(fig, open('src/server/asset/graph/ball_interpolation.fig.pickle', 'wb'))
 
         #* Topun Y eksenindeki local maximumları göster
         peaks, _ = find_peaks(intp1d_ball_coordinates_y)
@@ -56,7 +67,7 @@ class StatusPredicter():
         if verbose:
             plt.plot(intp1d_ball_coordinates_y)
             plt.plot(peaks, intp1d_ball_coordinates_y[peaks], "x")
-            plt.savefig("data/graphs/ball_local_maxs.png", bbox_inches='tight')
+            plt.savefig("src/server/asset/graph/ball_local_maxs.png", bbox_inches='tight')
             plt.show()
 
         if len(peaks) < 1:
