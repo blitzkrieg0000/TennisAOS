@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import cv2
-from libs.court_detection import CourtDetector
+from libs.courtDetector import CourtDetector
 
 EPS = np.finfo(float).eps
 RANDOM_COLOR = lambda : (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
@@ -10,6 +10,7 @@ colors = []
 for x in range(4):
     colors.append(RANDOM_COLOR()) 
 
+
 def isVertical(line) -> bool:
     """
     else horizontal or diagonal 
@@ -17,6 +18,7 @@ def isVertical(line) -> bool:
         line -> [P1x, P1y, P2x, P2y]
     """
     return (abs(line[3]-line[1]) > abs(line[2]-line[0]))
+
 
 def reorderLines(line):
     """
@@ -30,11 +32,13 @@ def reorderLines(line):
     x2, y2 = max(line, key=lambda item:item[axis])
     return [x1, y1, x2, y2]
 
+
 def drawExtraLine(data:dict, canvas_image_skt):
     for key in data.keys():
         line = data[key] 
         canvas_image_skt = cv2.line(canvas_image_skt, (int(line[0]), int(line[1])), (int(line[2]), int(line[3])), (255, 255, 255), 2, cv2.LINE_AA) 
     return canvas_image_skt
+
 
 def drawExtraPolly(points_dict:dict, canvas_image_skt):
     shapes = np.zeros_like(canvas_image_skt, np.uint8)
@@ -50,6 +54,7 @@ def drawExtraPolly(points_dict:dict, canvas_image_skt):
      
     return canvas_image_skt
 
+
 def getLinePointWithRatio(line, ratio=0.5):
     x1, y1, x2, y2 = line
     m = (y2-y1)/((x2-x1)+EPS)
@@ -57,6 +62,7 @@ def getLinePointWithRatio(line, ratio=0.5):
     point_y = y1+len_y*ratio
     point_x = ((point_y-y1)/(m+EPS)) + x1
     return (point_x, point_y)
+
 
 def getPointOnLine(line, xx=None, yy=None):
     m = (line[3]-line[1]) / ((line[2]-line[0])+EPS)
@@ -69,9 +75,11 @@ def getPointOnLine(line, xx=None, yy=None):
     else:
         raise "İki değer birden sağlanamaz!"
 
+
 def getLineMidPoint(line):
     point = ( int((line[0] + line[2])/2), int((line[1] + line[3])/2) )
     return point
+
 
 def extractSpecialLines(court_detector:CourtDetector, canvas_image_skt):
     line_data = {}

@@ -66,7 +66,6 @@ class ProcessAlgorithmChain(AbstractHandler):
             # RUN SUBMITS CONCURENTLY
             threadIterator = futures.as_completed(threadSubmits)
 
-
             # WAIT CONCURENT PROCESS
             balldata = None
             points = None

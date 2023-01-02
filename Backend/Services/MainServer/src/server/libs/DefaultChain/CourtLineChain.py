@@ -44,10 +44,11 @@ class CourtLineChain(AbstractHandler):
             except Exception as e:
                 logging.warning(e)
 
+            # [[], null]
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines, self.court_warp_matrix = EncodeManager.deserialize(data["court_line_array"])
-            
-            else:
+
+            if self.court_warp_matrix is None:
                 courtPointsBytes = b""
                 try:
                     courtPointsBytes = self.detectCourtLineClient.extractCourtLines(image=first_frame_bytes)
@@ -56,7 +57,9 @@ class CourtLineChain(AbstractHandler):
                     return None
 
                 courtLines, self.court_warp_matrix = Converters.Bytes2Obj(courtPointsBytes)
-
+            
+            logging.error(courtLines)
+            
 
             # Tenis çizgilerini postgresqle kaydet
             if courtLines is not None:
@@ -66,7 +69,6 @@ class CourtLineChain(AbstractHandler):
             else:
                 return None
 
-                
             canvas = Tools.drawLines(frame, courtLines)
             canvasBytes = Converters.Frame2Bytes(canvas)
 

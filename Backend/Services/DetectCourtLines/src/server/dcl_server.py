@@ -1,33 +1,48 @@
 import logging
-from concurrent import futures
 import pickle
-
-import grpc
-import detectCourtLines_pb2 as rc
-import detectCourtLines_pb2_grpc as rc_grpc
-from libs.point_tools import CourtDetector
+from concurrent import futures
 
 import cv2
+import grpc
 import numpy as np
+
+import detectCourtLines_pb2 as rc
+import detectCourtLines_pb2_grpc as rc_grpc
+from libs.courtDetector import CourtDetector
+
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
-class DCLServer(rc_grpc.detectCourtLineServicer):
 
+class DCLServer(rc_grpc.detectCourtLineServicer):
     def __init__(self):
-        #TODO objenin sıfırlanması gerekiyor: v2
-        self.court_detector = CourtDetector()
-    
+        pass
+
+
     def Obj2Bytes(self, obj):
         return pickle.dumps(obj)
 
+
     def extractCourtLines(self, request, context):
-        court_detector = CourtDetector()
+
+        # Stateful Class olduğundan her seferinde yeniden tanımlıyoruz.
+        court_detector = CourtDetector(     # Setting1, Setting2
+            threshold_value=25,             # 160, 25
+            resizing_ratio=-120,            # -80, -120
+            pp_gaussian_blur=True,          # True, True
+            max_line_gap=10,                # 10, 10
+            min_line_length=110,            # 100, 110
+            edge_detection_method="Robert"  # None, "Robert"
+        )
+
         nparr = np.frombuffer(request.frame, np.uint8)
         frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
         logging.info("Saha tespit ediliyor...\n")
-        canvas_image = court_detector.detect(frame.copy())
+        
+        court_points = court_detector.Detect(frame)
+        # canvas_image = court_detector.DrawCourtLines()
+
         court_points = []
         warp_matrix = None
         if court_detector.success_flag:
@@ -39,7 +54,9 @@ class DCLServer(rc_grpc.detectCourtLineServicer):
             logging.info("Saha Tespiti Başarısız !")
 
         court_points = list(court_points)
+
         return rc.extractCourtLinesResponse(point=self.Obj2Bytes([court_points, warp_matrix]))
+
 
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
@@ -47,6 +64,7 @@ def serve():
     server.add_insecure_port('[::]:50021')
     server.start()
     server.wait_for_termination()
+
 
 if __name__ == "__main__":
     serve()
