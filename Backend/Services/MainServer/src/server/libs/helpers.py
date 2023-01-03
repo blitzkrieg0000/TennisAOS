@@ -12,63 +12,80 @@ import numpy as np
 
 
 #* Gelen Argümanlardan herhangi birisi None ise None döndür.
-def checkNull(func):
+def CheckNull(func):
     def wrapper(*args, **kwargs):
         if not all( [False for val in kwargs.values() if val is None]): return None
         if not all( [False for arg in args if arg is None]): return None
         return func(*args, **kwargs)
+    
     return wrapper
 
+
 #* Class Wrapper, class altındaki tüm methodlar için ilgili decoratorı tanımlar.
-def for_all_methods(decorator):
+def ForAllMethods(decorator):
     def decorate(cls):
         for attr in cls.__dict__:
             if callable(getattr(cls, attr)):
                 setattr(cls, attr, decorator(getattr(cls, attr)))
         return cls
+
     return decorate
 
 
-@for_all_methods(checkNull)
+@ForAllMethods(CheckNull)
 class Converters():
     def __init__(self) -> None:
         pass
     
+
     @staticmethod
     def Bytes2Obj(bytes):
         if bytes != b'':
             return pickle.loads(bytes)
+
         return None
+
 
     @staticmethod
     def Obj2Bytes(obj):
+
         return pickle.dumps(obj)
     
+
     @staticmethod
     def Bytes2Frame(bytes_frame):
         nparr = np.frombuffer(bytes_frame, np.uint8)
+
         return cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     
+
     @staticmethod
     def Frame2Bytes(frame):
         res, encodedImg = cv2.imencode('.jpg', frame)
+
         return encodedImg.tobytes()
     
+
     @staticmethod
     def Frame2Base64(frame):
         etval, buffer = cv2.imencode('.jpg', frame)
+
         return base64.b64encode(buffer).decode()
 
 
-@for_all_methods(checkNull)
+
+@ForAllMethods(CheckNull)
 class Tools():
     EXCEPT_PREFIX = ['']
+
     def __init__(self) -> None:
         pass
     
+
     @staticmethod
     def getUID():
         return int.from_bytes(hashlib.md5(str(time.time()).encode("utf-8")).digest(), "little")
+
 
     @staticmethod
     def generateTopicName(prefix:str, id):
@@ -77,7 +94,9 @@ class Tools():
         prefix = prefix.encode('ascii', 'ignore').decode("utf-8")
         if prefix in Tools.EXCEPT_PREFIX:
             return prefix
+
         return f"{prefix}__{id}__{Tools.getUID()}"
+
 
     @staticmethod
     def drawLines(cimage, points):
@@ -86,7 +105,9 @@ class Tools():
                 cimage = cv2.line(cimage, ( int(line[0]), int(line[1]) ), ( int(line[2]), int(line[3]) ), (66, 245, 102), 3)
             if i==10:
                 break
+
         return cimage
+
 
     @staticmethod
     def DrawFallPointCircle(cimage, fall_points, limit=1):
@@ -98,13 +119,15 @@ class Tools():
         logging.info(f"Seçilen nokta: {selected_point}")
         cimage = cv2.circle(cimage, (int(selected_point[0]),int(selected_point[1])), 5, (0,0,255), 1)
         cimage = cv2.circle(cimage, (int(selected_point[0]),int(selected_point[1])), 3, (255,255,255), 1)
+
         return cimage
 
 
-@for_all_methods(checkNull)
+@ForAllMethods(CheckNull)
 class Repositories():
     def __init__(self) -> None:
         pass
+
 
     @staticmethod
     def getStreamData(manager, id):
@@ -116,6 +139,7 @@ class Repositories():
             return [dict(zip(query_keys, item)) for item in streamData]
         assert "Stream Bilgisi Bulunamadı."
 
+
     @staticmethod
     def getCourtPointAreaId(manager, AOS_TYPE_ID):
         query_keys = ["aos_type_name", "court_point_area_id"]
@@ -125,8 +149,10 @@ class Repositories():
         logging.warning(f"{AOS_TYPE_ID} -> {data}")
         if data is not None:
             return [dict(zip(query_keys, item)) for item in data]
+
         return None
     
+
     @staticmethod
     def getAllProcessRelated(manager):
         query_keys = ["process_id", "process_name", "session_id", "stream_id", "aos_type_id", "player_id", "court_id", "limit", "force", "stream_name", "source", "court_line_array", "is_video"]
@@ -186,6 +212,7 @@ class Repositories():
     def saveTopicName(manager, process_id, newTopicName):
         return manager.Write(f'UPDATE public."ProcessResponse" SET kafka_topic_name=%s WHERE id={process_id};', [newTopicName,])
 
+
     @staticmethod
     def saveCourtLinePoints(manager, stream_id,sessionParameter_id, courtPoints):
         manager.Write(f'UPDATE public."SessionParameter" SET court_line_array=%s WHERE id={sessionParameter_id};', [courtPoints,])
@@ -202,6 +229,7 @@ class Repositories():
             ]
         )
 
+
     @staticmethod
     def savePlayingData(manager, data):
         return manager.Write(
@@ -210,6 +238,7 @@ class Repositories():
         [data["player_id"],data["court_id"],data["aos_type_id"],
         data["stream_id"],data["score"],data["ball_position_array"],
         data["player_position_array"], data["ball_fall_array"]])
+
 
     @staticmethod
     def markAsCompleted(manager, processId):
@@ -223,16 +252,22 @@ class NumpyArrayEncoder(JSONEncoder):
             return obj.tolist()
         return JSONEncoder.default(self, obj)
 
-@for_all_methods(checkNull)
+
+
+@ForAllMethods(CheckNull)
 class EncodeManager():
     def __init__(self) -> None:
         pass
     
+
     @staticmethod
     def serialize(arr):
         return json.dumps(arr, cls=NumpyArrayEncoder)
+
 
     @staticmethod
     def deserialize(arr):
         decodedArrays = json.loads(arr)
         return decodedArrays #np.asarray(decodedArrays)
+
+
