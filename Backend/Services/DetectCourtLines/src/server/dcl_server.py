@@ -44,10 +44,9 @@ class DCLServer(rc_grpc.detectCourtLineServicer):
         # canvas_image = court_detector.DrawCourtLines()
 
         court_points = []
-        warp_matrix = None
+        warp_matrix = []
         if court_detector.success_flag:
             logging.info("Saha Tespiti Başarılı !")
-            court_points = court_detector.saved_lines
             if len(court_detector.court_warp_matrix)>0:
                 warp_matrix = court_detector.court_warp_matrix[-1]
         else:

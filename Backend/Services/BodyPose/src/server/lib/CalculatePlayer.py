@@ -34,19 +34,16 @@ class CalculatePlayer(ExtraTools):
 
 
 	def Process(self, image):
-
-		#TODO DetectPeoples
-
-		points = self.PoseDetector.Detect(image)
+		# TODO Birden fazla kişiyi tespit etme: "Yolo v7 Bodypose" zaten bu işi yapıyor. Yolov7 ObjectDetection ile mediapipe'ı sıralı kullanmanın bir anlamı yok
+		points, points_dict = self.PoseDetector.Detect(image)
 		
 		if points is None:
-			return None, None, image
+			return None, None, None, image
 		
 		angles = self.GetSpecialAngles(points)
-
 		canvas = self.DrawAngles(image, angles, points)
 
-		return points, angles, canvas
+		return points, points_dict, angles, canvas
 
 
 	def DrawAngles(self, canvas, angle, points):
@@ -87,7 +84,9 @@ if "__main__" == __name__:
 		if not ret:
 			break
 
-		points, angles, canvas = cp.Process(img)
+		points, points_dict, angles, canvas = cp.Process(img)
+
+		print(points_dict)
 
 		cv2.imshow('', img)
 		if cv2.waitKey(0) & 0xFF == ord("q"):

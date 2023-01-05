@@ -1,6 +1,5 @@
 import cv2
 import mediapipe as mp
-
 from lib.PoseConvertTools import PoseConvertTools
 
 
@@ -17,17 +16,18 @@ class BodyPoseDetector(PoseConvertTools):
 		points = []
 		lm = results.pose_landmarks
 		if lm is None:
-			return None
+			return None, None
 		lmPose  = self.mp_pose.PoseLandmark
-		points = self.convert2Node(lm, lmPose, h, w)
-		return points
+		points = self.ConvertNode2Point(lm, lmPose, h, w)
+		points_dict = self.ConvertNode2Dict(lm, lmPose, h, w)
+		return points, points_dict
 
 
 	def Detect(self, image):
 		results = self.poseProcessor.process(image)
 		h, w, c = image.shape
-		points = self.ExtractPoints(results, h, w)
-		return points
+		points, points_dict = self.ExtractPoints(results, h, w)
+		return points, points_dict
 
 
 	def DrawPoints(self, image, results):
@@ -38,4 +38,5 @@ class BodyPoseDetector(PoseConvertTools):
 			landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style()
 		)
 		return image
+
 

@@ -17,25 +17,12 @@ class ProcessAlgorithmChain(AbstractHandler):
         self.ThreadExecutor = None
         self.trackBallClient = TBClient()
         self.bodyPoseClient = BodyPoseClient()
-        self.court = cv2.cvtColor(cv2.imread('/usr/src/app/src/server/asset/court_reference.png'), cv2.COLOR_BGR2GRAY)
-        self.court_mask = np.ones_like(self.court)
-        self.net = ((286, 1748), (1379, 1748))
-        self.white_mask = self.court_mask.copy()
-        self.white_mask[:self.net[0][1] - 1000, :] = 0
 
 
-    def CropBottomCourt(self, byte_frame, court_warp_matrix):
-        tempFrame  = Converters.Bytes2Frame(byte_frame)
-        mask = cv2.warpPerspective(self.white_mask, np.array(court_warp_matrix), tempFrame.shape[1::-1])
-        tempFrame[mask == 0, :] = (0, 0, 0)
-        # cv2.imwrite("/temp/temp.jpg", tempFrame)
-        return tempFrame
-
-
-    def PrepareAlgorithms(self, byte_frame, croppedBottomCourtFrame, data):
+    def PrepareAlgorithms(self, byte_frame, data):
         threadSubmits = {
             self.ThreadExecutor.submit(self.trackBallClient.findTennisBallPosition, byte_frame, data["topicName"]) : "DetectBall",
-            self.ThreadExecutor.submit(self.bodyPoseClient.ExtractBodyPose, Converters.Frame2Bytes(croppedBottomCourtFrame)) : "BodyPose"
+            self.ThreadExecutor.submit(self.bodyPoseClient.ExtractBodyPose, byte_frame) : "BodyPose"
         }
 
         return threadSubmits
@@ -58,11 +45,11 @@ class ProcessAlgorithmChain(AbstractHandler):
         logging.info("Görüntüler Algoritmalara Dağıtılıyor...")
         for i, consumerResponse in enumerate(BYTE_FRAMES_GENERATOR):
             
-            #PreRequest
-            croppedBottomCourtFrame = self.CropBottomCourt(consumerResponse.data, court_warp_matrix)
+            if consumerResponse.data is None or consumerResponse.data == b"":
+                continue
 
             # PREPARE SUBMIT
-            threadSubmits = self.PrepareAlgorithms(consumerResponse.data, croppedBottomCourtFrame, data)
+            threadSubmits = self.PrepareAlgorithms(consumerResponse.data, data)
 
             # RUN SUBMITS CONCURENTLY
             threadIterator = futures.as_completed(threadSubmits)
@@ -82,6 +69,7 @@ class ProcessAlgorithmChain(AbstractHandler):
                     balldata = result
                 elif name == "BodyPose":
                     points, angles, canvas = Converters.Bytes2Obj(result.Data)
+                    cv2.imwrite("/temp/body.jpg", canvas)
 
             all_body_pose_points.append(np.array(points))
             all_ball_positions.append(np.array(Converters.Bytes2Obj(balldata)))

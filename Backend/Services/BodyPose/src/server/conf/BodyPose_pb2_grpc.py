@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import BodyPose_pb2 as BodyPose__pb2
+import conf.BodyPose_pb2 as BodyPose__pb2
 
 
 class BodyPoseStub(object):

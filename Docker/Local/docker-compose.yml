@@ -18,6 +18,7 @@ services:
             - zookeeper_data:/var/lib/zookeeper/data
             - zookeeper_log:/var/lib/zookeeper/log
 
+
     broker:
         image: confluentinc/cp-kafka:7.1.1
         hostname: broker
@@ -41,8 +42,10 @@ services:
             KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9092
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
             KAFKA_MESSAGE_MAX_BYTES: 2097152000
+            KAFKA_LOG_RETENTION_BYTES: 1073741824
         volumes:
             - broker0:/var/lib/kafka/data
+
 
     postgres:
         image: postgres:14.5
@@ -64,6 +67,7 @@ services:
         volumes:
             - postgresql:/var/lib/postgresql/data
 
+
     redis:
         image: redis
         hostname: redis
@@ -75,6 +79,7 @@ services:
             - "6379:6379"
         depends_on:
             - postgres
+
 
     kafdrop:
         image: obsidiandynamics/kafdrop
@@ -90,6 +95,7 @@ services:
         environment:
             KAFKA_BROKERCONNECT: "broker:9092"
             JVM_OPTS: "-Xms16M -Xmx48M -Xss180K -XX:-TieredCompilation -XX:+UseStringDeduplication -noverify"
+
 
     # triton:
     #     image: nvcr.io/nvidia/tritonserver:22.05-py3 #tritonserver:latest 
@@ -113,6 +119,7 @@ services:
     #                     - count: 1
     #                     - capabilities: [ gpu ]
     
+
     #! BUILDED SERVICES
     tennisweb:
         image: tennisweb
@@ -129,6 +136,7 @@ services:
         volumes:
             - webassets:/app/assets
 
+
     mainservice:
         image: mainservice
         build:
@@ -144,6 +152,7 @@ services:
         volumes:
             - temp:/temp
 
+
     bodyposeservice:
         image: bodyposeservice
         build:
@@ -156,6 +165,7 @@ services:
             - tennisnet
         ports:
             - "50061:50061"
+
 
     detectcourtlinesservice:
         image: detectcourtlinesservice
@@ -170,6 +180,7 @@ services:
         ports:
             - "50021:50021"
 
+
     predictfallpositionservice:
         image: predictfallpositionservice
         build:
@@ -183,6 +194,7 @@ services:
         ports:
             - "50023:50023"
 
+
     processdataservice:
         image: processdataservice
         build:
@@ -195,6 +207,7 @@ services:
             - tennisnet
         ports:
             - "50024:50024"
+
 
     trackballservice:
         image: trackballservice
@@ -219,6 +232,7 @@ services:
                       count: 1
                       capabilities: [gpu]
 
+
     producerservice:
         image: producerservice
         build:
@@ -233,6 +247,7 @@ services:
             - "50031:50031"
         volumes:
             - assets:/assets
+
 
     consumerservice:
         image: consumerservice
@@ -249,6 +264,7 @@ services:
         depends_on:
             - producerservice
 
+
     postgresservice:
         image: postgresservice
         build:
@@ -261,6 +277,7 @@ services:
             - tennisnet
         ports:
             - "50041:50041"
+
 
     redisservice:
         image: redisservice
@@ -277,6 +294,7 @@ services:
         depends_on:
             - postgresservice
 
+
     rtmp:
         image: rtmpservice
         build:
@@ -289,6 +307,7 @@ services:
             - "1935:1935"
         depends_on:
             - producerservice
+
 
     # nfs:
     #     image: nfs
@@ -313,6 +332,7 @@ services:
     #         - SETPCAP
 
 
+
 #! VOLUMES
 volumes:
     broker0:
@@ -322,12 +342,14 @@ volumes:
             type: none
             device: "${PWD}/../Data/tennis/broker0"
 
+
     zookeeper_data:
         driver: local
         driver_opts:
             o: bind
             type: none
             device: "${PWD}/../Data/tennis/zookeeper_data"
+
 
     zookeeper_log:
         driver: local
@@ -336,12 +358,14 @@ volumes:
             type: none
             device: "${PWD}/../Data/tennis/zookeeper_log"
 
+
     postgresql:
         driver: local
         driver_opts:
             o: bind
             type: none
             device: "${PWD}/../Data/tennis/postgresql"
+
 
     temp:
         driver: local
@@ -350,12 +374,14 @@ volumes:
             type: none
             device: "${PWD}/../Data/tennis/temp"
 
+
     webassets:
         driver: local
         driver_opts:
             o: bind
             type: none
             device: "${PWD}/../Data/tennis/assets"
+
 
     # models:
     #     driver: local
@@ -364,12 +390,14 @@ volumes:
     #         type: none
     #         device: "${PWD}/../Data/tennis/models"
 
+
     assets:
         driver: local
         driver_opts:
             o: bind
             type: none
             device: "${PWD}/../Data/tennis/assets"
+
 
 
 #! NETWORK

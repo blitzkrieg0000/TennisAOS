@@ -1,10 +1,9 @@
 import logging
 from concurrent import futures
-import time
-import grpc
 
-import BodyPose_pb2 as rc
-import BodyPose_pb2_grpc as rc_grpc
+import conf.BodyPose_pb2 as rc
+import conf.BodyPose_pb2_grpc as rc_grpc
+import grpc
 from lib.CalculatePlayer import CalculatePlayer
 from lib.helpers import Converters
 from lib.Response import Response, ResponseCodes
@@ -17,17 +16,18 @@ class BodyPoseServer(rc_grpc.BodyPoseServicer):
     def __init__(self):
         self.CalculatePlayer = CalculatePlayer()
     
-
+    
     def CreateResponse(self, response:Response):
+
         return rc.Response(Code=rc.Response.ResponseCodes.Value(response.code.name), Message=response.message, Data=response.data)
 
 
     def ExtractBodyPose(self, request, context):
-        # frame = Converters.Bytes2Obj(request.frame)
+        #frame = Converters.Bytes2Obj(request.frame)
         frame = Converters.Bytes2Frame(request.frame)
-        points, angles, canvas = self.CalculatePlayer.Process(frame)
+        points, points_dict, angles, canvas = self.CalculatePlayer.Process(frame)
 
-        data = Converters.Obj2Bytes([points, angles, canvas]) 
+        data = Converters.Obj2Bytes([points_dict, angles, canvas]) 
         # with open("result/dump.txt", "w") as f:
         #     f.write(str(data))
 
@@ -38,6 +38,7 @@ class BodyPoseServer(rc_grpc.BodyPoseServicer):
         )
 
         return responseData
+
 
 
 def serve():
@@ -58,9 +59,5 @@ def serve():
 
 if __name__ == "__main__":
     serve()
-
-
-
-
 
 

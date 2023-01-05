@@ -26,8 +26,7 @@ class CourtLineChain(AbstractHandler):
         first_frame_bytes = None
 
         #! 3-DETECT_COURT_LINES (Extract Tennis Court Lines)
-        # İlk frame i al ve saha tespiti yapılmamışsa yap
-        consumerResponse = next(BYTE_FRAMES_GENERATOR)
+        consumerResponse = next(BYTE_FRAMES_GENERATOR) # İlk frame i al ve saha tespiti yapılmamışsa yap
 
         if consumerResponse is not None:
             first_frame_bytes = consumerResponse.data
@@ -36,7 +35,7 @@ class CourtLineChain(AbstractHandler):
             if frame is None:
                 assert "İlk kare doğru alınamadı."
             
-            # Override -> Session video ise her videonun ayrı kaynağı olacağından, varsayılan değerlere override yap.
+            # Override -> Session, video ise her videonun ayrı kaynağı olacağından, varsayılan değerlere override yap.
             overrideData = Repositories.getCourtLineBySessionId(self.redisCacheManager, data["session_id"])[0]
             try:
                 data["court_line_array"] = overrideData["st_court_line_array"]
@@ -44,7 +43,6 @@ class CourtLineChain(AbstractHandler):
             except Exception as e:
                 logging.warning(e)
 
-            # [[], null]
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines, self.court_warp_matrix = EncodeManager.deserialize(data["court_line_array"])
 
@@ -76,3 +74,4 @@ class CourtLineChain(AbstractHandler):
         kwargs["canvas"] = canvas
         kwargs["canvasBytes"] = canvasBytes
         return super().Handle(**kwargs)
+

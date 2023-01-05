@@ -17,6 +17,7 @@ class PDServer(rc_grpc.ProcessDataServicer):
     def __init__(self):
         pass
     
+    #TODO Yardımcı fonksiyonları helper ile getir.
     def Bytes2Obj(self, bytes):
         return pickle.loads(bytes)
 

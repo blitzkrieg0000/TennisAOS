@@ -15,7 +15,7 @@ class WorkManager():
         super().__init__()
         
         # Clients
-        self.kafkaProducerManager  = KafkaProducerManager()
+        self.kafkaProducerManager = KafkaProducerManager()
         self.kafkaConsumerManager = KafkaConsumerManager()
         
 

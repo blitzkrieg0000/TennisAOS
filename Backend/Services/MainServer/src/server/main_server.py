@@ -11,7 +11,7 @@ import MainServer_pb2_grpc as rc_grpc
 from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
-from libs.helpers import Converters, Repositories
+from libs.helpers import Converters, Repositories, Tools
 from libs.WorkManager import WorkManager
 from ProcessManager import ProcessManager
 
@@ -160,6 +160,20 @@ class MainServer(rc_grpc.MainServerServicer):
                 return rc.StopProcessResponseData(Message=response, flag=True)
 
         return rc.StopProcessResponseData(Message=f"İşlem Bulunamadı: ProcessID: {request.ProcessId} ", flag=False)
+
+
+    def MergeData(self, request, context):
+        #Eğer Topic Varsa
+        ProcessId = request.ProcessId
+        topicName = ""
+        FrameIterator = self.consumer.consumer(topicName, f"MergeData_{Tools.getUID()}")
+
+        for item in FrameIterator:
+            frame = Converters.Bytes2Frame(item.data)
+            if frame is not None:
+                ...
+
+        #Eğer Topic Yoksa: Videodan çek
 
 
 def serve():
