@@ -1,0 +1,41 @@
+syntax = "proto3";
+package consumer;
+
+// Service
+service kafkaConsumer {
+  rpc consumer(ConsumerRequest) returns (stream ConsumerResponse) {}
+  rpc getAllConsumers(getAllConsumersRequest) returns (getAllConsumersResponse) {}
+  rpc stopConsumer(stopConsumerRequest) returns (stopConsumerResponse) {}
+  rpc stopAllConsumers(stopAllConsumersRequest) returns (stopAllConsumersResponse) {}
+}
+
+// Request Name
+message ConsumerRequest {
+  string topicName=1;
+  string group=2;
+  int64 limit=3;
+  string offsetMethod=4;
+}
+message getAllConsumersRequest {
+  string data=1;
+}
+message stopConsumerRequest{
+  string data=1;
+}
+message stopAllConsumersRequest{
+  string data=1;
+}
+
+// Response Array
+message ConsumerResponse {
+  bytes data=1;
+}
+message getAllConsumersResponse {
+  string data=1;
+}
+message stopConsumerResponse{
+  string result=1;
+}
+message stopAllConsumersResponse{
+  string result=1;
+}

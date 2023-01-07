@@ -8,6 +8,7 @@ from types import SimpleNamespace
 import grpc
 import MainServer_pb2 as rc
 import MainServer_pb2_grpc as rc_grpc
+from clients.ExtraProcess.ExtraProcess_client import ExtraProcessClient
 from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
@@ -34,7 +35,7 @@ class MainServer(rc_grpc.MainServerServicer):
         self.consumer = KafkaConsumerManager()
         self.prepareProcessChain = PrepareProcessChain()
         self.currentThreads = collections.defaultdict(list)
-    
+        self.ExtraProcessManager = ExtraProcessClient()
 
     def AddWork(self, id, topicName):
         currentWork = SimpleNamespace()
@@ -163,17 +164,11 @@ class MainServer(rc_grpc.MainServerServicer):
 
 
     def MergeData(self, request, context):
-        #Eğer Topic Varsa
         ProcessId = request.ProcessId
-        topicName = ""
-        FrameIterator = self.consumer.consumer(topicName, f"MergeData_{Tools.getUID()}")
-
-        for item in FrameIterator:
-            frame = Converters.Bytes2Frame(item.data)
-            if frame is not None:
-                ...
-
-        #Eğer Topic Yoksa: Videodan çek
+        process_results = Repositories.GetProcessResponseById(self.rcm, ProcessId)[0]
+        logging.error(process_results)
+        response = self.ExtraProcessManager.MergeData(Converters.Obj2Bytes(process_results))
+        return rc.MergeDataResponseData(Message=response.Message)
 
 
 def serve():
@@ -183,6 +178,7 @@ def serve():
     server.add_insecure_port('[::]:50011')
     server.start()
     server.wait_for_termination()
+
 
 
 if __name__ == '__main__':
@@ -195,3 +191,4 @@ if __name__ == '__main__':
     MainP2.join()
 
     logging.warning("MAIN SERVER ÇALIŞMAYI DURDURDU!")
+

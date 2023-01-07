@@ -1,30 +1,31 @@
-from __future__ import print_function
-import pickle
 import grpc
 import MainServer_pb2 as rc
 import MainServer_pb2_grpc as rc_grpc
 
+
 class MainServerManager():
     def __init__(self):
-        self.channel = grpc.insecure_channel('redisservice:50011') #redisservice:50051
+        self.channel = grpc.insecure_channel('localhost:50011')
         self.stub = rc_grpc.MainServerStub(self.channel)
 
-    def Bytes2Obj(self, bytes):
-        return pickle.loads(bytes)
-
-    def Obj2Bytes(self, obj):
-        return pickle.dumps(obj)
 
     def StartProcess(self, id):
         requestData = rc.StartProcessRequestData(ProcessId=id)
         responseData = self.stub.StartProcess(requestData)
         return responseData
 
+
+    def MergeData(self, processId):
+        requestData = rc.MergeDataRequestData(ProcessId=processId)
+        responseData = self.stub.MergeData(requestData)
+        return responseData
+
+
     def disconnect(self):
         self.channel.close()
 
 
+
 if __name__ == "__main__":
     msm = MainServerManager()
-    response = msm.StartProcess(118)
-    print(response.Message)
+    response = msm.MergeData(899.0)

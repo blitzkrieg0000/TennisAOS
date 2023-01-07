@@ -25,6 +25,11 @@ class MainServerStub(object):
                 request_serializer=MainServer__pb2.StopProcessRequestData.SerializeToString,
                 response_deserializer=MainServer__pb2.StopProcessResponseData.FromString,
                 )
+        self.MergeData = channel.unary_unary(
+                '/main.MainServer/MergeData',
+                request_serializer=MainServer__pb2.MergeDataRequestData.SerializeToString,
+                response_deserializer=MainServer__pb2.MergeDataResponseData.FromString,
+                )
 
 
 class MainServerServicer(object):
@@ -43,6 +48,12 @@ class MainServerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def MergeData(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MainServerServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -55,6 +66,11 @@ def add_MainServerServicer_to_server(servicer, server):
                     servicer.StopProcess,
                     request_deserializer=MainServer__pb2.StopProcessRequestData.FromString,
                     response_serializer=MainServer__pb2.StopProcessResponseData.SerializeToString,
+            ),
+            'MergeData': grpc.unary_unary_rpc_method_handler(
+                    servicer.MergeData,
+                    request_deserializer=MainServer__pb2.MergeDataRequestData.FromString,
+                    response_serializer=MainServer__pb2.MergeDataResponseData.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -98,5 +114,22 @@ class MainServer(object):
         return grpc.experimental.unary_unary(request, target, '/main.MainServer/StopProcess',
             MainServer__pb2.StopProcessRequestData.SerializeToString,
             MainServer__pb2.StopProcessResponseData.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def MergeData(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/main.MainServer/MergeData',
+            MainServer__pb2.MergeDataRequestData.SerializeToString,
+            MainServer__pb2.MergeDataResponseData.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -7,6 +7,7 @@ mkdir $tennisPrefix/assets\
   $tennisPrefix/models\
   $tennisPrefix/postgresql\
   $tennisPrefix/zookeeper_data\
-  $tennisPrefix/zookeeper_log
+  $tennisPrefix/zookeeper_log\
+  $tennisPrefix/MergedVideo
 docker compose build &&\
 docker compose up -d

@@ -1,0 +1,18 @@
+syntax = "proto3";
+package extraprocess;
+
+
+// Service
+service ExtraProcess {
+  rpc MergeData(ExtraProcessRequest) returns (ExtraProcessResponse) {}
+}
+
+
+message ExtraProcessRequest {
+  bytes Data=1;
+}
+
+
+message ExtraProcessResponse{
+  string Message=1;
+}

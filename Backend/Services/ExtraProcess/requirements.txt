@@ -1,0 +1,8 @@
+numpy
+protobuf
+grpcio
+requests
+certifi
+opencv-python
+opencv-contrib-python
+pytz

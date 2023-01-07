@@ -5,6 +5,7 @@ package main;
 service MainServer {
   rpc StartProcess(StartProcessRequestData) returns (stream StartProcessResponseData) {}
   rpc StopProcess(StopProcessRequestData) returns (StopProcessResponseData) {}
+  rpc MergeData(MergeDataRequestData) returns (MergeDataResponseData) {}
 }
 
 //Request
@@ -14,6 +15,10 @@ message StartProcessRequestData{
 message StopProcessRequestData{
   double ProcessId=1;
 }
+message MergeDataRequestData{
+  double ProcessId=1;
+}
+
 
 //Response
 message StartProcessResponseData{
@@ -24,4 +29,7 @@ message StartProcessResponseData{
 message StopProcessResponseData{
   string Message=1;
   bool flag=2;
+}
+message MergeDataResponseData{
+  string Message=1;
 }

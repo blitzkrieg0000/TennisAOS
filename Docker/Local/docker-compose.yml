@@ -153,6 +153,22 @@ services:
             - temp:/temp
 
 
+    extraprocessservice:
+        image: extraprocessservice
+        build:
+            context: "../../Backend/Services/ExtraProcess/"
+            dockerfile: dockerfile
+        hostname: extraprocessservice
+        container_name: extraprocessservice
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "50071:50071"
+        volumes:
+            - MergedVideo:/MergedVideo
+
+
     bodyposeservice:
         image: bodyposeservice
         build:
@@ -367,13 +383,13 @@ volumes:
             device: "${PWD}/../Data/tennis/postgresql"
 
 
-    temp:
+    MergedVideo:
         driver: local
         driver_opts:
             o: bind
             type: none
-            device: "${PWD}/../Data/tennis/temp"
-
+            device: "${PWD}/../Data/tennis/MergedVideo"
+    
 
     webassets:
         driver: local
@@ -399,6 +415,14 @@ volumes:
             device: "${PWD}/../Data/tennis/assets"
 
 
+    temp:
+        driver: local
+        driver_opts:
+            o: bind
+            type: none
+            device: "${PWD}/../Data/tennis/temp"
+
+            
 
 #! NETWORK
 networks:
