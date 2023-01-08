@@ -1,14 +1,16 @@
 import itertools
 import logging
-from concurrent import futures
 import queue
+from concurrent import futures
 
 import conf.ExtraProcess_pb2 as rc
 import conf.ExtraProcess_pb2_grpc as rc_grpc
 import cv2
 import grpc
 from client.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
+from lib.DrawingTools import DrawingTools
 from lib.helpers import Converters, EncodeManager, Tools
+from lib.PoseConvertTools import PoseConvertTools
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
@@ -19,7 +21,8 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
     def __init__(self) -> None:
         super().__init__()
         self.consumerClient = KafkaConsumerManager()
-
+        self.drawingTools = DrawingTools()
+        self.poseConvertTools = PoseConvertTools()
 
     def MergeData(self, request, context):
         process_results = Converters.Bytes2Obj(request.Data)
@@ -41,7 +44,6 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
                     frame = Converters.Bytes2Frame(item.data)
                     h, w, c = frame.shape
 
-            logging.error(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4{w},{c}')
             videoWriter = cv2.VideoWriter(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 60, (w, h))
             
             bodyPoseArray = None
@@ -78,7 +80,9 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
                     continue
 
                 if bodyPose is not None:
-                    pass
+                    bodyPose = self.poseConvertTools.Dict2Point(bodyPose)
+                    angles = self.drawingTools.GetSpecialAngles(bodyPose)
+                    frame = self.drawingTools.DrawAngles(frame, angles, bodyPose)
 
                 if ballPosition is not None:
                     if ballPosition[0] is not None:
@@ -99,7 +103,7 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
                         if item is not None:
                             if item[0] is not None:
                                 logging.warning(item)
-                                frame = cv2.line(frame, (int(item[0]), int(item[1])), (int(item[2]), int(item[3])), (0, 255, 0), 1, cv2.LINE_AA)
+                                frame = cv2.line(frame, (int(item[0]), int(item[1])), (int(item[2]), int(item[3])), (0, 255, 0), 2, cv2.LINE_AA)
 
                 frame = cv2.putText(frame,f'Puan: {process_results["score"]}', (30, 30), cv2.FONT_HERSHEY_TRIPLEX, 1, (255,0,255), 1, cv2.LINE_AA)
                 videoWriter.write(frame)
