@@ -1,11 +1,14 @@
-from concurrent import futures
+import itertools
 import logging
-from lib.helpers import Converters, Tools
+from concurrent import futures
+import queue
+
 import conf.ExtraProcess_pb2 as rc
 import conf.ExtraProcess_pb2_grpc as rc_grpc
+import cv2
 import grpc
 from client.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
-import cv2
+from lib.helpers import Converters, EncodeManager, Tools
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
@@ -20,7 +23,6 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
 
     def MergeData(self, request, context):
         process_results = Converters.Bytes2Obj(request.Data)
-
         # "ball_position_array", "ball_fall_array",
         # "player_position_array", "score", "kafka_topic_name",
         # "body_pose_array", "stream_id", "source", "is_video",
@@ -42,21 +44,68 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
             logging.error(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4{w},{c}')
             videoWriter = cv2.VideoWriter(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 60, (w, h))
             
-            for item in FrameIterator:
+            bodyPoseArray = None
+            ballPositionArray = None
+            ballFallArray = None
+            # Body Bose
+            if process_results["body_pose_array"] != "" or process_results["body_pose_array"] is not None:
+                bodyPoseArray = EncodeManager.Deserialize(process_results["body_pose_array"])
+            
+            # Ball Position
+            if process_results["ball_position_array"] != "" or process_results["ball_position_array"] is not None:
+                ballPositionArray = EncodeManager.Deserialize(process_results["ball_position_array"])
+            
+            # Ball Fall Coordinate
+            if process_results["ball_fall_array"] != "" or process_results["ball_fall_array"] is not None:
+                ballFallArray = EncodeManager.Deserialize(process_results["ball_fall_array"])
+                ballFallArray = max(ballFallArray, key=lambda i : i[1])
+
+            n = 15
+            q = queue.deque()
+            [q.appendleft(None) for i in range(0,n)]
+            for item, bodyPose, ballPosition in itertools.zip_longest(
+                    FrameIterator, 
+                    bodyPoseArray if bodyPoseArray is not None else [], 
+                    ballPositionArray if ballPositionArray is not None else []
+                ):
                 frame = Converters.Bytes2Frame(item.data)
                 
                 if frame is None:
                     continue
-                    
+
+                if bodyPose is not None:
+                    pass
+
+                if ballPosition is not None:
+                    logging.error(ballPosition)
+                    if ballPosition[0] is not None:
+                        q.appendleft(ballPosition)
+                        q.pop()
+                    for i in range(0, n):
+                        point = q[i]
+                        if point is not None:
+                            frame = cv2.circle(frame, (int(point[0]), int(point[1])), 5, (0, 255, 255), 2)
+
+                if ballFallArray is not None:
+                    logging.error(ballFallArray)
+                    if ballFallArray[0] is not None:
+                        frame = cv2.circle(frame, (int(ballFallArray[0]), int(ballFallArray[1])), 5, (255, 255, 255), 2)
+                        frame = cv2.circle(frame, (int(ballFallArray[0]), int(ballFallArray[1])), 3, (0, 0, 255), -1)
+
+                frame = cv2.putText(frame,f'Puan: {process_results["score"]}', (30, 30), cv2.FONT_HERSHEY_TRIPLEX, 1, (255,0,255), 1, cv2.LINE_AA)
                 videoWriter.write(frame)
-                #TODO Frame i işle...
 
-            videoWriter.release()
 
+            for item in FrameIterator:
+                frame = Converters.Bytes2Frame(item.data)
+                videoWriter.write(frame)
+        
+        videoWriter.release()
         #! Eğer Topic Yoksa: Orijinal videodan çek
+
         if process_results["is_video"]:
             ...
-
+        logging.error("İşlem Tamamlandı.")
         return rc.ExtraProcessResponse(Message="")
 
 
