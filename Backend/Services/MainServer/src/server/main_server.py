@@ -166,7 +166,6 @@ class MainServer(rc_grpc.MainServerServicer):
     def MergeData(self, request, context):
         ProcessId = request.ProcessId
         process_results = Repositories.GetProcessResponseById(self.rcm, ProcessId)[0]
-        logging.error(process_results)
         response = self.ExtraProcessManager.MergeData(Converters.Obj2Bytes(process_results))
         return rc.MergeDataResponseData(Message=response.Message)
 

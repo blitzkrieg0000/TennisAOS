@@ -26,7 +26,7 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
         # "ball_position_array", "ball_fall_array",
         # "player_position_array", "score", "kafka_topic_name",
         # "body_pose_array", "stream_id", "source", "is_video",
-        # "name"
+        # "name", court_line_array
         if process_results["kafka_topic_name"] is not None:
             logging.error(f'Topic adı: {process_results["kafka_topic_name"]}')
             FrameIterator = self.consumerClient.consumer(process_results["kafka_topic_name"], f"MergeData_{Tools.GetUID()}")
@@ -47,6 +47,7 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
             bodyPoseArray = None
             ballPositionArray = None
             ballFallArray = None
+            courtLineArray = None
             # Body Bose
             if process_results["body_pose_array"] != "" or process_results["body_pose_array"] is not None:
                 bodyPoseArray = EncodeManager.Deserialize(process_results["body_pose_array"])
@@ -59,6 +60,9 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
             if process_results["ball_fall_array"] != "" or process_results["ball_fall_array"] is not None:
                 ballFallArray = EncodeManager.Deserialize(process_results["ball_fall_array"])
                 ballFallArray = max(ballFallArray, key=lambda i : i[1])
+
+            if process_results["court_line_array"] != "" or process_results["court_line_array"] is not None:
+                courtLineArray = EncodeManager.Deserialize(process_results["court_line_array"])
 
             n = 15
             q = queue.deque()
@@ -77,7 +81,6 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
                     pass
 
                 if ballPosition is not None:
-                    logging.error(ballPosition)
                     if ballPosition[0] is not None:
                         q.appendleft(ballPosition)
                         q.pop()
@@ -87,10 +90,16 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
                             frame = cv2.circle(frame, (int(point[0]), int(point[1])), 5, (0, 255, 255), 2)
 
                 if ballFallArray is not None:
-                    logging.error(ballFallArray)
                     if ballFallArray[0] is not None:
                         frame = cv2.circle(frame, (int(ballFallArray[0]), int(ballFallArray[1])), 5, (255, 255, 255), 2)
                         frame = cv2.circle(frame, (int(ballFallArray[0]), int(ballFallArray[1])), 3, (0, 0, 255), -1)
+
+                if courtLineArray is not None:
+                    for item in courtLineArray[0]:
+                        if item is not None:
+                            if item[0] is not None:
+                                logging.warning(item)
+                                frame = cv2.line(frame, (int(item[0]), int(item[1])), (int(item[2]), int(item[3])), (0, 255, 0), 1, cv2.LINE_AA)
 
                 frame = cv2.putText(frame,f'Puan: {process_results["score"]}', (30, 30), cv2.FONT_HERSHEY_TRIPLEX, 1, (255,0,255), 1, cv2.LINE_AA)
                 videoWriter.write(frame)

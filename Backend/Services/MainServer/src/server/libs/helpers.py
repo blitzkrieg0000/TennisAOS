@@ -130,8 +130,8 @@ class Repositories():
 
     @staticmethod
     def GetProcessResponseById(manager, id):
-        query_keys = ["ball_position_array", "ball_fall_array", "player_position_array", "score", "kafka_topic_name", "body_pose_array", "stream_id", "source", "is_video", "name"]
-        QUERY = f'SELECT pr.ball_position_array, pr.ball_fall_array, pr.player_position_array, pr.score, pr.kafka_topic_name, pr.body_pose_array, pp.stream_id, st.source, st.is_video, st.name\
+        query_keys = ["ball_position_array", "ball_fall_array", "player_position_array", "score", "kafka_topic_name", "body_pose_array", "stream_id", "source", "is_video", "name", "court_line_array"]
+        QUERY = f'SELECT pr.ball_position_array, pr.ball_fall_array, pr.player_position_array, pr.score, pr.kafka_topic_name, pr.body_pose_array, pp.stream_id, st.source, st.is_video, st.name, st.court_line_array\
             FROM public."ProcessResponse" as pr\
             INNER JOIN public."ProcessParameters" as pp\
             ON pr.id = pp.id\
