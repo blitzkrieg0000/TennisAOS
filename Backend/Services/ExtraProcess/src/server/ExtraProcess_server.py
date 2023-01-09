@@ -11,12 +11,13 @@ from client.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from lib.DrawingTools import DrawingTools
 from lib.helpers import Converters, EncodeManager, Tools
 from lib.PoseConvertTools import PoseConvertTools
+from vidgear.gears import CamGear, WriteGear
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
 
-MAX_MESSAGE_LENGTH = 10*1024*1024
 
+MAX_MESSAGE_LENGTH = 10*1024*1024
 class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
     def __init__(self) -> None:
         super().__init__()
@@ -34,18 +35,23 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
             logging.error(f'Topic adı: {process_results["kafka_topic_name"]}')
             FrameIterator = self.consumerClient.consumer(process_results["kafka_topic_name"], f"MergeData_{Tools.GetUID()}")
 
-            if FrameIterator is None:
-                ...
-
             frame = None; h = ...; w = ...; c = ...
-            while frame is None:
-                item = next(FrameIterator)
-                if item.data is not None:
-                    frame = Converters.Bytes2Frame(item.data)
-                    h, w, c = frame.shape
+            # while frame is None:
+            #     item = next(FrameIterator)
+            #     if item.data is not None:
+            #         frame = Converters.Bytes2Frame(item.data)
+            #         h, w, c = frame.shape
 
-            videoWriter = cv2.VideoWriter(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 60, (w, h))
+            # videoWriter = cv2.VideoWriter(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 60, (w, h))
+            output_params = {
+                "-input_framerate": 239.76,
+                "-codec": "h264_vaapi",
+                # "-vaapi_device": "/dev/dri/renderD128",
+                # "-vf": "format=nv12,hwupload"
+            }
             
+            videoWriter = WriteGear(output_filename=f'/MergedVideo/{process_results["kafka_topic_name"]}.mp4',logging=True, **output_params)
+
             bodyPoseArray = None
             ballPositionArray = None
             ballFallArray = None
@@ -113,7 +119,8 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
                 frame = Converters.Bytes2Frame(item.data)
                 videoWriter.write(frame)
         
-        videoWriter.release()
+        videoWriter.close()
+        # videoWriter.release()
         #! Eğer Topic Yoksa: Orijinal videodan çek
 
         if process_results["is_video"]:

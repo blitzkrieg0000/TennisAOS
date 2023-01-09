@@ -6,3 +6,4 @@ certifi
 opencv-python
 opencv-contrib-python
 pytz
+vidgear

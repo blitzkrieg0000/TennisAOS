@@ -170,6 +170,7 @@ class MainServer(rc_grpc.MainServerServicer):
         return rc.MergeDataResponseData(Message=response.Message)
 
 
+
 def serve():
     mainServer = MainServer()
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=MAX_WORKERS))
