@@ -44,7 +44,7 @@ class ExtraProcessServer(rc_grpc.ExtraProcessServicer):
 
             # videoWriter = cv2.VideoWriter(f'/MergedVideo/{process_results["name"]}_{process_results["kafka_topic_name"]}.mp4', cv2.VideoWriter_fourcc(*'MJPG'), 60, (w, h))
             output_params = {
-                "-input_framerate": 239.76,
+                "-input_framerate": 120,
                 "-codec": "h264_vaapi",
                 # "-vaapi_device": "/dev/dri/renderD128",
                 # "-vf": "format=nv12,hwupload"
