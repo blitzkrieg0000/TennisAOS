@@ -153,36 +153,6 @@ services:
             - temp:/temp
 
 
-    extraprocessservice:
-        image: extraprocessservice
-        build:
-            context: "../../Backend/Services/ExtraProcess/"
-            dockerfile: dockerfile
-        hostname: extraprocessservice
-        container_name: extraprocessservice
-        restart: always
-        networks:
-            - tennisnet
-        ports:
-            - "50071:50071"
-        volumes:
-            - MergedVideo:/MergedVideo
-
-
-    bodyposeservice:
-        image: bodyposeservice
-        build:
-            context: "../../Backend/Services/BodyPose/"
-            dockerfile: dockerfile
-        hostname: bodyposeservice
-        container_name: bodyposeservice
-        restart: always
-        networks:
-            - tennisnet
-        ports:
-            - "50061:50061"
-
-
     detectcourtlinesservice:
         image: detectcourtlinesservice
         build:
@@ -195,6 +165,30 @@ services:
             - tennisnet
         ports:
             - "50021:50021"
+
+
+    trackballservice:
+        image: trackballservice
+        runtime: nvidia
+        build:
+            context: "../../Backend/Services/TrackBall"
+            dockerfile: dockerfile
+        hostname: trackballservice
+        container_name: trackballservice
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "50022:50022"
+        # depends_on:
+        #     - triton
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                    - driver: nvidia
+                      count: 1
+                      capabilities: [gpu]
 
 
     predictfallpositionservice:
@@ -223,30 +217,6 @@ services:
             - tennisnet
         ports:
             - "50024:50024"
-
-
-    trackballservice:
-        image: trackballservice
-        runtime: nvidia
-        build:
-            context: "../../Backend/Services/TrackBall"
-            dockerfile: dockerfile
-        hostname: trackballservice
-        container_name: trackballservice
-        restart: always
-        networks:
-            - tennisnet
-        ports:
-            - "50022:50022"
-        # depends_on:
-        #     - triton
-        deploy:
-            resources:
-                reservations:
-                    devices:
-                    - driver: nvidia
-                      count: 1
-                      capabilities: [gpu]
 
 
     producerservice:
@@ -309,6 +279,50 @@ services:
             - "50051:50051"
         depends_on:
             - postgresservice
+
+
+    bodyposeservice:
+        image: bodyposeservice
+        build:
+            context: "../../Backend/Services/BodyPose/"
+            dockerfile: dockerfile
+        hostname: bodyposeservice
+        container_name: bodyposeservice
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "50061:50061"
+
+
+    extraprocessservice:
+        image: extraprocessservice
+        build:
+            context: "../../Backend/Services/ExtraProcess/"
+            dockerfile: dockerfile
+        hostname: extraprocessservice
+        container_name: extraprocessservice
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "50071:50071"
+        volumes:
+            - MergedVideo:/MergedVideo
+
+
+    playerdetectorservice:
+        image: playerdetectorservice
+        build:
+            context: "../../Backend/Services/DetectPlayer/"
+            dockerfile: dockerfile
+        hostname: playerdetectorservice
+        container_name: playerdetectorservice
+        restart: always
+        networks:
+            - tennisnet
+        ports:
+            - "50081:50081"
 
 
     rtmp:
