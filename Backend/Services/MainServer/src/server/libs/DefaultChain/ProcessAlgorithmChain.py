@@ -10,6 +10,7 @@ from libs.helpers import Converters
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 
+
 #* C4
 class ProcessAlgorithmChain(AbstractHandler):
     def __init__(self) -> None:
@@ -83,3 +84,6 @@ class ProcessAlgorithmChain(AbstractHandler):
         kwargs["all_ball_positions"] = all_ball_positions
         
         return super().Handle(**kwargs)
+
+
+

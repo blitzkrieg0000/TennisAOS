@@ -5,16 +5,16 @@ import threading
 from concurrent import futures
 from types import SimpleNamespace
 
+import conf.MainServer_pb2 as rc
+import conf.MainServer_pb2_grpc as rc_grpc
 import grpc
-import MainServer_pb2 as rc
-import MainServer_pb2_grpc as rc_grpc
 from clients.ExtraProcess.ExtraProcess_client import ExtraProcessClient
 from clients.Redis.redis_client import RedisCacheManager
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
 from libs.helpers import Converters, Repositories, Tools
+from libs.ProcessManager import ProcessManager
 from libs.WorkManager import WorkManager
-from ProcessManager import ProcessManager
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt='%d-%m-%Y %H:%M:%S', level=logging.NOTSET)
 

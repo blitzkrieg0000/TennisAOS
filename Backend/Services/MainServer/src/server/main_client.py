@@ -1,6 +1,6 @@
 import grpc
-import MainServer_pb2 as rc
-import MainServer_pb2_grpc as rc_grpc
+import conf.MainServer_pb2 as rc
+import conf.MainServer_pb2_grpc as rc_grpc
 
 
 class MainServerManager():

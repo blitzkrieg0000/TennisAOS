@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import MainServer_pb2 as MainServer__pb2
+import conf.MainServer_pb2 as MainServer__pb2
 
 
 class MainServerStub(object):
