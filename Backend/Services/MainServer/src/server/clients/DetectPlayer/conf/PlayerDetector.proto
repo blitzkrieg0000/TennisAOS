@@ -1,0 +1,46 @@
+syntax = "proto3";
+package playerdetector;
+
+
+// Service
+service PlayerDetector {
+  rpc Detect(DetectRequest) returns (DetectResponse) {}
+}
+
+
+// Component
+message Response{
+  enum ResponseCodes{
+    SUCCESS = 0;
+    WARNING = 1;
+    ERROR = 2;
+    INFO = 3;
+    NULL = 4;
+    NOT_FOUND = 5;
+    REQUIRED = 6;
+    UNSUFFICIENT = 7;
+    CONNECTION_ERROR = 8;
+ }
+  ResponseCodes Code = 1;
+  string Message = 2;
+  bytes Data = 3;
+}
+
+message Frame{
+  bytes Bytes=1;
+  int32 H=2;
+  int32 W=3;
+  int32 C=4;
+}
+
+
+// Request
+message DetectRequest {
+  Frame Frame = 1;
+}
+
+
+//Response
+message DetectResponse{
+  Response Response = 1;
+}
