@@ -1,4 +1,3 @@
-import collections
 import logging
 
 import numpy as np
@@ -89,8 +88,7 @@ class AlgorithmChain(AbstractHandler):
 
         # GC
         # TODO Chainler için EXIT kodu tasarla
-        # self.ThreadExecutor.shutdown()
-        # self.trackBallClient.deleteDetector(data["topicName"])
+
 
         kwargs["all_body_pose_points"] = all_body_pose_points
         kwargs["all_ball_positions"] = all_ball_positions

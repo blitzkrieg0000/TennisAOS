@@ -10,30 +10,33 @@ from libs.helpers import Converters
 class DynamicAlgorithmChain(AbstractHandler):
     def __init__(self, algorithms) -> None:
         super().__init__()
+        self.algorithms = algorithms
         # Algorithm Chains
-        self.algorithmInstances = {}
-        self.algorithmInstances["ExtractBodyPoseChain"] = ExtractBodyPoseChain
-        self.algorithmInstances["TrackballChain"] = TrackballChain
-        self.algorithmInstances["DetectPlayerPositionChain"] = DetectPlayerPositionChain
-
+        self.algorithmClasses = {}
+        self.algorithmClasses["ExtractBodyPoseChain"] = ExtractBodyPoseChain
+        self.algorithmClasses["TrackballChain"] = TrackballChain
+        self.algorithmClasses["DetectPlayerPositionChain"] = DetectPlayerPositionChain
+        
         # Prepare MultiThreading
         self.ThreadExecutor = futures.ThreadPoolExecutor(max_workers=len(algorithms))
-        self.orderedAlgorithmSubmits = self.CreateDynamicProcessChain(self.algorithmSequence)
     
 
-    def CreateSubmit(self, algorithms, kwargs):
+    def CreateSubmit(self, **kwargs):
         threadSubmits = {
-            self.ThreadExecutor.submit(self.algorithmInstances[algorithm](), kwargs) : algorithm for algorithm in algorithms
+            self.ThreadExecutor.submit(self.algorithmClasses[algorithm](), **kwargs) : algorithm for algorithm in self.algorithms
         }
         return threadSubmits
+    
+
+    def ExitCode(self, data):
+        self.ThreadExecutor.shutdown()
+        self.trackBallClient.deleteDetector(data["topicName"])
 
 
     def Handle(self, **kwargs):
-        frame = kwargs["frame"]
-        data = kwargs.get("data", None)
 
         # PREPARE SUBMIT
-        threadSubmits = self.CreateSubmit(frame, data)
+        threadSubmits = self.CreateSubmit(**kwargs)
 
         # RUN SUBMITS CONCURENTLY
         threadIterator = futures.as_completed(threadSubmits)
@@ -45,14 +48,8 @@ class DynamicAlgorithmChain(AbstractHandler):
         canvas = None
         
         for future in threadIterator:
-            result = future.result()
             name = threadSubmits[future]
-
-            #TODO Hmmm
-            if name == "DetectBall":
-                balldata = result
-            elif name == "BodyPose":
-                points, angles, canvas = Converters.Bytes2Obj(result.Data)
-
+            results = future.result()
+            kwargs.update(results)
 
         return super().Handle(**kwargs)
