@@ -5,7 +5,7 @@ from libs.DefaultChain.ConsumerChain import ConsumerChain
 from libs.DefaultChain.CourtLineChain import CourtLineChain
 from libs.DefaultChain.ITNScoreChain import ITNScoreChain
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
-from libs.DefaultChain.ProcessAlgorithmChain import ProcessAlgorithmChain
+from Backend.Services.MainServer.src.server.libs.DefaultChain.AlgorithmChain import AlgorithmChain
 from libs.DefaultChain.SaveResultChain import SaveResultChain
 
 
@@ -23,20 +23,22 @@ class WorkManager():
         entryPoint = PrepareProcessChain()
         entryPoint.SetNext(ConsumerChain()) \
             .SetNext(CourtLineChain()) \
-            .SetNext(ProcessAlgorithmChain()) \
+            .SetNext(AlgorithmChain()) \
             .SetNext(BallPositionPredictorChain()) \
             .SetNext(ITNScoreChain()) \
             .SetNext(SaveResultChain())
+
         return entryPoint
 
 
     def GetStreamChain(self):
         entryPoint = ConsumerChain()
         entryPoint.SetNext(CourtLineChain()) \
-            .SetNext(ProcessAlgorithmChain()) \
+            .SetNext(AlgorithmChain()) \
             .SetNext(BallPositionPredictorChain()) \
             .SetNext(ITNScoreChain()) \
             .SetNext(SaveResultChain())
+
         return entryPoint
 
 

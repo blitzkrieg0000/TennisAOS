@@ -16,6 +16,6 @@ class BallPositionPredictorChain(AbstractHandler):
 
         ball_fall_array_bytes = self.predictFallPositionClient.predictFallPosition(all_ball_positions)
         ball_fall_array = Converters.Bytes2Obj(ball_fall_array_bytes)
-
+        
         kwargs["ball_fall_array"] = ball_fall_array
         return super().Handle(**kwargs)
