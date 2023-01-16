@@ -5,7 +5,7 @@ from libs.DefaultChain.ConsumerChain import ConsumerChain
 from libs.DefaultChain.CourtLineChain import CourtLineChain
 from libs.DefaultChain.ITNScoreChain import ITNScoreChain
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
-from Backend.Services.MainServer.src.server.libs.DefaultChain.AlgorithmChain import AlgorithmChain
+from libs.DefaultChain.AlgorithmChain import AlgorithmChain
 from libs.DefaultChain.SaveResultChain import SaveResultChain
 
 

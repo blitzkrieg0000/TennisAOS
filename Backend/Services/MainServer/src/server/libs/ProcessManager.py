@@ -8,7 +8,6 @@ from clients.Redis.redis_client import RedisCacheManager
 from libs.helpers import Repositories
 from libs.WorkManager import WorkManager
 
-
 INTERVAL = 5
 class ProcessManager():
     def __init__(self):
@@ -17,21 +16,21 @@ class ProcessManager():
         self.ConcurencyLimit = 1
 
 
-    def timer(func):
+    def Timer(func):
         def wrapper(self, *args, **kwargs):
             time.sleep(INTERVAL)
             return func(self, *args,  **kwargs)
         return wrapper
 
 
-    @timer
-    def checkDatabase(self):
+    @Timer
+    def CheckDatabase(self):
         return Repositories.getAllProcessRelated(self.rcm)
 
 
-    def process(self):
+    def Process(self):
         while True:
-            processes: list = self.checkDatabase()
+            processes: list = self.CheckDatabase()
 
             if len(processes)==0:
                 continue
@@ -64,6 +63,7 @@ class ProcessManager():
 
 if __name__ == "__main__":
     processManager = ProcessManager()
-    processManager.process()
+    processManager.Process()
+
 
 

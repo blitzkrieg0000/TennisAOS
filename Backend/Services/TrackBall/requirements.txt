@@ -5,5 +5,4 @@ requests
 certifi
 opencv-python
 opencv-contrib-python
-tritonclient
 pytz

@@ -33,9 +33,9 @@
 **Web**
 ```
 Giriş sayfası->
-    https://localhost:44000/
+    https://localhost:44/
     veya
-    http://localhost:44000/
+    http://localhost:44/
 
     Giriş Bİlgileri:
         - Kullanıcı adı:        "tenis"

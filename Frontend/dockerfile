@@ -17,5 +17,5 @@ RUN apt-get update &&\
     apt-get install npm -y&&\
     npm install
 EXPOSE 80
-HEALTHCHECK CMD curl --fail http://localhost || exit 1  
+HEALTHCHECK --interval=2m --timeout=10s CMD curl --fail http://localhost || exit 1  
 CMD ["./UI"]

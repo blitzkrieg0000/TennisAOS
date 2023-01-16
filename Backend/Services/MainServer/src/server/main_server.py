@@ -21,7 +21,7 @@ logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt
 
 def MainProcess():
     processManager = ProcessManager()
-    processManager.process()
+    processManager.Process()
 
 
 MAX_WORKERS:int = 10

@@ -132,7 +132,7 @@ services:
         networks:
             - tennisnet
         ports:
-            - "44000:80"
+            - "44:80"
         volumes:
             - webassets:/app/assets
 
@@ -323,7 +323,13 @@ services:
             - tennisnet
         ports:
             - "50081:50081"
-
+        deploy:
+            resources:
+                reservations:
+                    devices:
+                    - driver: nvidia
+                      count: 1
+                      capabilities: [gpu]
 
     rtmp:
         image: rtmpservice

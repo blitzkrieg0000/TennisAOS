@@ -60,13 +60,9 @@ class AlgorithmChain(AbstractHandler):
 
 
     def Handle(self, **kwargs):
-        byte_frame = kwargs.get("byte_frame", None)
-        data = kwargs.get("data", None)
-
         all_ball_positions = []
         all_body_pose_points = []
         createdAlgorithmChain = self.CreateDynamicAlgorithmChain()
-
         BYTE_FRAMES_GENERATOR = kwargs.get("BYTE_FRAMES_GENERATOR", None)
         
         #! 4-ALGORITHMS
@@ -76,19 +72,16 @@ class AlgorithmChain(AbstractHandler):
             if consumerResponse.data is None or consumerResponse.data == b"":
                 continue
 
-            kwargs["frame"] = consumerResponse.data
+            kwargs["byte_frame"] = consumerResponse.data
             kwargs = createdAlgorithmChain.Handle(**kwargs)
 
             ball_position = kwargs["ball_position"]
             body_pose_points = kwargs["body_pose_points"]
             all_body_pose_points.append(body_pose_points)
             all_ball_positions.append(ball_position)
-        logging.info("Algoritmalar Görüntüleri İşledi...")
+        logging.info("Algoritmalar sonlandırıldı...")
 
-
-        # GC
         # TODO Chainler için EXIT kodu tasarla
-
 
         kwargs["all_body_pose_points"] = all_body_pose_points
         kwargs["all_ball_positions"] = all_ball_positions
