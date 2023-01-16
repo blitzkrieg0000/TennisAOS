@@ -11,7 +11,7 @@ logging.basicConfig(format='%(levelname)s - %(asctime)s => %(message)s', datefmt
 MAX_MESSAGE_LENGTH = 15*1024*1024
 class PlayerDetectorClient():
     def __init__(self) -> None:
-        self.channel = grpc.insecure_channel('localhost:50081', 
+        self.channel = grpc.insecure_channel('playerdetectorservice:50081', 
                     options=[
                 ('grpc.max_send_message_length', MAX_MESSAGE_LENGTH),
                 ('grpc.max_receive_message_length', MAX_MESSAGE_LENGTH),
