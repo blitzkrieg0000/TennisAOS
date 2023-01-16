@@ -15,7 +15,6 @@ class DetectPlayerPositionChain(AbstractHandler):
     def Handle(self, **kwargs):
         byte_frame = kwargs.get("byte_frame", None)
         frame = Converters.Bytes2Frame(byte_frame)
-        logging.error(frame)
         if frame is not None:
             response = self.detectPlayerClient.Detect(frame)
             player_position_data = Converters.Bytes2Obj(response.Response.Data)

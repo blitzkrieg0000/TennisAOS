@@ -318,8 +318,8 @@ class CourtDetector():
         self.middle_line = lines[28:32]
         self.top_inner_line = lines[32:36]
         self.bottom_inner_line = lines[36:40]
-        for x in range(4,41,4):
-            self.saved_lines.append(lines[x-4: x] * self.scalingRatio)
+        for x in range(0,37,4):
+            self.saved_lines.append(lines[x: x+4] * self.scalingRatio)
 
 
     def __GetExtraPartsLocation(self, frame_num=-1):
