@@ -1,13 +1,13 @@
 from clients.StreamKafka.Consumer.consumer_client import KafkaConsumerManager
 from clients.StreamKafka.Producer.producer_client import KafkaProducerManager
-from libs.DefaultChain.BallPositionPredictorChain import BallPositionPredictorChain
+from libs.DefaultChain.AlgorithmChain import AlgorithmChain
+from libs.DefaultChain.BallPositionPredictorChain import \
+    BallPositionPredictorChain
 from libs.DefaultChain.ConsumerChain import ConsumerChain
 from libs.DefaultChain.CourtLineChain import CourtLineChain
 from libs.DefaultChain.ITNScoreChain import ITNScoreChain
 from libs.DefaultChain.PrepareProcessChain import PrepareProcessChain
-from libs.DefaultChain.AlgorithmChain import AlgorithmChain
 from libs.DefaultChain.SaveResultChain import SaveResultChain
-
 
 MAX_WORKERS = 5
 class WorkManager():
