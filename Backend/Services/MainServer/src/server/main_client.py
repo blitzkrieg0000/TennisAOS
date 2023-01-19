@@ -28,4 +28,4 @@ class MainServerManager():
 
 if __name__ == "__main__":
     msm = MainServerManager()
-    response = msm.MergeData(906)
+    response = msm.MergeData(907)

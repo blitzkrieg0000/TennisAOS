@@ -29,7 +29,7 @@ class ExtractBodyPoseChain(AbstractHandler):
             
             if firstPlayerPositionCenter[1] > netLine[1]-20:
                 cropped_frame = frame[ int(firstPlayerPosition[1]-50):int(firstPlayerPosition[3]+50), # x y x y
-                                       int(firstPlayerPosition[0]-50):int(firstPlayerPosition[2]+50)
+                                       int(firstPlayerPosition[0]-100):int(firstPlayerPosition[2]+100)
                                     ]
                 cropped_frame_bytes = Converters.Frame2Bytes(cropped_frame)
 
@@ -41,7 +41,7 @@ class ExtractBodyPoseChain(AbstractHandler):
                     if len(points) > 0:
                         for key, value in points.items():
                             for ikey, ivalue in value.items():
-                                ivalue[0] += firstPlayerPosition[0]-50
+                                ivalue[0] += firstPlayerPosition[0]-100
                                 ivalue[1] += firstPlayerPosition[1]-50
                                 points[key][ikey] = ivalue
 

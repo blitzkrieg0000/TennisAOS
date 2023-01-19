@@ -3,7 +3,10 @@ using Business.DependencyResolvers.Microsoft;
 using Microsoft.Extensions.FileProviders;
 using SignalR.Hubs;
 
+
 var builder = WebApplication.CreateBuilder(args);
+
+//Server
 builder.WebHost.ConfigureKestrel(serverOptions => {
     serverOptions.Limits.MaxRequestBodySize = 209715200;
 });
@@ -17,7 +20,7 @@ var app = builder.Build();
 app.UseStatusCodePagesWithReExecute("/Home/NotFound", "?code={0}");
 app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions() {
-    FileProvider = new PhysicalFileProvider(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "node_modules")),
+    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "node_modules")),
     RequestPath = "/node_modules"
 });
 

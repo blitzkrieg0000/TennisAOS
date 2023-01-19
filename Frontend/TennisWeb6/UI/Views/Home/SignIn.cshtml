@@ -9,11 +9,12 @@
 
 
 <section>
-  <!-- PARTICLES -->
-  <canvas id="particles"></canvas>
-  
-  <!-- HEXAGON GRID -->
-  <div id="hexagonGrid"></div>
+	<!-- PARTICLES -->
+	<canvas id="particles"></canvas>
+
+	<!-- HEXAGON GRID -->
+	<div id="hexagonGrid"></div>
+
 </section>
 
 
@@ -32,7 +33,7 @@
 	</div>
 
 	<div class="form-check">
-		<input class="form-check-input" type="checkbox" asp-for = "@Model.RememberMe">
+		<input class="form-check-input" type="checkbox" asp-for="@Model.RememberMe">
 		<label class="form-check-label" for="RememberMe">
 			Beni Hatırla
 		</label>
@@ -49,6 +50,6 @@
 
 
 @section Scripts{
-	<!--TODO: Fancybox CDN yerine NPM kullanılacak-->
-	<script src="~/assets/js/SignIn/this.js"></script>
+<!--TODO: Fancybox CDN yerine NPM kullanılacak-->
+<script src="~/assets/js/SignIn/this.js"></script>
 }

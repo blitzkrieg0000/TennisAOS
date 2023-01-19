@@ -24,7 +24,7 @@ class DynamicAlgorithmChain(AbstractHandler):
         self.algorithmInstances = {}
         
         # Prepare MultiThreading
-        logging.info(f"Initiated: {algorithms} : {len(algorithms)}")
+        logging.info(f"Initiated: {algorithms}")
         self.ThreadExecutor = futures.ThreadPoolExecutor(max_workers=len(algorithms))
         self.CreateInstances()
 

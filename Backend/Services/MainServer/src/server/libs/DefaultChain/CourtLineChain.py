@@ -22,7 +22,7 @@ class CourtLineChain(AbstractHandler):
         
     def Handle(self, **kwargs):
         # data, BYTE_FRAMES_GENERATOR=None
-        data = kwargs.get("data", None)
+        data:dict = kwargs.get("data", None)
         BYTE_FRAMES_GENERATOR = kwargs.get("BYTE_FRAMES_GENERATOR", None)
 
         courtLines = None
@@ -40,11 +40,11 @@ class CourtLineChain(AbstractHandler):
             
             # Override -> Session, video ise her videonun ayrı kaynağı olacağından, varsayılan değerlere override yap.
             overrideData = Repositories.getCourtLineBySessionId(self.redisCacheManager, data["session_id"])[0]
-            try:
+            if overrideData.get("st_court_line_array", None) is not None:
                 data["court_line_array"] = overrideData["st_court_line_array"]
+
+            if overrideData.get("sp_stream_id", None) is not None:
                 data["sp_stream_id"] = overrideData["sp_stream_id"]
-            except Exception as e:
-                logging.warning(e)
 
             if data["court_line_array"] is not None and data["court_line_array"] != "" and not data["force"]:
                 courtLines, self.court_warp_matrix = EncodeManager.deserialize(data["court_line_array"])
