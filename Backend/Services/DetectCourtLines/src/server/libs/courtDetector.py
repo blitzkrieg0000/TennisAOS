@@ -215,6 +215,9 @@ class CourtDetector():
                         xi, yi = self.__LineIntersection(((x1, y1), (x2, y2)), ((xl, yl), (xr, yr)))
                         xj, yj = self.__LineIntersection(((x3, y3), (x4, y4)), ((xl, yl), (xr, yr)))
 
+                        if xi is None or xj is None:
+                            continue
+
                         dx = abs(xi - xj)
                         if dx < 10:
                             points = sorted([(x1, y1), (x2, y2), (x3, y3), (x4, y4)], key=lambda x: x[1])
@@ -247,7 +250,10 @@ class CourtDetector():
                 i2 = self.__LineIntersection((tuple(h1[:2]), tuple(h1[2:])), (tuple(v2[0:2]), tuple(v2[2:])))
                 i3 = self.__LineIntersection((tuple(h2[:2]), tuple(h2[2:])), (tuple(v1[0:2]), tuple(v1[2:])))
                 i4 = self.__LineIntersection((tuple(h2[:2]), tuple(h2[2:])), (tuple(v2[0:2]), tuple(v2[2:])))
-
+                
+                if i1 == [None, None] or i2 == [None, None] or i3 == [None, None] or i4 == [None, None]:
+                    continue
+                
                 intersections = [i1, i2, i3, i4]
                 intersections = self.__SortIntersectionPoints(intersections)
 
@@ -493,7 +499,10 @@ class CourtDetector():
         l2 = Line(line2[0], line2[1])
 
         intersection = l1.intersection(l2)
-        return intersection[0].coordinates
+        if len(intersection)>0:
+            return intersection[0].coordinates
+
+        return [None, None]
 
 
     def __AddCourtOverlay(self, frame, homography=None, overlay_color=(255, 255, 255), frame_num=-1):
