@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace UI.Controllers {
 
-    [AutoValidateAntiforgeryToken]
+    [AutoValidateAntiforgeryToken()]
     public class HomeController : Controller {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
