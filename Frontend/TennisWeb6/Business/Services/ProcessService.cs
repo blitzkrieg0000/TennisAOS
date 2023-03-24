@@ -18,8 +18,7 @@ namespace Business.Services {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGRPCService _grpcService;
 
-        public ProcessService(IMapper mapper, IUnitOfWork unitOfWork, IGRPCService grpcService)
-        {
+        public ProcessService(IMapper mapper, IUnitOfWork unitOfWork, IGRPCService grpcService) {
             _mapper = mapper;
             _unitOfWork = unitOfWork;
             _grpcService = grpcService;

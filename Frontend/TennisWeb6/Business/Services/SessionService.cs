@@ -5,12 +5,12 @@ using Business.Interfaces;
 using Common.ResponseObjects;
 using DataAccess.UnitOfWork;
 using Dtos.SessionDtos;
-using Dtos.StreamDtos;
 using Entities.Concrete;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-namespace Business.Services {
+namespace Business.Services
+{
     public class SessionService : ISessionService {
 
         private readonly IMapper _mapper;
