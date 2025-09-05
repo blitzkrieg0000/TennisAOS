@@ -1,10 +1,11 @@
 # ITN Testi
 
-## ITN DEMO VIDEO
+**ITN DEMO VIDEO:**
 <a href="https://www.youtube.com/watch?v=DPzvsolwAKo" target="_blank">
  <img src="http://img.youtube.com/vi/DPzvsolwAKo/mqdefault.jpg" alt="ITN Video" width="240" height="180" border="10" />
 </a>
 
+---
 
 **Gerekli Kütüphaneler**
 ```
