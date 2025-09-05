@@ -1,5 +1,7 @@
 # ITN Testi
 
+![Demo Proje Video](https://youtu.be/DPzvsolwAKo)
+
 **Gerekli Kütüphaneler**
 ```
     0-) Nvidia Cudnn vs CUDA kütüphanelerini yükleyiniz.
