@@ -1,6 +1,6 @@
 # ITN Testi
 
-![Demo Proje Video](https://youtu.be/DPzvsolwAKo)
+[Demo Proje Video](https://youtu.be/DPzvsolwAKo)
 
 **Gerekli Kütüphaneler**
 ```
