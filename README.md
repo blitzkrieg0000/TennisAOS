@@ -1,7 +1,7 @@
 # ITN Testi
 
 <video width="600" controls>
-  <source src="https://youtu.be/DPzvsolwAKo" type="video/mp4">
+  <source src="https://youtu.be/DPzvsolwAKo">
   Your browser does not support the video tag.
 </video>
 
