@@ -1,10 +1,8 @@
 # ITN Testi
 
-<video width="600" controls>
-  <source src="https://youtu.be/DPzvsolwAKo">
-  Your browser does not support the video tag.
-</video>
-
+<a href="https://www.youtube.com/watch?v=DPzvsolwAKo" target="_blank">
+ <img src="http://img.youtube.com/vi/DPzvsolwAKo/mqdefault.jpg" alt="Watch the video" width="240" height="180" border="10" />
+</a>
 
 
 **Gerekli Kütüphaneler**
