@@ -1,0 +1,35 @@
+Model Weights Non-Commercial License (MW-NC) v1.0
+Copyright (c) 2024 Burakhan Şamlı
+
+Scope:
+This license applies to the pre-trained model weights, checkpoints, and related configuration files included in this repository (the "Model Weights", ".onnx, .pt, .h5, other weight extensions").
+
+1. Permissions
+You are permitted to:
+- Download and use the Model Weights for personal, academic, research, and educational purposes.
+- Modify or fine-tune the Model Weights for non-commercial purposes.
+- Share modified versions of the Model Weights under the same non-commercial terms.
+
+2. Restrictions
+You are strictly prohibited from:
+- Using the Model Weights, or any derivative thereof, for commercial purposes of any kind.  
+  Examples of prohibited uses include (but are not limited to):  
+  - Offering paid services, software, or APIs powered by the Model Weights.  
+  - Embedding the Model Weights in commercial products.  
+  - Using the Model Weights in internal business applications that generate revenue.  
+- Selling, sublicensing, or otherwise redistributing the Model Weights for financial gain.
+
+3. Outputs
+The outputs (inference results) produced by the Model Weights are also subject to this license and may not be used for commercial purposes.
+
+4. Attribution
+Any public use of the Model Weights or derivative versions must include proper attribution to the original author(s) and a link to this repository.
+
+5. Warranty Disclaimer
+The Model Weights are provided "AS IS", without warranty of any kind, express or implied. The authors are not liable for any damages arising from the use of the Model Weights.
+
+6. Termination
+Any violation of these terms automatically terminates your rights under this license.
+
+7. Commercial Use
+For commercial licensing, please contact the copyright holder: burakhansamli@proton.me
